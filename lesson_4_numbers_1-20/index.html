@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🔢 NUMBER CHALLENGE — Grade 3</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -11,13 +14,18 @@
     font-family: 'Comic Sans MS', 'Baloo', 'Fredoka', 'Trebuchet MS', sans-serif;
     background: #000;
     user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior: none;
+    touch-action: manipulation;
   }
   #stage {
     position: relative;
     width: 100vw; height: 100vh;
+    height: 100dvh;
     background:
       radial-gradient(ellipse at top, #7ad7ff 0%, #4fb8ff 35%, #2a86e0 70%, #1a5fb4 100%);
     overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   /* ===== Animated Background ===== */
@@ -147,7 +155,12 @@
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
     transition: opacity 0.5s;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
   .screen.hidden { opacity: 0; pointer-events: none; }
 
@@ -155,6 +168,7 @@
   #startScreen .title-wrap {
     text-align: center;
     animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 100%;
   }
   @keyframes popIn {
     from { transform: scale(0.3); opacity: 0; }
@@ -171,6 +185,8 @@
     letter-spacing: 3px;
     box-shadow: 0 8px 0 #c44569, 0 15px 30px rgba(0,0,0,0.3);
     margin-bottom: 25px;
+    max-width: 90vw;
+    word-wrap: break-word;
   }
   .main-title {
     font-size: 120px;
@@ -184,6 +200,7 @@
     line-height: 1;
     margin-bottom: 20px;
     animation: titlePulse 2.5s ease-in-out infinite;
+    word-wrap: break-word;
   }
   @keyframes titlePulse {
     0%,100% { transform: scale(1); }
@@ -220,6 +237,9 @@
     transition: all 0.15s;
     letter-spacing: 3px;
     text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    max-width: 90vw;
   }
   .start-btn:hover { transform: translateY(-3px); box-shadow: 0 13px 0 #15803d, 0 25px 45px rgba(0,0,0,0.35); }
   .start-btn:active { transform: translateY(5px); box-shadow: 0 5px 0 #15803d, 0 10px 20px rgba(0,0,0,0.3); }
@@ -235,8 +255,11 @@
 
   /* ===== GAME SCREEN ===== */
   #gameScreen {
-    padding: 15px 25px;
+    padding: 10px 12px;
+    padding-top: calc(10px + env(safe-area-inset-top));
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
     justify-content: flex-start;
+    gap: 8px;
   }
 
   .header {
@@ -244,70 +267,79 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    gap: 10px;
+    flex-shrink: 0;
   }
   .header-left {
-    display: flex; flex-direction: column; gap: 5px;
+    display: flex; flex-direction: column; gap: 4px;
+    flex: 1;
+    min-width: 0;
   }
   .header-unit {
     background: linear-gradient(135deg, #ff6b9d, #ff9a56);
     color: #fff;
-    padding: 6px 25px;
-    border-radius: 30px;
-    font-size: 22px;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
     font-weight: 900;
-    letter-spacing: 2px;
-    box-shadow: 0 4px 0 #c44569;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 0 #c44569;
     display: inline-block;
     width: fit-content;
+    max-width: 100%;
   }
   .header-title {
-    font-size: 52px;
+    font-size: 36px;
     font-weight: 900;
     color: #fff;
-    text-shadow: 3px 3px 0 #4a3a7a, 0 0 20px rgba(255,255,255,0.4);
+    text-shadow: 2px 2px 0 #4a3a7a, 0 0 20px rgba(255,255,255,0.4);
     line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .header-sub {
-    font-size: 26px;
+    font-size: 18px;
     color: #fff;
     font-weight: 700;
-    text-shadow: 2px 2px 0 #4a3a7a;
+    text-shadow: 1px 1px 0 #4a3a7a;
   }
 
   .timer-box {
     background: linear-gradient(135deg, #fff, #e0f2fe);
-    border-radius: 30px;
-    padding: 10px 30px;
-    box-shadow: 0 8px 0 #94a3b8, 0 15px 30px rgba(0,0,0,0.3);
+    border-radius: 20px;
+    padding: 6px 18px;
+    box-shadow: 0 5px 0 #94a3b8, 0 10px 20px rgba(0,0,0,0.3);
     text-align: center;
-    min-width: 200px;
+    min-width: 90px;
+    flex-shrink: 0;
   }
   .timer-label {
-    font-size: 20px;
+    font-size: 12px;
     color: #4a3a7a;
     font-weight: 800;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
   }
   .timer-value {
-    font-size: 72px;
+    font-size: 42px;
     font-weight: 900;
     color: #22c55e;
     line-height: 1;
     font-family: 'Courier New', monospace;
-    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
     transition: color 0.3s;
   }
   .timer-value.warn { color: #f59e0b; animation: timerShake 0.5s ease-in-out infinite; }
   .timer-value.danger { color: #ef4444; animation: timerPulse 0.4s ease-in-out infinite; }
   @keyframes timerShake {
     0%,100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    75% { transform: translateX(3px); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
   }
   @keyframes timerPulse {
     0%,100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
+    50% { transform: scale(1.1); }
   }
 
   /* Question area */
@@ -318,41 +350,43 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 10px;
     position: relative;
     z-index: 5;
+    min-height: 0;
   }
 
   .question-card {
     background: linear-gradient(135deg, #fff 0%, #fef3c7 100%);
-    border-radius: 40px;
-    padding: 25px 50px;
-    box-shadow: 0 10px 0 #f59e0b, 0 20px 40px rgba(0,0,0,0.3);
+    border-radius: 25px;
+    padding: 12px 20px;
+    box-shadow: 0 6px 0 #f59e0b, 0 12px 25px rgba(0,0,0,0.3);
     text-align: center;
-    max-width: 90%;
-    border: 5px solid #fff;
+    max-width: 95%;
+    border: 4px solid #fff;
+    flex-shrink: 0;
   }
   .question-text {
-    font-size: 44px;
+    font-size: 20px;
     font-weight: 800;
     color: #4a3a7a;
     text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
-    margin-bottom: 10px;
+    margin-bottom: 4px;
   }
   .question-display {
-    font-size: 140px;
+    font-size: 80px;
     font-weight: 900;
     color: #ff6b9d;
     text-shadow:
-      4px 4px 0 #4a3a7a,
-      8px 8px 20px rgba(0,0,0,0.2);
+      3px 3px 0 #4a3a7a,
+      6px 6px 15px rgba(0,0,0,0.2);
     line-height: 1;
-    letter-spacing: 6px;
+    letter-spacing: 4px;
     animation: displayPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .question-display.word {
-    font-size: 110px;
-    letter-spacing: 4px;
+    font-size: 55px;
+    letter-spacing: 2px;
   }
   @keyframes displayPop {
     from { transform: scale(0.3) rotate(-10deg); opacity: 0; }
@@ -361,52 +395,58 @@
 
   .answers {
     display: flex;
-    gap: 25px;
+    gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
     max-width: 100%;
+    flex-shrink: 0;
   }
   .answer-btn {
     background: linear-gradient(135deg, #60a5fa, #3b82f6);
     color: #fff;
-    border: 5px solid #fff;
-    border-radius: 30px;
-    padding: 25px 40px;
-    font-size: 42px;
+    border: 4px solid #fff;
+    border-radius: 20px;
+    padding: 14px 20px;
+    font-size: 22px;
     font-weight: 900;
     cursor: pointer;
-    min-width: 280px;
-    box-shadow: 0 8px 0 #1e40af, 0 15px 30px rgba(0,0,0,0.3);
+    min-width: 120px;
+    flex: 1 1 30%;
+    max-width: 280px;
+    box-shadow: 0 5px 0 #1e40af, 0 8px 15px rgba(0,0,0,0.3);
     transition: all 0.15s;
-    text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+    letter-spacing: 1px;
     position: relative;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 52px;
   }
-  .answer-btn.optA { background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 8px 0 #991b1b, 0 15px 30px rgba(0,0,0,0.3); }
-  .answer-btn.optB { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 8px 0 #15803d, 0 15px 30px rgba(0,0,0,0.3); }
-  .answer-btn.optC { background: linear-gradient(135deg, #60a5fa, #2563eb); box-shadow: 0 8px 0 #1e40af, 0 15px 30px rgba(0,0,0,0.3); }
+  .answer-btn.optA { background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 5px 0 #991b1b, 0 8px 15px rgba(0,0,0,0.3); }
+  .answer-btn.optB { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 5px 0 #15803d, 0 8px 15px rgba(0,0,0,0.3); }
+  .answer-btn.optC { background: linear-gradient(135deg, #60a5fa, #2563eb); box-shadow: 0 5px 0 #1e40af, 0 8px 15px rgba(0,0,0,0.3); }
 
-  .answer-btn:hover:not(:disabled) { transform: translateY(-4px); }
-  .answer-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 4px 0 currentColor; }
+  .answer-btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .answer-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 currentColor; }
   .answer-btn:disabled { cursor: not-allowed; opacity: 0.85; }
   .answer-btn.correct {
     background: linear-gradient(135deg, #4ade80, #16a34a) !important;
-    box-shadow: 0 8px 0 #15803d, 0 0 60px #4ade80, 0 0 100px #4ade80 !important;
+    box-shadow: 0 5px 0 #15803d, 0 0 40px #4ade80, 0 0 60px #4ade80 !important;
     animation: correctGlow 0.8s ease-in-out;
   }
   @keyframes correctGlow {
     0%,100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
+    50% { transform: scale(1.05); }
   }
   .answer-btn.wrong {
     animation: shake 0.5s;
   }
   @keyframes shake {
     0%,100% { transform: translateX(0); }
-    20% { transform: translateX(-15px); }
-    40% { transform: translateX(15px); }
-    60% { transform: translateX(-10px); }
-    80% { transform: translateX(10px); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
   }
   .answer-btn.faded { opacity: 0.35; filter: grayscale(0.5); }
 
@@ -415,14 +455,15 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    font-size: 110px;
+    font-size: 60px;
     font-weight: 900;
     color: #fff;
-    text-shadow: 5px 5px 0 #4a3a7a, 0 0 40px rgba(255,255,255,0.8);
+    text-shadow: 3px 3px 0 #4a3a7a, 0 0 30px rgba(255,255,255,0.8);
     pointer-events: none;
     z-index: 50;
     text-align: center;
     line-height: 1;
+    white-space: nowrap;
   }
   .feedback.show { animation: feedbackPop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
   @keyframes feedbackPop {
@@ -438,116 +479,129 @@
   /* Team scoreboard */
   .teams-bar {
     width: 100%;
-    display: flex;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
     justify-content: center;
-    margin-top: 10px;
-    margin-bottom: 8px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
   }
   .team-panel {
-    flex: 1;
-    max-width: 320px;
     background: linear-gradient(135deg, #fff, #f1f5f9);
-    border-radius: 25px;
-    padding: 10px 15px;
+    border-radius: 15px;
+    padding: 6px 4px;
     text-align: center;
-    box-shadow: 0 6px 0 #94a3b8, 0 10px 20px rgba(0,0,0,0.25);
-    border: 4px solid #fff;
+    box-shadow: 0 4px 0 #94a3b8, 0 6px 12px rgba(0,0,0,0.25);
+    border: 3px solid #fff;
   }
   .team-panel.t1 { background: linear-gradient(135deg, #fecaca, #fca5a5); }
   .team-panel.t2 { background: linear-gradient(135deg, #bbf7d0, #86efac); }
   .team-panel.t3 { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
   .team-panel.t4 { background: linear-gradient(135deg, #fde68a, #fcd34d); }
   .team-name {
-    font-size: 26px;
+    font-size: 11px;
     font-weight: 900;
     color: #4a3a7a;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .team-score {
-    font-size: 56px;
+    font-size: 32px;
     font-weight: 900;
     color: #1e293b;
     line-height: 1;
-    text-shadow: 2px 2px 0 rgba(255,255,255,0.8);
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
   }
   .team-score.pop { animation: scorePop 0.5s; }
   @keyframes scorePop {
     0% { transform: scale(1); }
-    50% { transform: scale(1.4); color: #16a34a; }
+    50% { transform: scale(1.3); color: #16a34a; }
     100% { transform: scale(1); }
   }
 
   /* Team award buttons */
   .award-bar {
     display: flex;
-    gap: 12px;
+    gap: 6px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
+    flex-shrink: 0;
   }
   .award-bar.show { opacity: 1; pointer-events: auto; }
   .award-btn {
     background: linear-gradient(135deg, #a78bfa, #7c3aed);
     color: #fff;
-    border: 4px solid #fff;
-    border-radius: 20px;
-    padding: 10px 22px;
-    font-size: 22px;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    padding: 6px 12px;
+    font-size: 13px;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 5px 0 #5b21b6, 0 8px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 0 #5b21b6, 0 5px 10px rgba(0,0,0,0.3);
     transition: all 0.15s;
+    touch-action: manipulation;
+    min-height: 36px;
   }
   .award-btn:hover { transform: translateY(-2px); }
-  .award-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #5b21b6; }
-  .award-btn.a1 { background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 5px 0 #991b1b, 0 8px 15px rgba(0,0,0,0.3); }
-  .award-btn.a2 { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 5px 0 #15803d, 0 8px 15px rgba(0,0,0,0.3); }
-  .award-btn.a3 { background: linear-gradient(135deg, #60a5fa, #2563eb); box-shadow: 0 5px 0 #1e40af, 0 8px 15px rgba(0,0,0,0.3); }
-  .award-btn.a4 { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 5px 0 #92400e, 0 8px 15px rgba(0,0,0,0.3); }
+  .award-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #5b21b6; }
+  .award-btn.a1 { background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 3px 0 #991b1b, 0 5px 10px rgba(0,0,0,0.3); }
+  .award-btn.a2 { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 3px 0 #15803d, 0 5px 10px rgba(0,0,0,0.3); }
+  .award-btn.a3 { background: linear-gradient(135deg, #60a5fa, #2563eb); box-shadow: 0 3px 0 #1e40af, 0 5px 10px rgba(0,0,0,0.3); }
+  .award-btn.a4 { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 3px 0 #92400e, 0 5px 10px rgba(0,0,0,0.3); }
   .reset-btn {
     background: linear-gradient(135deg, #94a3b8, #64748b);
     color: #fff;
-    border: 4px solid #fff;
-    border-radius: 20px;
-    padding: 10px 22px;
-    font-size: 20px;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    padding: 6px 12px;
+    font-size: 13px;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 5px 0 #334155;
+    box-shadow: 0 3px 0 #334155;
+    touch-action: manipulation;
+    min-height: 36px;
   }
 
   /* Teacher controls */
   .controls {
     position: fixed;
-    bottom: 10px; right: 15px;
+    bottom: calc(8px + env(safe-area-inset-bottom)); right: 8px;
     display: flex;
-    gap: 8px;
+    gap: 5px;
     z-index: 100;
-    background: rgba(0,0,0,0.4);
-    padding: 8px;
-    border-radius: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 6px;
+    border-radius: 15px;
     backdrop-filter: blur(10px);
+    flex-wrap: wrap;
+    max-width: calc(100vw - 16px);
+    justify-content: flex-end;
   }
   .ctrl-btn {
     background: linear-gradient(135deg, #fff, #e2e8f0);
-    border: 3px solid #fff;
-    border-radius: 15px;
-    padding: 8px 14px;
-    font-size: 18px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 13px;
     font-weight: 900;
     cursor: pointer;
     color: #4a3a7a;
-    box-shadow: 0 4px 0 #94a3b8;
+    box-shadow: 0 3px 0 #94a3b8;
     transition: all 0.15s;
-    display: flex; align-items: center; gap: 5px;
+    display: flex; align-items: center; gap: 3px;
+    touch-action: manipulation;
+    min-height: 34px;
   }
-  .ctrl-btn:hover { transform: translateY(-2px); }
-  .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #94a3b8; }
-  .ctrl-btn.primary { background: linear-gradient(135deg, #4ade80, #16a34a); color: #fff; box-shadow: 0 4px 0 #15803d; }
+  .ctrl-btn:hover { transform: translateY(-1px); }
+  .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #94a3b8; }
+  .ctrl-btn.primary { background: linear-gradient(135deg, #4ade80, #16a34a); color: #fff; box-shadow: 0 3px 0 #15803d; }
 
   /* Confetti canvas */
   #confetti {
@@ -561,98 +615,254 @@
     background: radial-gradient(ellipse at center, #7c3aed 0%, #4c1d95 100%);
   }
   .final-title {
-    font-size: 130px;
+    font-size: 80px;
     font-weight: 900;
     color: #ffd93d;
-    text-shadow: 5px 5px 0 #4a3a7a, 0 0 60px rgba(255,217,61,0.8);
+    text-shadow: 4px 4px 0 #4a3a7a, 0 0 40px rgba(255,217,61,0.8);
     animation: titlePulse 2s ease-in-out infinite;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    text-align: center;
+    word-wrap: break-word;
   }
   .final-sub {
-    font-size: 48px;
+    font-size: 32px;
     color: #fff;
     font-weight: 800;
-    text-shadow: 3px 3px 0 #4a3a7a;
-    margin-bottom: 25px;
+    text-shadow: 2px 2px 0 #4a3a7a;
+    margin-bottom: 15px;
   }
   .final-scores {
     display: flex;
-    gap: 25px;
+    gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+    max-width: 100%;
   }
   .final-team {
     background: linear-gradient(135deg, #fff, #fef3c7);
-    border-radius: 30px;
-    padding: 20px 35px;
+    border-radius: 20px;
+    padding: 12px 20px;
     text-align: center;
-    box-shadow: 0 10px 0 #f59e0b, 0 20px 40px rgba(0,0,0,0.4);
-    border: 5px solid #fff;
-    min-width: 220px;
+    box-shadow: 0 6px 0 #f59e0b, 0 12px 25px rgba(0,0,0,0.4);
+    border: 4px solid #fff;
+    min-width: 130px;
+    flex: 1 1 calc(50% - 12px);
+    max-width: 200px;
   }
   .final-team.winner {
     background: linear-gradient(135deg, #ffd93d, #fbbf24);
-    transform: scale(1.1);
+    transform: scale(1.05);
     animation: winnerGlow 1.5s ease-in-out infinite;
   }
   @keyframes winnerGlow {
-    0%,100% { box-shadow: 0 10px 0 #f59e0b, 0 0 40px #ffd93d, 0 0 80px #ffd93d; }
-    50% { box-shadow: 0 10px 0 #f59e0b, 0 0 80px #ffd93d, 0 0 120px #ffd93d; }
+    0%,100% { box-shadow: 0 6px 0 #f59e0b, 0 0 30px #ffd93d, 0 0 60px #ffd93d; }
+    50% { box-shadow: 0 6px 0 #f59e0b, 0 0 60px #ffd93d, 0 0 90px #ffd93d; }
   }
   .final-team-name {
-    font-size: 32px;
+    font-size: 18px;
     font-weight: 900;
     color: #4a3a7a;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   }
   .final-team-score {
-    font-size: 72px;
+    font-size: 44px;
     font-weight: 900;
     color: #1e293b;
     line-height: 1;
   }
   .trophy {
-    font-size: 120px;
+    font-size: 60px;
     animation: trophyBounce 1s ease-in-out infinite;
     display: block;
   }
   @keyframes trophyBounce {
     0%,100% { transform: translateY(0) rotate(-5deg); }
-    50% { transform: translateY(-20px) rotate(5deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
   }
   .final-msg {
-    font-size: 56px;
+    font-size: 32px;
     color: #fff;
     font-weight: 900;
-    text-shadow: 4px 4px 0 #4a3a7a;
-    margin-top: 15px;
+    text-shadow: 3px 3px 0 #4a3a7a;
+    margin-top: 10px;
     animation: titlePulse 2s ease-in-out infinite;
+    text-align: center;
   }
 
-  /* Responsive scaling for smaller screens */
+  /* ========== RESPONSIVE: TABLET (≤1400px) ========== */
   @media (max-width: 1400px) {
     .main-title { font-size: 90px; }
     .subtitle { font-size: 38px; }
+    .unit-label { font-size: 26px; padding: 8px 30px; }
+    .start-btn { font-size: 48px; padding: 24px 60px; }
+    .tagline { font-size: 26px; }
     .header-title { font-size: 42px; }
     .question-display { font-size: 110px; }
     .question-display.word { font-size: 85px; }
-    .question-text { font-size: 36px; }
-    .answer-btn { font-size: 34px; min-width: 230px; padding: 20px 30px; }
+    .question-text { font-size: 28px; }
+    .answer-btn { font-size: 30px; min-width: 200px; padding: 18px 26px; }
     .team-score { font-size: 46px; }
-    .team-name { font-size: 22px; }
+    .team-name { font-size: 18px; }
     .final-title { font-size: 100px; }
     .final-team-score { font-size: 58px; }
   }
-  @media (max-width: 1000px) {
-    .main-title { font-size: 70px; }
-    .question-display { font-size: 90px; }
-    .question-display.word { font-size: 70px; }
-    .answer-btn { font-size: 28px; min-width: 180px; padding: 15px 22px; }
-    .timer-value { font-size: 56px; }
+
+  /* ========== RESPONSIVE: SMALL TABLET / LARGE PHONE (≤900px) ========== */
+  @media (max-width: 900px) {
+    .main-title { font-size: 70px; letter-spacing: 2px; }
+    .subtitle { font-size: 30px; }
+    .unit-label { font-size: 22px; padding: 8px 25px; letter-spacing: 2px; }
+    .start-btn { font-size: 38px; padding: 20px 50px; border-radius: 30px; }
+    .tagline { font-size: 22px; margin-top: 20px; }
+    .grade-tag { font-size: 26px; padding: 8px 25px; }
+    .header-title { font-size: 30px; }
+    .header-sub { font-size: 15px; }
+    .header-unit { font-size: 12px; padding: 4px 12px; }
+    .question-display { font-size: 85px; }
+    .question-display.word { font-size: 60px; }
+    .question-text { font-size: 22px; }
+    .question-card { padding: 14px 24px; }
+    .answer-btn { font-size: 24px; min-width: 160px; padding: 16px 22px; }
+    .timer-value { font-size: 44px; }
+    .timer-label { font-size: 12px; }
     .team-score { font-size: 38px; }
-    .team-name { font-size: 18px; }
-    .header-title { font-size: 34px; }
+    .team-name { font-size: 14px; }
+    .final-title { font-size: 70px; }
+    .final-sub { font-size: 26px; }
+    .final-team-score { font-size: 44px; }
+    .final-team-name { font-size: 16px; }
+    .final-msg { font-size: 26px; }
+    .trophy { font-size: 50px; }
+    .feedback { font-size: 50px; }
+  }
+
+  /* ========== RESPONSIVE: PHONE PORTRAIT (≤540px) ========== */
+  @media (max-width: 540px) {
+    #startScreen { justify-content: flex-start; padding-top: calc(40px + env(safe-area-inset-top)); }
+    .main-title { font-size: 44px; letter-spacing: 1px; margin-bottom: 12px; }
+    .subtitle { font-size: 22px; margin-bottom: 8px; }
+    .unit-label { font-size: 15px; padding: 6px 18px; letter-spacing: 1px; margin-bottom: 15px; }
+    .start-btn { font-size: 28px; padding: 16px 40px; border-radius: 25px; box-shadow: 0 7px 0 #15803d, 0 12px 20px rgba(0,0,0,0.3); }
+    .start-btn:active { transform: translateY(4px); box-shadow: 0 3px 0 #15803d; }
+    .tagline { font-size: 16px; margin-top: 15px; }
+    .grade-tag { font-size: 20px; padding: 6px 20px; margin-bottom: 20px; box-shadow: 0 4px 0 #c48a1a; }
+
+    .header { margin-bottom: 5px; }
+    .header-title { font-size: 22px; }
+    .header-sub { font-size: 12px; }
+    .header-unit { font-size: 10px; padding: 3px 10px; }
+    .timer-box { padding: 5px 12px; min-width: 75px; }
+    .timer-value { font-size: 32px; }
+    .timer-label { font-size: 10px; letter-spacing: 0; }
+
+    .question-card { padding: 10px 16px; border-radius: 18px; }
+    .question-text { font-size: 16px; }
+    .question-display { font-size: 64px; letter-spacing: 2px; }
+    .question-display.word { font-size: 42px; letter-spacing: 1px; }
+
+    .answers { gap: 8px; }
+    .answer-btn {
+      font-size: 18px;
+      padding: 12px 14px;
+      min-width: 100px;
+      flex: 1 1 45%;
+      max-width: 100%;
+      border-radius: 16px;
+      border-width: 3px;
+      box-shadow: 0 4px 0 currentColor, 0 6px 10px rgba(0,0,0,0.25);
+    }
+    .answer-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 currentColor; }
+
+    .teams-bar { gap: 4px; grid-template-columns: repeat(4, 1fr); }
+    .team-panel { padding: 4px 2px; border-width: 2px; border-radius: 10px; }
+    .team-name { font-size: 9px; }
+    .team-score { font-size: 24px; }
+
+    .award-bar { gap: 4px; }
+    .award-btn, .reset-btn { font-size: 11px; padding: 5px 8px; border-radius: 10px; min-height: 30px; }
+
+    .feedback { font-size: 38px; }
+
+    .final-title { font-size: 44px; margin-bottom: 8px; }
+    .final-sub { font-size: 20px; margin-bottom: 10px; }
+    .final-team { min-width: 110px; padding: 10px 14px; border-radius: 16px; flex: 1 1 calc(50% - 8px); max-width: 160px; }
+    .final-team-name { font-size: 13px; }
+    .final-team-score { font-size: 34px; }
+    .trophy { font-size: 38px; }
+    .final-msg { font-size: 20px; }
+
+    .controls {
+      bottom: calc(6px + env(safe-area-inset-bottom));
+      right: 6px; left: 6px;
+      justify-content: center;
+      padding: 5px;
+    }
+    .ctrl-btn { font-size: 11px; padding: 5px 8px; border-radius: 8px; min-height: 30px; }
+
+    /* Hide some background decorations on small screens for perf */
+    .numChar { font-size: 70px; }
+    .star { font-size: 26px; }
+    .balloon { width: 50px; height: 65px; }
+    .pencil { width: 14px; height: 90px; }
+  }
+
+  /* ========== RESPONSIVE: VERY SMALL PHONE (≤380px) ========== */
+  @media (max-width: 380px) {
+    .main-title { font-size: 36px; }
+    .subtitle { font-size: 18px; }
+    .unit-label { font-size: 13px; padding: 5px 14px; }
+    .start-btn { font-size: 24px; padding: 14px 30px; }
+    .grade-tag { font-size: 16px; }
+    .tagline { font-size: 14px; }
+
+    .header-title { font-size: 18px; }
+    .question-display { font-size: 52px; }
+    .question-display.word { font-size: 34px; }
+    .answer-btn { font-size: 16px; padding: 10px 10px; min-width: 90px; }
+    .team-score { font-size: 20px; }
+    .team-name { font-size: 8px; }
+    .timer-value { font-size: 28px; }
+    .feedback { font-size: 30px; }
+  }
+
+  /* ========== LANDSCAPE ON PHONE ========== */
+  @media (max-height: 500px) and (orientation: landscape) {
+    #startScreen { flex-direction: row; flex-wrap: wrap; padding: 10px; }
+    #startScreen .title-wrap { flex: 1; min-width: 280px; }
+    .main-title { font-size: 40px; margin-bottom: 8px; }
+    .subtitle { font-size: 20px; }
+    .unit-label { font-size: 14px; padding: 4px 15px; margin-bottom: 10px; }
+    .start-btn { font-size: 22px; padding: 12px 30px; }
+    .grade-tag { font-size: 16px; padding: 4px 15px; margin-bottom: 10px; }
+    .tagline { font-size: 14px; margin-top: 10px; }
+
+    #gameScreen { padding: 6px 10px; gap: 4px; }
+    .header { margin-bottom: 4px; }
+    .header-title { font-size: 20px; }
+    .question-card { padding: 6px 14px; }
+    .question-text { font-size: 14px; }
+    .question-display { font-size: 50px; }
+    .question-display.word { font-size: 36px; }
+    .answer-btn { padding: 8px 14px; font-size: 16px; min-height: 42px; flex: 0 1 30%; }
+    .teams-bar { margin-top: 4px; margin-bottom: 4px; }
+    .team-score { font-size: 22px; }
+
+    .final-title { font-size: 50px; margin-bottom: 8px; }
+    .final-sub { font-size: 18px; margin-bottom: 8px; }
+    .final-team { padding: 8px 12px; min-width: 100px; flex: 1 1 20%; }
+    .final-team-score { font-size: 30px; }
+    .trophy { font-size: 34px; }
+    .final-msg { font-size: 18px; }
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 </style>
 </head>
@@ -713,7 +923,7 @@
         <div class="header-sub">Choose the correct answer!</div>
       </div>
       <div class="timer-box">
-        <div class="timer-label">TIME LEFT</div>
+        <div class="timer-label">TIME</div>
         <div class="timer-value" id="timerValue">00:10</div>
       </div>
     </div>
@@ -728,11 +938,11 @@
     </div>
 
     <div class="award-bar" id="awardBar">
-      <button class="award-btn a1" data-team="0">+1 TEAM 1</button>
-      <button class="award-btn a2" data-team="1">+1 TEAM 2</button>
-      <button class="award-btn a3" data-team="2">+1 TEAM 3</button>
-      <button class="award-btn a4" data-team="3">+1 TEAM 4</button>
-      <button class="reset-btn" id="resetBtn">🔄 RESET SCORES</button>
+      <button class="award-btn a1" data-team="0">+1 T1</button>
+      <button class="award-btn a2" data-team="1">+1 T2</button>
+      <button class="award-btn a3" data-team="2">+1 T3</button>
+      <button class="award-btn a4" data-team="3">+1 T4</button>
+      <button class="reset-btn" id="resetBtn">🔄 RESET</button>
     </div>
 
     <div class="teams-bar">
@@ -762,7 +972,7 @@
     <div class="final-scores" id="finalScores"></div>
     <div class="final-msg">YOU ARE NUMBER STARS! ⭐</div>
     <br>
-    <button class="start-btn" id="playAgainBtn" style="background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 10px 0 #991b1b, 0 20px 40px rgba(0,0,0,0.3);">🔁 PLAY AGAIN</button>
+    <button class="start-btn" id="playAgainBtn" style="background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 8px 0 #991b1b, 0 15px 30px rgba(0,0,0,0.3);">🔁 PLAY AGAIN</button>
   </div>
 
   <canvas id="confetti"></canvas>
@@ -770,17 +980,34 @@
   <!-- Controls -->
   <div class="controls" id="controls" style="display:none;">
     <button class="ctrl-btn primary" id="nextBtn">▶ NEXT</button>
-    <button class="ctrl-btn" id="showAnsBtn">💡 SHOW ANSWER</button>
+    <button class="ctrl-btn" id="showAnsBtn">💡 SHOW</button>
     <button class="ctrl-btn" id="pauseBtn">⏸ PAUSE</button>
-    <button class="ctrl-btn" id="soundBtn">🔊 SOUND</button>
-    <button class="ctrl-btn" id="restartBtn">🔁 RESTART</button>
+    <button class="ctrl-btn" id="soundBtn">🔊</button>
+    <button class="ctrl-btn" id="restartBtn">🔁</button>
   </div>
 </div>
 
 <script>
 /* ============================================================
-   NUMBER CHALLENGE — Grade 3
+   NUMBER CHALLENGE — Grade 3 — Mobile Optimized
    ============================================================ */
+
+// Prevent unwanted gestures on mobile
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+document.addEventListener('touchmove', e => {
+  if (e.target.closest('.screen') && !e.target.closest('.screen').classList.contains('overflow-allow')) {
+    // Allow scrolling only when explicitly needed
+  }
+}, { passive: false });
+
+// Prevent zoom on double-tap (iOS)
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, false);
 
 const NUM_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
   'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
@@ -834,18 +1061,23 @@ function ensureAudio() {
   if (!audioCtx) {
     try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
   }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
 }
 function playTone(freq, duration, type='sine', vol=0.2) {
   if (!state.soundOn || !audioCtx) return;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = type;
-  osc.frequency.value = freq;
-  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + duration);
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
 }
 function sfxClick() { playTone(600, 0.08, 'square', 0.1); }
 function sfxCorrect() {
@@ -872,22 +1104,29 @@ function sfxCelebration() {
 // ========== CONFETTI ==========
 let confettiPieces = [];
 let confettiRunning = false;
+
+// Detect mobile for performance
+const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) || window.innerWidth < 768;
+const CONFETTI_MULTIPLIER = isMobile ? 0.5 : 1;
+
 function resizeCanvas() {
   confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
 resizeCanvas();
 
 function launchConfetti(count = 120) {
+  const actualCount = Math.floor(count * CONFETTI_MULTIPLIER);
   const colors = ['#ff6b9d','#ffd93d','#4ade80','#60a5fa','#a78bfa','#fbbf24','#f87171'];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < actualCount; i++) {
     confettiPieces.push({
       x: Math.random() * confettiCanvas.width,
       y: -20 - Math.random() * 200,
       vx: (Math.random() - 0.5) * 6,
       vy: 3 + Math.random() * 4,
-      size: 6 + Math.random() * 8,
+      size: 5 + Math.random() * 7,
       color: colors[Math.floor(Math.random() * colors.length)],
       rot: Math.random() * Math.PI * 2,
       vr: (Math.random() - 0.5) * 0.3,
@@ -924,21 +1163,17 @@ function shuffle(arr) {
 }
 
 function buildQuestions() {
-  // Pick 20 random questions from pool (mix of both types)
   const pool = shuffle(questionPool);
   state.questions = pool.slice(0, 20);
   state.qIndex = 0;
 }
 
 function getDistractors(correct, type) {
-  // Generate 2 wrong options
   const wrongs = new Set();
   if (type === 'num2word') {
-    // correct is a word; distractors are other number words
     const correctN = parseInt(state.currentQ.n);
     while (wrongs.size < 2) {
       let n;
-      // mix of close and far distractors
       if (Math.random() < 0.5) {
         n = Math.max(1, Math.min(20, correctN + (Math.random()<0.5?-1:1) + Math.floor(Math.random()*3)));
       } else {
@@ -947,12 +1182,10 @@ function getDistractors(correct, type) {
       if (n !== correctN && n >= 1 && n <= 20) wrongs.add(NUM_WORDS[n]);
     }
   } else {
-    // correct is a number string; distractors are other numbers
     const correctN = parseInt(correct);
     while (wrongs.size < 2) {
       let n;
       if (Math.random() < 0.5) {
-        // common confusion: teen vs tens (13 vs 30, 15 vs 50)
         const teens = [13,14,15,16,17,18,19];
         if (teens.includes(correctN)) {
           const units = correctN % 10;
@@ -986,7 +1219,6 @@ function loadQuestion() {
     questionDisplay.classList.add('word');
   }
 
-  // Build 3 options
   const wrongs = getDistractors(q.correct, q.type);
   const options = shuffle([q.correct, ...wrongs]);
   const labels = ['A','B','C'];
@@ -998,11 +1230,11 @@ function loadQuestion() {
     btn.className = 'answer-btn ' + classes[i];
     btn.innerHTML = `${labels[i]}. ${opt}`;
     btn.dataset.value = opt;
+    // Use touchend + click for instant mobile response
     btn.addEventListener('click', () => handleAnswer(btn, opt));
     answersEl.appendChild(btn);
   });
 
-  // Hide award bar
   awardBar.classList.remove('show');
   feedbackEl.className = 'feedback';
   feedbackEl.textContent = '';
@@ -1020,7 +1252,6 @@ function handleAnswer(btn, value) {
     state.answered = true;
     stopTimer();
     btn.classList.add('correct');
-    // Fade others
     [...answersEl.children].forEach(b => { if (b !== btn) b.classList.add('faded'); });
     [...answersEl.children].forEach(b => b.disabled = true);
 
@@ -1088,7 +1319,6 @@ function timesUp() {
   state.answered = true;
   feedbackEl.textContent = "TIME'S UP! ⏰";
   feedbackEl.className = 'feedback timeout-fb show';
-  // Reveal correct answer
   const q = state.currentQ;
   [...answersEl.children].forEach(b => {
     b.disabled = true;
@@ -1141,7 +1371,6 @@ function showFinalScreen() {
   const teamColors = ['TEAM 1','TEAM 2','TEAM 3','TEAM 4'];
   const trophies = ['🥇','🥈','🥉','🏅'];
 
-  // Sort teams by score for ranking
   const ranked = state.scores.map((s,i)=>({s,i})).sort((a,b)=>b.s-a.s);
 
   state.scores.forEach((s, i) => {
@@ -1157,9 +1386,9 @@ function showFinalScreen() {
   });
 
   sfxCelebration();
-  launchConfetti(200);
-  setTimeout(()=>launchConfetti(150), 800);
-  setTimeout(()=>launchConfetti(150), 1600);
+  launchConfetti(Math.floor(200 * CONFETTI_MULTIPLIER));
+  setTimeout(()=>launchConfetti(Math.floor(150 * CONFETTI_MULTIPLIER)), 800);
+  setTimeout(()=>launchConfetti(Math.floor(150 * CONFETTI_MULTIPLIER)), 1600);
 }
 
 function startGame() {
@@ -1196,7 +1425,7 @@ pauseBtn.addEventListener('click', () => {
 });
 soundBtn.addEventListener('click', () => {
   state.soundOn = !state.soundOn;
-  soundBtn.innerHTML = state.soundOn ? '🔊 SOUND' : '🔇 MUTED';
+  soundBtn.innerHTML = state.soundOn ? '🔊' : '🔇';
   if (state.soundOn) { ensureAudio(); sfxClick(); }
 });
 restartBtn.addEventListener('click', restartGame);
@@ -1207,7 +1436,6 @@ resetBtn.addEventListener('click', () => {
   sfxClick();
 });
 
-// Award buttons
 document.querySelectorAll('.award-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const team = parseInt(btn.dataset.team);
@@ -1215,7 +1443,7 @@ document.querySelectorAll('.award-btn').forEach(btn => {
   });
 });
 
-// Keyboard support
+// Keyboard support (for tablets with keyboard)
 document.addEventListener('keydown', e => {
   if (gameScreen.classList.contains('hidden')) return;
   if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextQuestion(); }
@@ -1224,8 +1452,28 @@ document.addEventListener('keydown', e => {
   if (e.key === '3') answersEl.children[2]?.click();
 });
 
+// Prevent context menu on long-press (mobile)
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Handle visibility change (pause when switching apps)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && !gameScreen.classList.contains('hidden') && !state.answered) {
+    state.paused = true;
+    pauseBtn.innerHTML = '▶ RESUME';
+  }
+});
+
 // Initial state
 updateScores();
+
+// Fix iOS audio - needs user gesture
+const unlockAudio = () => {
+  ensureAudio();
+  document.removeEventListener('touchstart', unlockAudio);
+  document.removeEventListener('click', unlockAudio);
+};
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
 </script>
 </body>
 </html>
