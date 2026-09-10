@@ -1,1501 +1,940 @@
-// ===== CURRICULUM DATA =====
-const CURRICULUM = {
-    abc: {
-        letters: [
-            { letter: 'A', lower: 'a', word: 'Apple', emoji: '🍎', kazakh: 'Алма (Alma)', sound: 'æ' },
-            { letter: 'B', lower: 'b', word: 'Ball', emoji: '⚽', kazakh: 'Доп (Dop)', sound: 'b' },
-            { letter: 'C', lower: 'c', word: 'Cat', emoji: '🐱', kazakh: 'Мысық (Mysyq)', sound: 'k' },
-            { letter: 'D', lower: 'd', word: 'Dog', emoji: '🐕', kazakh: 'Ит (It)', sound: 'd' },
-            { letter: 'E', lower: 'e', word: 'Elephant', emoji: '🐘', kazakh: 'Піл (Pil)', sound: 'ɛ' },
-            { letter: 'F', lower: 'f', word: 'Fish', emoji: '🐟', kazakh: 'Балық (Balyq)', sound: 'f' },
-            { letter: 'G', lower: 'g', word: 'Grapes', emoji: '🍇', kazakh: 'Жүзім (Jüzim)', sound: 'g' },
-            { letter: 'H', lower: 'h', word: 'Hat', emoji: '🎩', kazakh: 'Бас киім (Bas kiim)', sound: 'h' },
-            { letter: 'I', lower: 'i', word: 'Ice cream', emoji: '🍦', kazakh: 'Балмұздақ (Balmuzdaq)', sound: 'aɪ' },
-            { letter: 'J', lower: 'j', word: 'Juice', emoji: '🧃', kazakh: 'Шырын (Shyryn)', sound: 'dʒ' },
-            { letter: 'K', lower: 'k', word: 'Kite', emoji: '🪁', kazakh: 'Ұшқыш (Ushqysh)', sound: 'k' },
-            { letter: 'L', lower: 'l', word: 'Lion', emoji: '🦁', kazakh: 'Арыстан (Arystan)', sound: 'l' },
-            { letter: 'M', lower: 'm', word: 'Moon', emoji: '🌙', kazakh: 'Ай (Ai)', sound: 'm' },
-            { letter: 'N', lower: 'n', word: 'Nest', emoji: '🪺', kazakh: 'Ұя (Uia)', sound: 'n' },
-            { letter: 'O', lower: 'o', word: 'Orange', emoji: '🍊', kazakh: 'Апельсин (Apelsin)', sound: 'ɒ' },
-            { letter: 'P', lower: 'p', word: 'Penguin', emoji: '🐧', kazakh: 'Пингвин (Pingvin)', sound: 'p' },
-            { letter: 'Q', lower: 'q', word: 'Queen', emoji: '👸', kazakh: 'Ханшайым (Khan sha iym)', sound: 'kw' },
-            { letter: 'R', lower: 'r', word: 'Rainbow', emoji: '🌈', kazakh: 'Кемпірқосақ (Kempirqosaq)', sound: 'r' },
-            { letter: 'S', lower: 's', word: 'Sun', emoji: '☀️', kazakh: 'Күн (Kün)', sound: 's' },
-            { letter: 'T', lower: 't', word: 'Tree', emoji: '🌳', kazakh: 'Ағаш (Agash)', sound: 't' },
-            { letter: 'U', lower: 'u', word: 'Umbrella', emoji: '☂️', kazakh: 'Қолшатыр (Qolshatyr)', sound: 'ʌ' },
-            { letter: 'V', lower: 'v', word: 'Violin', emoji: '🎻', kazakh: 'Скрипка (Skripka)', sound: 'v' },
-            { letter: 'W', lower: 'w', word: 'Whale', emoji: '🐋', kazakh: 'Кит (Kit)', sound: 'w' },
-            { letter: 'X', lower: 'x', word: 'X-ray', emoji: '🩻', kazakh: 'Рентген (Rentgen)', sound: 'ks' },
-            { letter: 'Y', lower: 'y', word: 'Yellow', emoji: '🟡', kazakh: 'Сары (Sary)', sound: 'j' },
-            { letter: 'Z', lower: 'z', word: 'Zebra', emoji: '🦓', kazakh: 'Зебра (Zebra)', sound: 'z' }
-        ]
-    },
-    lessons: [
-        {
-            id: 1,
-            title: 'Lesson 1: CVC Words - a, b, c, r, t',
-            description: 'Short vowel "a" with consonants b, c, r, t',
-            words: [
-                { word: 'bat', emoji: '🦇' },
-                { word: 'cat', emoji: '🐱' },
-                { word: 'rat', emoji: '🐀' },
-                { word: 'cab', emoji: '🚕' },
-                { word: 'tab', emoji: '📑' },
-                { word: 'car', emoji: '🚗' },
-                { word: 'bar', emoji: '🍫' },
-                { word: 'arc', emoji: '🌈' },
-                { word: 'act', emoji: '🎭' },
-                { word: 'art', emoji: '🎨' }
-            ],
-            letters: ['a', 'b', 'c', 'r', 't']
-        },
-        {
-            id: 2,
-            title: 'Lesson 2: CVC Words - d, e, h, n, p',
-            description: 'Short vowel "e" with consonants d, h, n, p',
-            words: [
-                { word: 'hen', emoji: '🐔' },
-                { word: 'pen', emoji: '🖊️' },
-                { word: 'den', emoji: '🏠' },
-                { word: 'net', emoji: '🥅' },
-                { word: 'pet', emoji: '🐾' },
-                { word: 'bed', emoji: '🛏️' },
-                { word: 'red', emoji: '🔴' },
-                { word: 'hen', emoji: '🐔' },
-                { word: 'end', emoji: '🏁' },
-                { word: 'had', emoji: '✋' }
-            ],
-            letters: ['d', 'e', 'h', 'n', 'p']
-        },
-        {
-            id: 3,
-            title: 'Lesson 3: CVC Words - g, i, o, u',
-            description: 'Short vowels "i" and "o" with g, u',
-            words: [
-                { word: 'pig', emoji: '🐷' },
-                { word: 'dig', emoji: '⛏️' },
-                { word: 'big', emoji: '📦' },
-                { word: 'got', emoji: '✅' },
-                { word: 'hot', emoji: '🔥' },
-                { word: 'pot', emoji: '🍯' },
-                { word: 'dot', emoji: '⚫' },
-                { word: 'cut', emoji: '✂️' },
-                { word: 'nut', emoji: '🥜' },
-                { word: 'gut', emoji: '🫃' }
-            ],
-            letters: ['g', 'i', 'o', 'u']
-        },
-        {
-            id: 4,
-            title: 'Lesson 4: CVC Words - f, j, m, x',
-            description: 'Consonants f, j, m, x with vowels',
-            words: [
-                { word: 'fox', emoji: '🦊' },
-                { word: 'fix', emoji: '🔧' },
-                { word: 'mix', emoji: '🥣' },
-                { word: 'jam', emoji: '🍯' },
-                { word: 'map', emoji: '🗺️' },
-                { word: 'fan', emoji: '🌀' },
-                { word: 'fin', emoji: '🦈' },
-                { word: 'fun', emoji: '🎉' },
-                { word: 'fat', emoji: '🐻' },
-                { word: 'jet', emoji: '✈️' }
-            ],
-            letters: ['f', 'j', 'm', 'x']
-        },
-        {
-            id: 5,
-            title: 'Lesson 5: CVC Words - k, l, s, v',
-            description: 'Consonants k, l, s, v with vowels',
-            words: [
-                { word: 'cat', emoji: '🐱' },
-                { word: 'kit', emoji: '🧰' },
-                { word: 'log', emoji: '🪵' },
-                { word: 'lip', emoji: '💋' },
-                { word: 'sun', emoji: '☀️' },
-                { word: 'sit', emoji: '🪑' },
-                { word: 'van', emoji: '🚐' },
-                { word: 'vet', emoji: '👨‍⚕️' },
-                { word: 'sad', emoji: '😢' },
-                { word: 'lap', emoji: '🦵' }
-            ],
-            letters: ['k', 'l', 's', 'v']
-        },
-        {
-            id: 6,
-            title: 'Lesson 6: CVC Words - q, w, y, z',
-            description: 'Consonants q, w, y, z with vowels',
-            words: [
-                { word: 'zip', emoji: '🤐' },
-                { word: 'zap', emoji: '⚡' },
-                { word: 'web', emoji: '🕸️' },
-                { word: 'wig', emoji: '💇' },
-                { word: 'yak', emoji: '🐂' },
-                { word: 'yes', emoji: '✅' },
-                { word: 'yam', emoji: '🍠' },
-                { word: 'wax', emoji: '🕯️' },
-                { word: 'wet', emoji: '💧' },
-                { word: 'won', emoji: '🏆' }
-            ],
-            letters: ['q', 'w', 'y', 'z']
-        },
-        {
-            id: 7,
-            title: 'Lesson 7: Magic E - a_e, i_e',
-            description: 'Long vowels with silent e: a_e and i_e',
-            words: [
-                { word: 'cape', emoji: '🦸' },
-                { word: 'tape', emoji: '📼' },
-                { word: 'gate', emoji: '🚪' },
-                { word: 'lake', emoji: '🏞️' },
-                { word: 'kite', emoji: '🪁' },
-                { word: 'bite', emoji: '🦷' },
-                { word: 'ride', emoji: '🚲' },
-                { word: 'time', emoji: '⏰' },
-                { word: 'five', emoji: '🖐️' },
-                { word: 'pine', emoji: '🌲' }
-            ],
-            magicE: [
-                { short: 'cap', long: 'cape', emoji: '🧢' },
-                { short: 'tap', long: 'tape', emoji: '📼' },
-                { short: 'can', long: 'cane', emoji: '🦯' },
-                { short: 'kit', long: 'kite', emoji: '🪁' },
-                { short: 'bit', long: 'bite', emoji: '🦷' },
-                { short: 'rid', long: 'ride', emoji: '🚲' },
-                { short: 'tim', long: 'time', emoji: '⏰' },
-                { short: 'pin', long: 'pine', emoji: '🌲' }
-            ],
-            letters: ['a_e', 'i_e']
-        },
-        {
-            id: 8,
-            title: 'Lesson 8: Magic E - o_e, u_e',
-            description: 'Long vowels with silent e: o_e and u_e',
-            words: [
-                { word: 'rope', emoji: '🪢' },
-                { word: 'bone', emoji: '🦴' },
-                { word: 'home', emoji: '🏠' },
-                { word: 'nose', emoji: '👃' },
-                { word: 'cute', emoji: '🥰' },
-                { word: 'tube', emoji: '🧪' },
-                { word: 'cube', emoji: '🧊' },
-                { word: 'mule', emoji: '🫏' },
-                { word: 'hope', emoji: '🙏' },
-                { word: 'hole', emoji: '🕳️' }
-            ],
-            magicE: [
-                { short: 'hop', long: 'hope', emoji: '🦘' },
-                { short: 'rob', long: 'robe', emoji: '👘' },
-                { short: 'not', long: 'note', emoji: '🎵' },
-                { short: 'cut', long: 'cute', emoji: '🥰' },
-                { short: 'tub', long: 'tube', emoji: '🧪' },
-                { short: 'cub', long: 'cube', emoji: '🧊' }
-            ],
-            letters: ['o_e', 'u_e']
-        },
-        {
-            id: 9,
-            title: 'Lesson 9: Digraphs - sh, ch, tch',
-            description: 'Consonant digraphs: sh, ch, tch',
-            words: [
-                { word: 'ship', emoji: '🚢' },
-                { word: 'shop', emoji: '🏪' },
-                { word: 'fish', emoji: '🐟' },
-                { word: 'dish', emoji: '🍽️' },
-                { word: 'chip', emoji: '🍟' },
-                { word: 'chat', emoji: '💬' },
-                { word: 'chin', emoji: '🧔' },
-                { word: 'rich', emoji: '💰' },
-                { word: 'catch', emoji: '🥎' },
-                { word: 'match', emoji: '🔥' }
-            ],
-            letters: ['sh', 'ch', 'tch']
-        },
-        {
-            id: 10,
-            title: 'Lesson 10: Digraphs - wh, th, ph, ck',
-            description: 'More digraphs: wh, th, ph, ck',
-            words: [
-                { word: 'whale', emoji: '🐋' },
-                { word: 'wheel', emoji: '🎡' },
-                { word: 'thin', emoji: '📏' },
-                { word: 'think', emoji: '💭' },
-                { word: 'this', emoji: '👉' },
-                { word: 'phone', emoji: '📱' },
-                { word: 'photo', emoji: '📷' },
-                { word: 'duck', emoji: '🦆' },
-                { word: 'rock', emoji: '🪨' },
-                { word: 'sock', emoji: '🧦' }
-            ],
-            letters: ['wh', 'th', 'ph', 'ck']
-        },
-        {
-            id: 11,
-            title: 'Lesson 11: Soft C, Soft G, Voiced S',
-            description: 'Soft C [s], Soft G [dʒ], Voiced S [z]',
-            words: [
-                { word: 'city', emoji: '🏙️' },
-                { word: 'cent', emoji: '💰' },
-                { word: 'circle', emoji: '⭕' },
-                { word: 'giant', emoji: '🗿' },
-                { word: 'gem', emoji: '💎' },
-                { word: 'giraffe', emoji: '🦒' },
-                { word: 'zoo', emoji: '🦁' },
-                { word: 'buzz', emoji: '🐝' },
-                { word: 'fizz', emoji: '🥤' },
-                { word: 'nose', emoji: '👃' }
-            ],
-            letters: ['soft c', 'soft g', 'z']
-        },
-        {
-            id: 12,
-            title: 'Lesson 12: Consonant Blends',
-            description: 'Blends: bl, cl, fl, gl, br, cr, sk, st',
-            words: [
-                { word: 'blue', emoji: '🔵' },
-                { word: 'clam', emoji: '🐚' },
-                { word: 'flag', emoji: '🚩' },
-                { word: 'globe', emoji: '🌍' },
-                { word: 'bread', emoji: '🍞' },
-                { word: 'crab', emoji: '🦀' },
-                { word: 'skip', emoji: '🏃' },
-                { word: 'star', emoji: '⭐' },
-                { word: 'frog', emoji: '🐸' },
-                { word: 'tree', emoji: '🌳' }
-            ],
-            letters: ['bl', 'cl', 'fl', 'br', 'cr', 'sk', 'st']
-        },
-        {
-            id: 13,
-            title: 'Lesson 13: Long Vowels - ai, ay',
-            description: 'Vowel teams ai and ay for long A',
-            words: [
-                { word: 'rain', emoji: '🌧️' },
-                { word: 'tail', emoji: '🐕' },
-                { word: 'mail', emoji: '📬' },
-                { word: 'train', emoji: '🚂' },
-                { word: 'day', emoji: '☀️' },
-                { word: 'play', emoji: '🎮' },
-                { word: 'stay', emoji: '🏠' },
-                { word: 'tray', emoji: '🍽️' },
-                { word: 'paint', emoji: '🎨' },
-                { word: 'snail', emoji: '🐌' }
-            ],
-            letters: ['ai', 'ay']
-        },
-        {
-            id: 14,
-            title: 'Lesson 14: Long Vowels - ee, ea',
-            description: 'Vowel teams ee, ea, y, ey for long E',
-            words: [
-                { word: 'tree', emoji: '🌳' },
-                { word: 'bee', emoji: '🐝' },
-                { word: 'feet', emoji: '🦶' },
-                { word: 'seed', emoji: '🌱' },
-                { word: 'read', emoji: '📖' },
-                { word: 'beach', emoji: '🏖️' },
-                { word: 'meat', emoji: '🥩' },
-                { word: 'team', emoji: '👥' },
-                { word: 'key', emoji: '🔑' },
-                { word: 'money', emoji: '💰' }
-            ],
-            letters: ['ee', 'ea', 'ey']
-        },
-        {
-            id: 15,
-            title: 'Lesson 15: Long Vowels - igh, ie, y',
-            description: 'Long I patterns: igh, ie, y',
-            words: [
-                { word: 'light', emoji: '💡' },
-                { word: 'night', emoji: '🌙' },
-                { word: 'high', emoji: '⬆️' },
-                { word: 'right', emoji: '✅' },
-                { word: 'pie', emoji: '🥧' },
-                { word: 'tie', emoji: '👔' },
-                { word: 'fly', emoji: '🪰' },
-                { word: 'cry', emoji: '😢' },
-                { word: 'sky', emoji: '🌤️' },
-                { word: 'try', emoji: '💪' }
-            ],
-            letters: ['igh', 'ie', 'y']
-        },
-        {
-            id: 16,
-            title: 'Lesson 16: Long Vowels - oa, ow',
-            description: 'Long O patterns: oa, ow',
-            words: [
-                { word: 'boat', emoji: '⛵' },
-                { word: 'coat', emoji: '🧥' },
-                { word: 'road', emoji: '🛣️' },
-                { word: 'goat', emoji: '🐐' },
-                { word: 'snow', emoji: '❄️' },
-                { word: 'grow', emoji: '🌱' },
-                { word: 'flow', emoji: '🌊' },
-                { word: 'bowl', emoji: '🥣' },
-                { word: 'toast', emoji: '🍞' },
-                { word: 'crow', emoji: '🐦‍⬛' }
-            ],
-            letters: ['oa', 'ow']
-        },
-        {
-            id: 17,
-            title: 'Lesson 17: Long Vowels - ue, ui, ew, oo',
-            description: 'Long U patterns: ue, ui, ew, oo',
-            words: [
-                { word: 'blue', emoji: '🔵' },
-                { word: 'glue', emoji: '🧴' },
-                { word: 'clue', emoji: '🔍' },
-                { word: 'fruit', emoji: '🍎' },
-                { word: 'new', emoji: '✨' },
-                { word: 'few', emoji: '🔢' },
-                { word: 'dew', emoji: '💧' },
-                { word: 'moon', emoji: '🌙' },
-                { word: 'spoon', emoji: '🥄' },
-                { word: 'zoo', emoji: '🦁' }
-            ],
-            letters: ['ue', 'ew', 'oo']
-        },
-        {
-            id: 18,
-            title: 'Lesson 18: R-controlled - ar, or',
-            description: 'Bossy R: ar and or sounds',
-            words: [
-                { word: 'car', emoji: '🚗' },
-                { word: 'star', emoji: '⭐' },
-                { word: 'farm', emoji: '🌾' },
-                { word: 'park', emoji: '🏞️' },
-                { word: 'horn', emoji: '📯' },
-                { word: 'corn', emoji: '🌽' },
-                { word: 'fork', emoji: '🍴' },
-                { word: 'port', emoji: '🚢' },
-                { word: 'dark', emoji: '🌑' },
-                { word: 'storm', emoji: '⛈️' }
-            ],
-            letters: ['ar', 'or']
-        },
-        {
-            id: 19,
-            title: 'Lesson 19: R-controlled - ir, ur, er',
-            description: 'Bossy R: ir, ur, er sounds',
-            words: [
-                { word: 'bird', emoji: '🐦' },
-                { word: 'girl', emoji: '👧' },
-                { word: 'dirt', emoji: '🟤' },
-                { word: 'shirt', emoji: '👕' },
-                { word: 'turn', emoji: '🔄' },
-                { word: 'burn', emoji: '🔥' },
-                { word: 'hurt', emoji: '🤕' },
-                { word: 'her', emoji: '👩' },
-                { word: 'fern', emoji: '🌿' },
-                { word: 'verb', emoji: '📝' }
-            ],
-            letters: ['ir', 'ur', 'er']
-        },
-        {
-            id: 20,
-            title: 'Lesson 20: Diphthongs - ou, ow',
-            description: 'Diphthongs: ou and ow /aʊ/',
-            words: [
-                { word: 'house', emoji: '🏠' },
-                { word: 'mouse', emoji: '🐭' },
-                { word: 'cloud', emoji: '☁️' },
-                { word: 'mouth', emoji: '👄' },
-                { word: 'cow', emoji: '🐄' },
-                { word: 'bow', emoji: '🎀' },
-                { word: 'town', emoji: '🏘️' },
-                { word: 'down', emoji: '⬇️' },
-                { word: 'crown', emoji: '👑' },
-                { word: 'brown', emoji: '🟤' }
-            ],
-            letters: ['ou', 'ow']
-        },
-        {
-            id: 21,
-            title: 'Lesson 21: Diphthongs - oi, oy',
-            description: 'Diphthongs: oi and oy /ɔɪ/',
-            words: [
-                { word: 'coin', emoji: '🪙' },
-                { word: 'boil', emoji: '🫕' },
-                { word: 'oil', emoji: '🛢️' },
-                { word: 'soil', emoji: '🌍' },
-                { word: 'toy', emoji: '🧸' },
-                { word: 'boy', emoji: '👦' },
-                { word: 'joy', emoji: '😊' },
-                { word: 'royal', emoji: '👑' },
-                { word: 'point', emoji: '👆' },
-                { word: 'noise', emoji: '🔊' }
-            ],
-            letters: ['oi', 'oy']
-        },
-        {
-            id: 22,
-            title: 'Lesson 22: Diphthongs - oo, au, aw',
-            description: 'Diphthongs: oo /ɔː/, au, aw, all, wa',
-            words: [
-                { word: 'ball', emoji: '⚽' },
-                { word: 'call', emoji: '📞' },
-                { word: 'tall', emoji: '🏢' },
-                { word: 'walk', emoji: '🚶' },
-                { word: 'saw', emoji: '🪚' },
-                { word: 'draw', emoji: '🎨' },
-                { word: 'law', emoji: '⚖️' },
-                { word: 'pause', emoji: '⏸️' },
-                { word: 'author', emoji: '✍️' },
-                { word: 'door', emoji: '🚪' }
-            ],
-            letters: ['au', 'aw', 'all', 'oor']
-        },
-        {
-            id: 23,
-            title: 'Lesson 23: Schwa & Silent Letters',
-            description: 'Schwa sound, silent kn, wr, mb, e',
-            words: [
-                { word: 'knee', emoji: '🦵' },
-                { word: 'knife', emoji: '🔪' },
-                { word: 'know', emoji: '🧠' },
-                { word: 'write', emoji: '✍️' },
-                { word: 'wrong', emoji: '❌' },
-                { word: 'wrap', emoji: '🎁' },
-                { word: 'lamb', emoji: '🐑' },
-                { word: 'climb', emoji: '🧗' },
-                { word: 'thumb', emoji: '👍' },
-                { word: 'bone', emoji: '🦴' }
-            ],
-            letters: ['kn', 'wr', 'mb', 'silent e']
-        },
-        {
-            id: 24,
-            title: 'Lesson 24: Word Endings - tion, sion',
-            description: 'Suffixes: ture, sure, tion, sion',
-            words: [
-                { word: 'picture', emoji: '🖼️' },
-                { word: 'nature', emoji: '🌿' },
-                { word: 'capture', emoji: '📸' },
-                { word: 'ocean', emoji: '🌊' },
-                { word: 'motion', emoji: '🎬' },
-                { word: 'nation', emoji: '🏳️' },
-                { word: 'station', emoji: '🚉' },
-                { word: 'television', emoji: '📺' },
-                { word: 'mission', emoji: '🚀' },
-                { word: 'passion', emoji: '❤️' }
-            ],
-            letters: ['tion', 'sion', 'ture']
-        },
-        {
-            id: 25,
-            title: 'Lesson 25: Advanced Endings - ous, ful',
-            description: 'Suffixes: ous, ful, and review',
-            words: [
-                { word: 'famous', emoji: '🌟' },
-                { word: 'dangerous', emoji: '⚠️' },
-                { word: 'happy', emoji: '😊' },
-                { word: 'beautiful', emoji: '🌸' },
-                { word: 'careful', emoji: '🤔' },
-                { word: 'helpful', emoji: '🤝' },
-                { word: 'playful', emoji: '🎈' },
-                { word: 'wonderful', emoji: '✨' },
-                { word: 'colorful', emoji: '🌈' },
-                { word: 'powerful', emoji: '💪' }
-            ],
-            letters: ['ous', 'ful']
-        }
-    ]
+/* =========================================================
+   MY ABC & PHONICS — Game Engine
+   Vanilla ES6+ • localStorage persistence • Web Speech API
+   ========================================================= */
+
+// ============ CURRICULUM DATA ============
+// Each zone: id, title, icon, gradient, words [{w, pic, sound?}]
+const ZONES = [
+  { id: 'abc', title: 'ABC Alphabet', icon: '🔤', gradient: 'linear-gradient(135deg,#ff6fb5,#f472b6)',
+    words: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => ({ w: l, pic: l })) },
+  { id: 'l1', title: 'CVC: a, b, c', icon: '🐱', gradient: 'linear-gradient(135deg,#fb923c,#f97316)',
+    words: [{w:'cat',pic:'🐱'},{w:'bat',pic:'🦇'},{w:'cab',pic:'🚕'},{w:'cab',pic:'🚕'},{w:'cap',pic:'🧢'}] },
+  { id: 'l2', title: 'CVC: d, e, h, n, p', icon: '🐕', gradient: 'linear-gradient(135deg,#fde047,#eab308)',
+    words: [{w:'dog',pic:'🐕'},{w:'hen',pic:'🐔'},{w:'pen',pic:'🖊️'},{w:'den',pic:'🏠'},{w:'net',pic:'🥅'}] },
+  { id: 'l3', title: 'CVC: g, i, o, u', icon: '🐷', gradient: 'linear-gradient(135deg,#4ade80,#22c55e)',
+    words: [{w:'pig',pic:'🐷'},{w:'dog',pic:'🐕'},{w:'bug',pic:'🐛'},{w:'mug',pic:'🍵'},{w:'sun',pic:'☀️'}] },
+  { id: 'l4', title: 'CVC: f, j, m, x', icon: '🦊', gradient: 'linear-gradient(135deg,#38bdf8,#0ea5e9)',
+    words: [{w:'fox',pic:'🦊'},{w:'jam',pic:'🍯'},{w:'fan',pic:'🌀'},{w:'fin',pic:'🦈'},{w:'mix',pic:'🎛️'}] },
+  { id: 'l5', title: 'CVC: k, l, s, v', icon: '🦁', gradient: 'linear-gradient(135deg,#a855f7,#9333ea)',
+    words: [{w:'sun',pic:'☀️'},{w:'van',pic:'🚐'},{w:'lip',pic:'💋'},{w:'kit',pic:'🧰'},{w:'log',pic:'🪵'}] },
+  { id: 'l6', title: 'CVC: q, w, y, z', icon: '🦓', gradient: 'linear-gradient(135deg,#f472b6,#ec4899)',
+    words: [{w:'zip',pic:'🤐'},{w:'yam',pic:'🍠'},{w:'wig',pic:'💇'},{w:'web',pic:'🕸️'},{w:'zoo',pic:'🦁'}] },
+  { id: 'l7', title: "Magic 'e': a_e, i_e", icon: '🪄', gradient: 'linear-gradient(135deg,#c084fc,#a855f7)',
+    words: [{w:'tap',pic:'👆',magic:'tape'},{w:'kit',pic:'🧰',magic:'kite'},{w:'hop',pic:'🦘',magic:'hope'},{w:'cut',pic:'🔪',magic:'cute'}],
+    magicE: true },
+  { id: 'l8', title: "Magic 'e': o_e, u_e", icon: '✨', gradient: 'linear-gradient(135deg,#818cf8,#6366f1)',
+    words: [{w:'hop',pic:'🦘',magic:'hope'},{w:'cut',pic:'🔪',magic:'cute'},{w:'tub',pic:'🛁',magic:'tube'},{w:'not',pic:'❌',magic:'note'}],
+    magicE: true },
+  { id: 'l9', title: 'Digraphs: sh, ch', icon: '🐚', gradient: 'linear-gradient(135deg,#2dd4bf,#14b8a6)',
+    words: [{w:'ship',pic:'🚢'},{w:'shop',pic:'🏪'},{w:'chip',pic:'🍟'},{w:'chat',pic:'💬'},{w:'chin',pic:'😊'}] },
+  { id: 'l10', title: 'Digraphs: th, wh, ph', icon: '📞', gradient: 'linear-gradient(135deg,#fb7185,#f43f5e)',
+    words: [{w:'thin',pic:'📏'},{w:'thick',pic:'📚'},{w:'whale',pic:'🐋'},{w:'phone',pic:'📱'},{w:'photo',pic:'📸'}] },
+  { id: 'l11', title: 'Soft C, G, Z', icon: '🌆', gradient: 'linear-gradient(135deg,#fbbf24,#f59e0b)',
+    words: [{w:'city',pic:'🌆'},{w:'cycle',pic:'🚲'},{w:'gym',pic:'🤸'},{w:'giant',pic:'🗿'},{w:'zoo',pic:'🦁'}] },
+  { id: 'l12', title: 'Blends: bl, cl, fl...', icon: '🔔', gradient: 'linear-gradient(135deg,#f87171,#ef4444)',
+    words: [{w:'bell',pic:'🔔'},{w:'clap',pic:'👏'},{w:'flag',pic:'🏁'},{w:'glow',pic:'💡'},{w:'star',pic:'⭐'}],
+    blends: true },
+  { id: 'l13', title: 'Long Vowels: ai/ay', icon: '🌧️', gradient: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
+    words: [{w:'rain',pic:'🌧️'},{w:'day',pic:'☀️'},{w:'play',pic:'🎮'},{w:'train',pic:'🚂'},{w:'mail',pic:'📬'}] },
+  { id: 'l14', title: 'Long E: ee, ea', icon: '🌳', gradient: 'linear-gradient(135deg,#34d399,#10b981)',
+    words: [{w:'tree',pic:'🌳'},{w:'bee',pic:'🐝'},{w:'sea',pic:'🌊'},{w:'tea',pic:'🍵'},{w:'read',pic:'📖'}] },
+  { id: 'l15', title: 'Long I: igh, ie, y', icon: '🪁', gradient: 'linear-gradient(135deg,#f472b6,#db2777)',
+    words: [{w:'high',pic:'⛰️'},{w:'fly',pic:'🪁'},{w:'sky',pic:'🌌'},{w:'pie',pic:'🥧'},{w:'light',pic:'💡'}] },
+  { id: 'l16', title: 'Long O: oa, ow', icon: '🚣', gradient: 'linear-gradient(135deg,#facc15,#ca8a04)',
+    words: [{w:'boat',pic:'🚣'},{w:'goat',pic:'🐐'},{w:'snow',pic:'❄️'},{w:'bow',pic:'🎀'},{w:'road',pic:'🛣️'}] },
+  { id: 'l17', title: 'OO, UE, EW', icon: '🥘', gradient: 'linear-gradient(135deg,#a78bfa,#7c3aed)',
+    words: [{w:'moon',pic:'🌙'},{w:'food',pic:'🍲'},{w:'blue',pic:'🔵'},{w:'new',pic:'✨'},{w:'zoo',pic:'🦁'}] },
+  { id: 'l18', title: 'R-Vowels: ar, or', icon: '🚗', gradient: 'linear-gradient(135deg,#f87171,#dc2626)',
+    words: [{w:'car',pic:'🚗'},{w:'star',pic:'⭐'},{w:'corn',pic:'🌽'},{w:'fork',pic:'🍴'},{w:'door',pic:'🚪'}] },
+  { id: 'l19', title: 'R-Vowels: ir, ur, er', icon: '🐦', gradient: 'linear-gradient(135deg,#22d3ee,#0891b2)',
+    words: [{w:'bird',pic:'🐦'},{w:'girl',pic:'👧'},{w:'turn',pic:'🔄'},{w:'her',pic:'👩'},{w:'fern',pic:'🌿'}] },
+  { id: 'l20', title: 'Diphthongs: ou, ow', icon: '🏠', gradient: 'linear-gradient(135deg,#fb923c,#ea580c)',
+    words: [{w:'house',pic:'🏠'},{w:'mouse',pic:'🐭'},{w:'cow',pic:'🐄'},{w:'cloud',pic:'☁️'},{w:'town',pic:'🏙️'}] },
+  { id: 'l21', title: 'Diphthongs: oi, oy', icon: '🧑‍🍳', gradient: 'linear-gradient(135deg,#facc15,#d97706)',
+    words: [{w:'coin',pic:'🪙'},{w:'oil',pic:'🛢️'},{w:'boy',pic:'👦'},{w:'toy',pic:'🧸'},{w:'joy',pic:'😄'}] },
+  { id: 'l22', title: 'AW, AU, ALL', icon: '🐾', gradient: 'linear-gradient(135deg,#a3e635,#65a30d)',
+    words: [{w:'paw',pic:'🐾'},{w:'saw',pic:'🪚'},{w:'ball',pic:'⚽'},{w:'call',pic:'📞'},{w:'talk',pic:'🗣️'}] },
+  { id: 'l23', title: 'Schwa & Silent', icon: '🤫', gradient: 'linear-gradient(135deg,#c084fc,#9333ea)',
+    words: [{w:'knife',pic:'🔪'},{w:'write',pic:'✍️'},{w:'lamb',pic:'🐑'},{w:'comb',pic:'💇'},{w:'hour',pic:'⏰'}] },
+  { id: 'l24', title: 'Endings: -tion, -sure', icon: '🎬', gradient: 'linear-gradient(135deg,#f472b6,#be185d)',
+    words: [{w:'action',pic:'🎬'},{w:'motion',pic:'🎥'},{w:'treasure',pic:'💎'},{w:'pleasure',pic:'😌'}] },
+  { id: 'l25', title: 'Boss Review!', icon: '👑', gradient: 'linear-gradient(135deg,#fbbf24,#dc2626)',
+    words: [{w:'cat',pic:'🐱'},{w:'ship',pic:'🚢'},{w:'rain',pic:'🌧️'},{w:'bird',pic:'🐦'},{w:'house',pic:'🏠'}],
+    boss: true }
+];
+
+// ============ GAME TYPES ============
+const GAME_TYPES = [
+  { id: 'sound', icon: '🔊', name: 'Sound Cards', desc: 'Tap letters to hear them' },
+  { id: 'build', icon: '🧩', name: 'Word Builder', desc: 'Drag letters to build words' },
+  { id: 'listen', icon: '👂', name: 'Listening Quiz', desc: 'Hear the word, pick the picture' },
+  { id: 'memory', icon: '🧠', name: 'Memory Match', desc: 'Match letter to picture' },
+  { id: 'bubble', icon: '🫧', name: 'Pop the Bubble', desc: 'Pop the right letters!' },
+  { id: 'magic', icon: '🪄', name: "Magic 'e' Wand", desc: 'Zap short words into long!' },
+  { id: 'unscramble', icon: '🔀', name: 'Unscramble', desc: 'Rearrange the letters' },
+  { id: 'trace', icon: '✏️', name: 'Letter Trace', desc: 'Trace the letter with your finger' }
+];
+
+// ============ STATE ============
+const STATE_KEY = 'abc_phonics_v1';
+let state = loadState();
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STATE_KEY));
+    if (s && s.stars) return s;
+  } catch(e) {}
+  return {
+    stars: {},          // zoneId -> 0..3
+    badges: [],         // badge ids
+    streak: 0,
+    lastPlay: null,
+    muted: false,
+    theme: 'light'
+  };
+}
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+// ============ AUDIO ============
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return audioCtx;
+}
+function beep(freq = 600, dur = 0.12, type = 'sine', vol = 0.15) {
+  if (state.muted) return;
+  const ctx = getAudio(); if (!ctx) return;
+  const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime + dur);
+}
+const SFX = {
+  tap: () => beep(800, 0.08, 'square', 0.1),
+  correct: () => { beep(523, 0.1); setTimeout(() => beep(659, 0.1), 100); setTimeout(() => beep(784, 0.15), 200); },
+  wrong: () => { beep(200, 0.15, 'sawtooth', 0.12); setTimeout(() => beep(150, 0.2, 'sawtooth', 0.12), 120); },
+  win: () => { [523,659,784,1047].forEach((f,i) => setTimeout(() => beep(f, 0.15, 'triangle', 0.18), i*120)); },
+  unlock: () => { beep(880, 0.1); setTimeout(() => beep(1320, 0.2), 100); }
+};
+function speak(text, rate = 0.9) {
+  if (state.muted) return;
+  if (!('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = rate; u.pitch = 1.2;
+    speechSynthesis.speak(u);
+  } catch(e) {}
+}
+
+// ============ DOM HELPERS ============
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+function el(tag, props = {}, ...children) {
+  const e = document.createElement(tag);
+  Object.entries(props).forEach(([k, v]) => {
+    if (k === 'class') e.className = v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k in e) e[k] = v;
+    else e.setAttribute(k, v);
+  });
+  children.flat().forEach(c => {
+    if (c == null) return;
+    e.append(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+
+// ============ MASCOT ============
+const mascot = {
+  el: $('#mascot'),
+  bubble: $('#mascotBubble'),
+  say(msg, duration = 3000) {
+    this.bubble.textContent = msg;
+    this.bubble.style.animation = 'none';
+    void this.bubble.offsetWidth;
+    this.bubble.style.animation = '';
+    clearTimeout(this._t);
+    this._t = setTimeout(() => { this.bubble.textContent = ''; }, duration);
+  },
+  cheer() { this.el.classList.remove('sad'); this.el.classList.add('cheer'); setTimeout(() => this.el.classList.remove('cheer'), 600); },
+  sad() { this.el.classList.remove('cheer'); this.el.classList.add('sad'); setTimeout(() => this.el.classList.remove('sad'), 500); },
+  wave() { this.say('Hi friend! 👋'); }
 };
 
-// ===== APP STATE =====
-class AppState {
-    constructor() {
-        this.state = this.loadState();
-    }
+// ============ CONFETTI ============
+const confettiCanvas = $('#confettiCanvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+let confetti = [];
+function resizeConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeConfetti);
+resizeConfetti();
 
-    getDefaultUnlockedLevels() {
-        return Array.from({ length: 26 }, (_, index) => index); // 0..25
-    }
+function launchConfetti(count = 80) {
+  const colors = ['#ff6fb5','#a855f7','#38bdf8','#4ade80','#fde047','#fb923c','#f87171'];
+  for (let i = 0; i < count; i++) {
+    confetti.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      vx: (Math.random() - 0.5) * 15,
+      vy: (Math.random() - 1) * 15 - 5,
+      g: 0.4,
+      size: 6 + Math.random() * 8,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.3,
+      life: 120
+    });
+  }
+}
+function tickConfetti() {
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confetti = confetti.filter(p => p.life > 0);
+  confetti.forEach(p => {
+    p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life--;
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rot);
+    confettiCtx.fillStyle = p.color;
+    confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
+    confettiCtx.restore();
+  });
+  requestAnimationFrame(tickConfetti);
+}
+tickConfetti();
 
-    loadState() {
-        const saved = localStorage.getItem('abc_phonics_state');
-        if (saved) {
-            return JSON.parse(saved);
-        }
-        return {
-            totalStars: 0,
-            currentLevel: 0,
-            unlockedLevels: this.getDefaultUnlockedLevels(),
-            completedLevels: [],
-            levelStars: {},
-            currentView: 'quest-map'
-        };
-    }
-
-    saveState() {
-        localStorage.setItem('abc_phonics_state', JSON.stringify(this.state));
-    }
-
-    addStars(levelId, stars) {
-        const prev = this.state.levelStars[levelId] || 0;
-        if (stars > prev) {
-            this.state.totalStars += (stars - prev);
-            this.state.levelStars[levelId] = stars;
-        }
-        this.saveState();
-    }
-
-    completeLevel(levelId) {
-        if (!this.state.completedLevels.includes(levelId)) {
-            this.state.completedLevels.push(levelId);
-        }
-        // Unlock next level
-        const nextLevel = levelId + 1;
-        if (nextLevel <= 25 && !this.state.unlockedLevels.includes(nextLevel)) {
-            this.state.unlockedLevels.push(nextLevel);
-        }
-        this.addStars(levelId, 1);
-        this.saveState();
-    }
-
-    isUnlocked(levelId) {
-        return this.state.unlockedLevels.includes(levelId);
-    }
-
-    isCompleted(levelId) {
-        return this.state.completedLevels.includes(levelId);
-    }
-
-    getStars(levelId) {
-        return this.state.levelStars[levelId] || 0;
-    }
-
-    getTotalStars() {
-        return this.state.totalStars;
-    }
-
-    reset() {
-        this.state = {
-            totalStars: 0,
-            currentLevel: 0,
-            unlockedLevels: this.getDefaultUnlockedLevels(),
-            completedLevels: [],
-            levelStars: {},
-            currentView: 'quest-map'
-        };
-        this.saveState();
-    }
+// ============ NAVIGATION ============
+function showScreen(id) {
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  $('#' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ===== AUDIO MANAGER =====
-class AudioManager {
-    constructor() {
-        this.synth = window.speechSynthesis;
-        this.audioContext = null;
-    }
+// ============ RENDER MAP ============
+function renderMap() {
+  const map = $('#questMap');
+  map.innerHTML = '';
+  ZONES.forEach((z, i) => {
+    const stars = state.stars[z.id] || 0;
+    const starStr = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+    const node = el('div', {
+      class: 'zone-node' + (stars === 0 ? ' pulse' : ''),
+      style: { background: z.gradient },
+      onclick: () => openLesson(z.id),
+      onmouseenter: () => { SFX.tap(); mascot.say(`Let's try ${z.title}!`); }
+    },
+      el('div', { class: 'zone-icon' }, z.icon),
+      el('div', { class: 'zone-title' }, z.title),
+      el('div', { class: 'zone-stars' }, starStr)
+    );
+    map.append(node);
+  });
+  updateHUD();
+}
 
-    speak(text, rate = 0.8) {
-        if (!this.synth) return;
-        this.synth.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = rate;
-        utterance.pitch = 1.1;
-        utterance.lang = 'en-US';
-        
-        // Try to find a good English voice
-        const voices = this.synth.getVoices();
-        const englishVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) 
-            || voices.find(v => v.lang.startsWith('en'))
-            || voices[0];
-        if (englishVoice) utterance.voice = englishVoice;
-        
-        this.synth.speak(utterance);
-    }
+function updateHUD() {
+  const totalStars = Object.values(state.stars).reduce((a,b) => a+b, 0);
+  const maxStars = ZONES.length * 3;
+  $('#totalStars').textContent = totalStars;
+  $('#streakCount').textContent = state.streak;
+  $('#badgeCount').textContent = state.badges.length;
+  const pct = (totalStars / maxStars) * 100;
+  $('#overallProgress').style.width = pct + '%';
+}
 
-    playSound(type) {
+// ============ LESSON SCREEN ============
+let currentZone = null;
+function openLesson(zoneId) {
+  SFX.tap();
+  currentZone = ZONES.find(z => z.id === zoneId);
+  if (!currentZone) return;
+  $('#lessonIcon').textContent = currentZone.icon;
+  $('#lessonIcon').style.background = currentZone.gradient;
+  $('#lessonTitle').textContent = currentZone.title;
+  $('#lessonDesc').textContent = `Fun activities for "${currentZone.title}"`;
+  const stars = state.stars[currentZone.id] || 0;
+  $('#lessonStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+
+  // Pick 4 game types suitable for this zone
+  const picker = $('#gamePicker');
+  picker.innerHTML = '';
+  let games = [...GAME_TYPES];
+  if (!currentZone.magicE) games = games.filter(g => g.id !== 'magic');
+  // Shuffle and take 4
+  games = games.sort(() => Math.random() - 0.5).slice(0, 4);
+  games.forEach(g => {
+    const card = el('div', {
+      class: 'game-card',
+      onclick: () => startGame(g.id)
+    },
+      el('div', { class: 'gc-icon' }, g.icon),
+      el('div', { class: 'gc-title' }, g.name),
+      el('div', { class: 'gc-desc' }, g.desc)
+    );
+    picker.append(card);
+  });
+  showScreen('lessonScreen');
+  mascot.say(`Pick a game! 🎮`);
+}
+
+// ============ GAME ENGINE ============
+let gameState = null;
+function startGame(gameId) {
+  SFX.tap();
+  showScreen('gameScreen');
+  const area = $('#gameArea');
+  area.innerHTML = '';
+  $('#nextBtn').style.display = 'none';
+  gameState = {
+    zone: currentZone,
+    gameId,
+    score: 0,
+    mistakes: 0,
+    total: 0,
+    done: 0,
+    words: [...currentZone.words].sort(() => Math.random() - 0.5)
+  };
+  $('#hudStars').textContent = 0;
+  $('#hudScore').textContent = 0;
+  $('#hudProgress').textContent = `0/${gameState.words.length}`;
+
+  switch (gameId) {
+    case 'sound': buildSoundCards(); break;
+    case 'build': buildWordBuilder(); break;
+    case 'listen': buildListeningQuiz(); break;
+    case 'memory': buildMemoryMatch(); break;
+    case 'bubble': buildBubblePop(); break;
+    case 'magic': buildMagicE(); break;
+    case 'unscramble': buildUnscramble(); break;
+    case 'trace': buildTrace(); break;
+  }
+}
+
+// ---------- Sound Cards ----------
+function buildSoundCards() {
+  const area = $('#gameArea');
+  const wrap = el('div', { class: 'sound-cards' });
+  gameState.words.forEach(w => {
+    const card = el('div', {
+      class: 'sound-card',
+      onclick: (e) => {
+        card.classList.add('playing');
+        speak(w.w);
+        SFX.tap();
+        setTimeout(() => card.classList.remove('playing'), 600);
+      }
+    }, w.pic, el('div', { class: 'sc-sub' }, w.w));
+    wrap.append(card);
+  });
+  area.append(wrap);
+  // Mark done after tapping all
+  let tapped = new Set();
+  area.addEventListener('click', e => {
+    const c = e.target.closest('.sound-card');
+    if (!c) return;
+    const idx = [...wrap.children].indexOf(c);
+    tapped.add(idx);
+    if (tapped.size === gameState.words.length) finishGame();
+  });
+  mascot.say('Tap every card! 👆');
+}
+
+// ---------- Word Builder (Drag & Drop) ----------
+function buildWordBuilder() {
+  const area = $('#gameArea');
+  let idx = 0;
+  const next = () => {
+    if (idx >= gameState.words.length) { finishGame(); return; }
+    area.innerHTML = '';
+    const w = gameState.words[idx];
+    const letters = w.w.split('');
+    const shuffled = [...letters].sort(() => Math.random() - 0.5);
+    gameState.total = gameState.words.length;
+
+    area.append(
+      el('div', { class: 'target-word' },
+        el('span', { class: 'pic' }, w.pic),
+        `Build: ${w.w.toUpperCase()}`
+      )
+    );
+    const slots = el('div', { class: 'word-slots' });
+    letters.forEach(() => slots.append(el('div', { class: 'word-slot', 'data-expected': '' })));
+    area.append(slots);
+
+    const pool = el('div', { class: 'letter-tiles' });
+    shuffled.forEach((l, i) => {
+      const t = el('div', {
+        class: 'letter-tile',
+        draggable: 'true',
+        'data-letter': l,
+        'data-id': i
+      }, l);
+      // Drag events
+      t.addEventListener('dragstart', e => {
+        t.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', JSON.stringify({ l, id: i }));
+      });
+      t.addEventListener('dragend', () => t.classList.remove('dragging'));
+      // Click fallback for mobile
+      t.addEventListener('click', () => {
+        if (t.classList.contains('used')) return;
+        const emptySlot = slots.querySelector('.word-slot:not(.filled)');
+        if (emptySlot) placeLetter(t, emptySlot);
+      });
+      pool.append(t);
+    });
+    area.append(pool);
+
+    // Drop zones
+    slots.querySelectorAll('.word-slot').forEach((slot, sIdx) => {
+      slot.setAttribute('data-expected', letters[sIdx]);
+      slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('hover'); });
+      slot.addEventListener('dragleave', () => slot.classList.remove('hover'));
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        slot.classList.remove('hover');
+        if (slot.classList.contains('filled')) return;
         try {
-            if (!this.audioContext) {
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            const ctx = this.audioContext;
-            const oscillator = ctx.createOscillator();
-            const gainNode = ctx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(ctx.destination);
-            
-            switch(type) {
-                case 'success':
-                    oscillator.frequency.setValueAtTime(523, ctx.currentTime);
-                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
-                    oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
-                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                    oscillator.start(ctx.currentTime);
-                    oscillator.stop(ctx.currentTime + 0.5);
-                    break;
-                case 'error':
-                    oscillator.frequency.setValueAtTime(200, ctx.currentTime);
-                    oscillator.frequency.setValueAtTime(150, ctx.currentTime + 0.1);
-                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                    oscillator.start(ctx.currentTime);
-                    oscillator.stop(ctx.currentTime + 0.3);
-                    break;
-                case 'click':
-                    oscillator.frequency.setValueAtTime(800, ctx.currentTime);
-                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
-                    oscillator.start(ctx.currentTime);
-                    oscillator.stop(ctx.currentTime + 0.05);
-                    break;
-                case 'magic':
-                    oscillator.frequency.setValueAtTime(400, ctx.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.3);
-                    gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                    oscillator.start(ctx.currentTime);
-                    oscillator.stop(ctx.currentTime + 0.5);
-                    break;
-            }
-        } catch(e) {
-            // Audio not supported
+          const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+          const tile = pool.querySelector(`[data-id="${data.id}"]`);
+          placeLetter(tile, slot);
+        } catch(err) {}
+      });
+    });
+
+    function placeLetter(tile, slot) {
+      if (!tile || tile.classList.contains('used')) return;
+      const expected = slot.getAttribute('data-expected');
+      if (tile.getAttribute('data-letter') === expected) {
+        slot.textContent = expected;
+        slot.classList.add('filled');
+        tile.classList.add('used');
+        SFX.correct();
+        // Check completion
+        if ([...slots.querySelectorAll('.filled')].length === letters.length) {
+          gameState.score++;
+          mascot.cheer();
+          setTimeout(() => { idx++; next(); }, 900);
         }
+      } else {
+        SFX.wrong();
+        mascot.sad();
+        slot.style.animation = 'shake 0.4s';
+        setTimeout(() => slot.style.animation = '', 400);
+      }
+      updateHUD2();
     }
+    mascot.say(`Build "${w.w}"! 🧩`);
+  };
+  next();
 }
 
-// ===== CELEBRATION MANAGER =====
-class CelebrationManager {
-    static show(text = 'You earned a star! ⭐') {
-        const overlay = document.getElementById('celebration');
-        const textEl = document.getElementById('celebration-text');
-        textEl.textContent = text;
-        overlay.classList.remove('hidden');
-        CelebrationManager.createConfetti();
-    }
+// ---------- Listening Quiz ----------
+function buildListeningQuiz() {
+  const area = $('#gameArea');
+  let idx = 0;
+  const next = () => {
+    if (idx >= gameState.words.length) { finishGame(); return; }
+    area.innerHTML = '';
+    const correct = gameState.words[idx];
+    // Pick 3 distractors
+    const others = gameState.words.filter(w => w.w !== correct.w).sort(() => Math.random() - 0.5).slice(0, 3);
+    const options = [correct, ...others].sort(() => Math.random() - 0.5);
+    gameState.total = gameState.words.length;
 
-    static hide() {
-        document.getElementById('celebration').classList.add('hidden');
-    }
+    const prompt = el('div', { class: 'quiz-prompt' },
+      el('div', {}, 'Listen and pick! 👂')
+    );
+    area.append(prompt);
 
-    static createConfetti() {
-        const container = document.getElementById('confetti-container');
-        container.innerHTML = '';
-        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA', '#F472B6', '#60A5FA', '#34D399', '#FB923C'];
-        
-        for (let i = 0; i < 50; i++) {
-            const piece = document.createElement('div');
-            piece.className = 'confetti-piece';
-            piece.style.left = Math.random() * 100 + '%';
-            piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            piece.style.animationDelay = Math.random() * 2 + 's';
-            piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            piece.style.width = (Math.random() * 10 + 5) + 'px';
-            piece.style.height = (Math.random() * 10 + 5) + 'px';
-            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-            container.appendChild(piece);
+    const playBtn = el('button', { class: 'wand-btn', onclick: () => speak(correct.w) }, '🔊 Play Sound');
+    area.append(playBtn);
+    setTimeout(() => speak(correct.w), 400);
+
+    const grid = el('div', { class: 'quiz-options' });
+    options.forEach(opt => {
+      const b = el('div', { class: 'quiz-option', onclick: () => {
+        if (b.classList.contains('correct') || b.classList.contains('wrong')) return;
+        if (opt.w === correct.w) {
+          b.classList.add('correct');
+          SFX.correct();
+          mascot.cheer();
+          gameState.score++;
+          launchConfetti(30);
+          setTimeout(() => { idx++; next(); }, 1100);
+        } else {
+          b.classList.add('wrong');
+          SFX.wrong();
+          mascot.sad();
+          gameState.mistakes++;
         }
-
-        setTimeout(() => {
-            container.innerHTML = '';
-        }, 4000);
-    }
+        updateHUD2();
+      }}, el('div', { style: { fontSize: '2.5rem' } }, opt.pic), opt.w);
+      grid.append(b);
+    });
+    area.append(grid);
+    mascot.say('Listen carefully! 🎧');
+  };
+  next();
 }
 
-// ===== VIEW MANAGER =====
-class ViewManager {
-    constructor(appState, audioManager) {
-        this.appState = appState;
-        this.audio = audioManager;
-        this.currentView = 'quest-map';
-        this.currentLesson = null;
-        this.init();
-    }
+// ---------- Memory Match ----------
+function buildMemoryMatch() {
+  const area = $('#gameArea');
+  const words = gameState.words.slice(0, 6); // 6 pairs
+  gameState.total = words.length;
+  const pairs = [];
+  words.forEach((w, i) => {
+    pairs.push({ id: i, type: 'pic', content: w.pic, match: i });
+    pairs.push({ id: i, type: 'word', content: w.w, match: i });
+  });
+  pairs.sort(() => Math.random() - 0.5);
 
-    init() {
-        // Navigation buttons
-        document.querySelectorAll('.back-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = btn.dataset.view;
-                this.showView(target);
-            });
-        });
-
-        document.getElementById('home-btn').addEventListener('click', () => {
-            this.showView('quest-map');
-        });
-
-        document.getElementById('close-celebration').addEventListener('click', () => {
-            CelebrationManager.hide();
-        });
-
-        // Load voices
-        if (window.speechSynthesis) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                window.speechSynthesis.getVoices();
-            };
+  const grid = el('div', { class: 'memory-grid' });
+  let flipped = [];
+  let matched = 0;
+  pairs.forEach((p, idx) => {
+    const card = el('div', { class: 'mem-card', onclick: () => {
+      if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped');
+      SFX.tap();
+      flipped.push({ card, p });
+      if (flipped.length === 2) {
+        const [a, b] = flipped;
+        if (a.p.match === b.p.match && a.p.type !== b.p.type) {
+          setTimeout(() => {
+            a.card.classList.add('matched');
+            b.card.classList.add('matched');
+            SFX.correct();
+            matched++;
+            gameState.score = matched;
+            updateHUD2();
+            if (matched === words.length) { mascot.cheer(); launchConfetti(60); setTimeout(finishGame, 900); }
+          }, 400);
+          flipped = [];
+        } else {
+          setTimeout(() => {
+            a.card.classList.remove('flipped');
+            b.card.classList.remove('flipped');
+            SFX.wrong();
+          }, 900);
+          flipped = [];
         }
+      }
+    }},
+      el('div', { class: 'mem-card-inner' },
+        el('div', { class: 'mem-face mem-front' }, '?'),
+        el('div', { class: 'mem-face mem-back' }, p.content)
+      )
+    );
+    grid.append(card);
+  });
+  area.append(grid);
+  mascot.say('Match letter to picture! 🧠');
+}
 
-        this.showView('quest-map');
-    }
+// ---------- Pop the Bubble ----------
+function buildBubblePop() {
+  const area = $('#gameArea');
+  const targetLetters = gameState.words.slice(0, 3).map(w => w.w[0].toUpperCase());
+  const targetStr = targetLetters.join(', ');
+  let popped = 0;
+  const target = targetLetters.length;
+  gameState.total = target;
 
-    showView(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        const view = document.getElementById(viewId);
-        if (view) {
-            view.classList.add('active');
-            this.currentView = viewId;
-        }
+  area.append(el('div', { class: 'bubble-target' }, `Pop bubbles starting with: ${targetStr}`));
+  const field = el('div', { class: 'bubble-field' });
+  area.append(field);
 
-        // Render view content
-        switch(viewId) {
-            case 'quest-map':
-                this.renderQuestMap();
-                break;
-            case 'abc-view':
-                this.renderABCView();
-                break;
-            case 'lesson-view':
-                if (this.currentLesson) this.renderLessonView(this.currentLesson);
-                break;
-        }
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let spawnInt = setInterval(() => {
+    if (popped >= target) { clearInterval(spawnInt); return; }
+    const letter = Math.random() < 0.5
+      ? targetLetters[Math.floor(Math.random() * targetLetters.length)]
+      : alphabet[Math.floor(Math.random() * 26)];
+    const b = el('div', { class: 'pop-bubble', style: { left: (Math.random() * 85 + 5) + '%' } }, letter);
+    b.addEventListener('click', () => {
+      if (b.classList.contains('popped')) return;
+      b.classList.add('popped');
+      if (targetLetters.includes(letter)) {
+        SFX.correct();
+        popped++;
+        mascot.cheer();
+        gameState.score = popped;
+        updateHUD2();
+        if (popped >= target) { clearInterval(spawnInt); launchConfetti(60); setTimeout(finishGame, 700); }
+      } else {
+        SFX.wrong();
+        mascot.sad();
+      }
+    });
+    field.append(b);
+    setTimeout(() => b.remove(), 6000);
+  }, 900);
 
-        this.updateHeader();
-    }
+  mascot.say('Pop the right bubbles! 🫧');
+}
 
-    updateHeader() {
-        document.getElementById('total-stars').textContent = this.appState.getTotalStars();
-        const completedCount = this.appState.state.completedLevels.length;
-        document.getElementById('level-badge').textContent = `Level ${completedCount + 1}`;
-    }
+// ---------- Magic E Wand ----------
+function buildMagicE() {
+  const area = $('#gameArea');
+  const words = (currentZone.words || []).filter(w => w.magic);
+  if (words.length === 0) {
+    area.append(el('div', {}, 'No magic-e words here. Try another game!'));
+    setTimeout(finishGame, 1500);
+    return;
+  }
+  let idx = 0;
+  gameState.total = words.length;
 
-    // ===== QUEST MAP =====
-    renderQuestMap() {
-        const abcZone = document.getElementById('abc-zone-levels');
-        const phonicsZone = document.getElementById('phonics-zone-levels');
+  const next = () => {
+    if (idx >= words.length) { finishGame(); return; }
+    area.innerHTML = '';
+    const w = words[idx];
+    const wrap = el('div', { class: 'magic-e-area' });
+    wrap.append(el('div', { class: 'target-word' },
+      el('span', { class: 'pic' }, w.pic),
+      `Short word: ${w.w.toUpperCase()}`
+    ));
+    const wordEl = el('div', { class: 'magic-word' });
+    w.w.split('').forEach(ch => wordEl.append(el('span', { class: 'm-letter' }, ch)));
+    wrap.append(wordEl);
 
-        // ABC Card
-        abcZone.innerHTML = '';
-        const abcCard = this.createLevelCard(0, 'ABC', '🔤', true);
-        abcCard.addEventListener('click', () => {
-            this.audio.playSound('click');
-            this.showView('abc-view');
-        });
-        abcZone.appendChild(abcCard);
+    const btn = el('button', { class: 'wand-btn', onclick: () => {
+      btn.disabled = true;
+      // Add silent e
+      const eSpan = el('span', { class: 'm-letter silent-e' }, 'e');
+      wordEl.append(eSpan);
+      // Zap vowels
+      setTimeout(() => {
+        [...wordEl.querySelectorAll('.m-letter')].forEach(l => l.classList.add('zapped'));
+        speak(w.magic);
+        SFX.unlock();
+        mascot.cheer();
+        launchConfetti(30);
+        gameState.score++;
+        updateHUD2();
+        setTimeout(() => { idx++; next(); }, 1400);
+      }, 500);
+    }}, '🪄 Zap with Magic E!');
+    wrap.append(btn);
+    area.append(wrap);
+    mascot.say('Wave the magic wand! 🪄');
+  };
+  next();
+}
 
-        // Lesson Cards
-        phonicsZone.innerHTML = '';
-        CURRICULUM.lessons.forEach(lesson => {
-            const card = this.createLevelCard(
-                lesson.id,
-                `L${lesson.id}`,
-                this.getLessonEmoji(lesson.id),
-                this.appState.isUnlocked(lesson.id)
-            );
-            card.addEventListener('click', () => {
-                if (this.appState.isUnlocked(lesson.id)) {
-                    this.audio.playSound('click');
-                    this.currentLesson = lesson;
-                    this.showView('lesson-view');
-                }
-            });
-            phonicsZone.appendChild(card);
-        });
-    }
+// ---------- Unscramble ----------
+function buildUnscramble() {
+  const area = $('#gameArea');
+  let idx = 0;
+  gameState.total = gameState.words.length;
+  const next = () => {
+    if (idx >= gameState.words.length) { finishGame(); return; }
+    area.innerHTML = '';
+    const w = gameState.words[idx];
+    const letters = w.w.split('');
+    const shuffled = [...letters].sort(() => Math.random() - 0.5);
 
-    createLevelCard(id, number, emoji, unlocked) {
-        const card = document.createElement('div');
-        card.className = 'level-card';
-        if (!unlocked) card.classList.add('locked');
-        if (this.appState.isCompleted(id)) card.classList.add('completed');
+    area.append(el('div', { class: 'unscramble-target' },
+      el('span', { style: { fontSize: '3rem', display: 'block' } }, w.pic),
+      `Unscramble!`
+    ));
+    const build = el('div', { class: 'unscramble-build' });
+    area.append(build);
+    const pool = el('div', { class: 'letter-tiles' });
+    const placed = [];
 
-        const stars = this.appState.getStars(id);
-        const starDisplay = '⭐'.repeat(stars) + '☆'.repeat(Math.max(0, 3 - stars));
-
-        card.innerHTML = `
-            <div class="level-number">${emoji}</div>
-            <div class="level-name">${number}</div>
-            <div class="level-stars">${unlocked ? starDisplay : ''}</div>
-        `;
-        return card;
-    }
-
-    getLessonEmoji(id) {
-        const emojis = ['📖', '🐱', '🐷', '🦊', '🌳', '🦓', '✨', '🎩', '🐟', '📱', '💎', '🌈', '🌧️', '🐝', '💡', '⛵', '🔵', '⭐', '🐦', '🏠', '🪙', '⚽', '🔪', '🎬', '🌸'];
-        return emojis[id] || '📚';
-    }
-
-    // ===== ABC VIEW =====
-    renderABCView() {
-        const grid = document.getElementById('abc-grid');
-        grid.innerHTML = '';
-
-        CURRICULUM.abc.letters.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'abc-letter-card';
-            card.innerHTML = `
-                <div class="letter">${item.letter}</div>
-                <div class="letter-small">${item.lower}</div>
-                <div class="letter-emoji">${item.emoji}</div>
-            `;
-            card.addEventListener('click', () => {
-                this.audio.speak(`${item.letter}. ${item.word}`);
-                this.showTranslationPopup(item);
-            });
-            grid.appendChild(card);
-        });
-
-        // ABC Quiz button
-        document.getElementById('abc-quiz-btn').onclick = () => {
-            this.startListeningGame(CURRICULUM.abc.letters.map(l => ({ word: l.word, emoji: l.emoji })));
-        };
-
-        // Trace button
-        document.getElementById('abc-trace-btn').onclick = () => {
-            this.showView('tracing-game');
-            this.initTracingGame();
-        };
-    }
-
-    showTranslationPopup(item) {
-        const popup = document.getElementById('translation-popup');
-        document.getElementById('popup-letter').textContent = `${item.letter} ${item.lower}`;
-        document.getElementById('popup-word').textContent = item.word;
-        document.getElementById('popup-image').textContent = item.emoji;
-        document.getElementById('popup-kazakh').textContent = `🇰🇿 ${item.kazakh}`;
-        popup.classList.remove('hidden');
-
-        document.getElementById('popup-sound-btn').onclick = () => {
-            this.audio.speak(item.word);
-        };
-
-        document.getElementById('close-popup').onclick = () => {
-            popup.classList.add('hidden');
-        };
-
-        popup.onclick = (e) => {
-            if (e.target === popup) popup.classList.add('hidden');
-        };
-    }
-
-    // ===== LESSON VIEW =====
-    renderLessonView(lesson) {
-        document.getElementById('lesson-title').textContent = lesson.title;
-
-        const content = document.getElementById('lesson-content');
-        content.innerHTML = `
-            <p style="margin-bottom:1rem; color: var(--text-light);">${lesson.description}</p>
-            <div class="lesson-words-grid" id="lesson-words-grid"></div>
-        `;
-
-        const wordsGrid = document.getElementById('lesson-words-grid');
-        lesson.words.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerHTML = `
-                <div class="word-emoji">${item.emoji}</div>
-                <div class="word-text">${item.word}</div>
-            `;
-            card.addEventListener('click', () => {
-                this.audio.speak(item.word);
-                card.style.borderColor = 'var(--green)';
-                setTimeout(() => card.style.borderColor = '', 500);
-            });
-            wordsGrid.appendChild(card);
-        });
-
-        // Game options
-        const games = document.getElementById('lesson-games');
-        games.innerHTML = '';
-
-        const gameOptions = [
-            { id: 'sound-cards', icon: '🔊', name: 'Sound Cards' },
-            { id: 'drag-drop', icon: '🧩', name: 'Word Builder' },
-            { id: 'listening', icon: '👂', name: 'Listening Quiz' },
-            { id: 'unscramble', icon: '🔀', name: 'Unscramble' }
-        ];
-
-        // Add Magic E game if lesson has it
-        if (lesson.magicE) {
-            gameOptions.splice(2, 0, { id: 'magic-e', icon: '✨', name: "Magic 'e'" });
-        }
-
-        gameOptions.forEach(game => {
-            const card = document.createElement('div');
-            card.className = 'lesson-game-card';
-            card.innerHTML = `
-                <div class="game-icon">${game.icon}</div>
-                <div class="game-name">${game.name}</div>
-            `;
-            card.addEventListener('click', () => {
-                this.audio.playSound('click');
-                this.startGame(game.id, lesson);
-            });
-            games.appendChild(card);
-        });
-    }
-
-    startGame(gameId, lesson) {
-        switch(gameId) {
-            case 'sound-cards':
-                this.showView('sound-cards-game');
-                this.initSoundCardsGame(lesson);
-                break;
-            case 'drag-drop':
-                this.showView('drag-drop-game');
-                this.initDragDropGame(lesson);
-                break;
-            case 'magic-e':
-                this.showView('magic-e-game');
-                this.initMagicEGame(lesson);
-                break;
-            case 'listening':
-                this.showView('listening-game');
-                this.initListeningGame(lesson);
-                break;
-            case 'unscramble':
-                this.showView('unscramble-game');
-                this.initUnscrambleGame(lesson);
-                break;
-        }
-    }
-
-    // ===== SOUND CARDS GAME =====
-    initSoundCardsGame(lesson) {
-        const area = document.getElementById('sound-cards-area');
-        area.innerHTML = '<div class="sound-cards-grid" id="sound-cards-grid"></div>';
-        const grid = document.getElementById('sound-cards-grid');
-
-        lesson.words.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'sound-card';
-            card.innerHTML = `
-                <div class="card-letter">${item.word.charAt(0).toUpperCase()}</div>
-                <div class="card-word">${item.emoji} ${item.word}</div>
-            `;
-            card.addEventListener('click', () => {
-                this.audio.speak(item.word);
-                card.classList.add('playing');
-                setTimeout(() => card.classList.remove('playing'), 1000);
-            });
-            grid.appendChild(card);
-        });
-    }
-
-    // ===== DRAG AND DROP GAME =====
-    initDragDropGame(lesson) {
-        this.dragDropState = {
-            words: [...lesson.words].sort(() => Math.random() - 0.5).slice(0, 5),
-            currentIndex: 0,
-            correctCount: 0
-        };
-        this.renderDragDropWord();
-    }
-
-    renderDragDropWord() {
-        const state = this.dragDropState;
-        if (state.currentIndex >= state.words.length) {
-            // Game complete
-            this.appState.completeLevel(this.currentLesson.id);
-            CelebrationManager.show(`Amazing! You built ${state.correctCount} words! ⭐`);
-            return;
-        }
-
-        const word = state.words[state.currentIndex];
-        const letters = word.word.split('');
-        const shuffled = [...letters].sort(() => Math.random() - 0.5);
-        // Add some extra random letters
-        const extras = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(l => !letters.includes(l));
-        const extraLetters = extras.sort(() => Math.random() - 0.5).slice(0, 2);
-        const allTiles = [...shuffled, ...extraLetters].sort(() => Math.random() - 0.5);
-
-        document.getElementById('word-display').textContent = `Spell the word:`;
-        document.getElementById('word-image').textContent = word.emoji;
-
-        // Drop zone
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.innerHTML = '';
-        letters.forEach((_, i) => {
-            const slot = document.createElement('div');
-            slot.className = 'drop-slot';
-            slot.dataset.index = i;
-            slot.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('drag-over');
-            });
-            slot.addEventListener('dragleave', () => {
-                dropZone.classList.remove('drag-over');
-            });
-            slot.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('drag-over');
-                const letter = e.dataTransfer.getData('text');
-                const tileIndex = e.dataTransfer.getData('tile-index');
-                slot.textContent = letter;
-                slot.classList.add('filled');
-                slot.dataset.letter = letter;
-                slot.dataset.tileIndex = tileIndex;
-                // Mark tile as used
-                const tile = document.querySelector(`.letter-tile[data-index="${tileIndex}"]`);
-                if (tile) tile.classList.add('used');
-            });
-            // Click to remove
-            slot.addEventListener('click', () => {
-                if (slot.classList.contains('filled')) {
-                    const tileIdx = slot.dataset.tileIndex;
-                    const tile = document.querySelector(`.letter-tile[data-index="${tileIdx}"]`);
-                    if (tile) tile.classList.remove('used');
-                    slot.textContent = '';
-                    slot.classList.remove('filled');
-                    delete slot.dataset.letter;
-                    delete slot.dataset.tileIndex;
-                }
-            });
-            dropZone.appendChild(slot);
-        });
-
-        // Letter tiles
-        const tilesContainer = document.getElementById('letter-tiles');
-        tilesContainer.innerHTML = '';
-        allTiles.forEach((letter, i) => {
-            const tile = document.createElement('div');
-            tile.className = 'letter-tile';
-            tile.textContent = letter;
-            tile.draggable = true;
-            tile.dataset.index = i;
-            tile.dataset.letter = letter;
-
-            tile.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text', letter);
-                e.dataTransfer.setData('tile-index', i.toString());
-                tile.style.opacity = '0.5';
-            });
-            tile.addEventListener('dragend', () => {
-                tile.style.opacity = '';
-            });
-
-            // Touch/click support
-            tile.addEventListener('click', () => {
-                if (tile.classList.contains('used')) return;
-                const emptySlot = dropZone.querySelector('.drop-slot:not(.filled)');
-                if (emptySlot) {
-                    emptySlot.textContent = letter;
-                    emptySlot.classList.add('filled');
-                    emptySlot.dataset.letter = letter;
-                    emptySlot.dataset.tileIndex = i.toString();
-                    tile.classList.add('used');
-                }
-            });
-
-            tilesContainer.appendChild(tile);
-        });
-
-        // Check button
-        document.getElementById('check-word-btn').onclick = () => {
-            const slots = dropZone.querySelectorAll('.drop-slot');
-            let correct = true;
-            slots.forEach((slot, i) => {
-                if (slot.dataset.letter === letters[i]) {
-                    slot.classList.add('correct');
-                } else {
-                    slot.classList.add('incorrect');
-                    correct = false;
-                }
-            });
-
-            if (correct) {
-                this.audio.playSound('success');
-                this.audio.speak(word.word);
-                state.correctCount++;
-                setTimeout(() => {
-                    state.currentIndex++;
-                    this.renderDragDropWord();
-                }, 1500);
+    shuffled.forEach((l, i) => {
+      const t = el('div', {
+        class: 'letter-tile',
+        'data-letter': l,
+        'data-id': i,
+        onclick: () => {
+          if (t.classList.contains('used')) return;
+          t.classList.add('used');
+          placed.push({ l, t });
+          build.append(el('span', { style: { fontSize: '2rem', fontWeight: 800 } }, l));
+          SFX.tap();
+          if (placed.length === letters.length) {
+            const formed = placed.map(p => p.l).join('');
+            if (formed === w.w) {
+              SFX.correct();
+              mascot.cheer();
+              gameState.score++;
+              launchConfetti(30);
+              setTimeout(() => { idx++; next(); }, 1000);
             } else {
-                this.audio.playSound('error');
-                setTimeout(() => {
-                    slots.forEach(s => {
-                        s.classList.remove('correct', 'incorrect');
-                    });
-                }, 1000);
+              SFX.wrong();
+              mascot.sad();
+              setTimeout(() => {
+                placed.forEach(p => p.t.classList.remove('used'));
+                placed.length = 0;
+                build.innerHTML = '';
+              }, 800);
             }
-        };
-
-        // Next button
-        document.getElementById('next-word-btn').onclick = () => {
-            state.currentIndex++;
-            this.renderDragDropWord();
-        };
-    }
-
-    // ===== MAGIC E GAME =====
-    initMagicEGame(lesson) {
-        if (!lesson.magicE) return;
-        this.magicEState = {
-            pairs: [...lesson.magicE].sort(() => Math.random() - 0.5),
-            currentIndex: 0,
-            revealed: false
-        };
-        this.renderMagicEWord();
-    }
-
-    renderMagicEWord() {
-        const state = this.magicEState;
-        if (state.currentIndex >= state.pairs.length) {
-            this.appState.completeLevel(this.currentLesson.id);
-            CelebrationManager.show("You're a Magic E master! ✨⭐");
-            return;
+            updateHUD2();
+          }
         }
+      }, l);
+      pool.append(t);
+    });
+    area.append(pool);
 
-        const pair = state.pairs[state.currentIndex];
-        state.revealed = false;
-
-        document.getElementById('word-before').textContent = pair.short.toUpperCase();
-        document.getElementById('word-after').textContent = pair.long.toUpperCase();
-        document.getElementById('word-after').classList.remove('revealed');
-        document.getElementById('magic-e-explanation').textContent = '';
-
-        document.getElementById('wand-btn').onclick = () => {
-            if (!state.revealed) {
-                state.revealed = true;
-                this.audio.playSound('magic');
-                document.getElementById('word-after').classList.add('revealed');
-                document.getElementById('magic-e-explanation').textContent = 
-                    `Adding 'e' at the end makes the vowel say its name! ${pair.short} → ${pair.long}`;
-                setTimeout(() => this.audio.speak(pair.long), 500);
-            }
-        };
-
-        document.getElementById('next-magic-btn').onclick = () => {
-            state.currentIndex++;
-            this.renderMagicEWord();
-        };
-    }
-
-    // ===== LISTENING GAME =====
-    initListeningGame(lesson) {
-        this.listeningState = {
-            words: [...lesson.words].sort(() => Math.random() - 0.5),
-            currentIndex: 0,
-            score: 0,
-            total: Math.min(5, lesson.words.length)
-        };
-        this.renderListeningRound();
-    }
-
-    startListeningGame(words) {
-        this.currentLesson = { id: 0, words: words };
-        this.showView('listening-game');
-        this.initListeningGame({ words: words });
-    }
-
-    renderListeningRound() {
-        const state = this.listeningState;
-        if (state.currentIndex >= state.total) {
-            // Game complete
-            if (this.currentLesson.id > 0) {
-                this.appState.completeLevel(this.currentLesson.id);
-            }
-            CelebrationManager.show(`Quiz complete! Score: ${state.score}/${state.total} 🎉`);
-            return;
-        }
-
-        const correctWord = state.words[state.currentIndex];
-        const otherWords = state.words.filter(w => w.word !== correctWord.word).sort(() => Math.random() - 0.5).slice(0, 3);
-        const options = [correctWord, ...otherWords].sort(() => Math.random() - 0.5);
-
-        document.getElementById('listening-score').textContent = state.score;
-
-        const playBtn = document.getElementById('play-sound-btn');
-        playBtn.onclick = () => {
-            this.audio.speak(correctWord.word);
-        };
-
-        // Auto-play
-        setTimeout(() => this.audio.speak(correctWord.word), 500);
-
-        const optionsContainer = document.getElementById('listening-options');
-        optionsContainer.innerHTML = '';
-        let answered = false;
-
-        options.forEach(option => {
-            const btn = document.createElement('div');
-            btn.className = 'listening-option';
-            btn.innerHTML = `${option.emoji}<br>${option.word}`;
-            btn.addEventListener('click', () => {
-                if (answered) return;
-                answered = true;
-
-                if (option.word === correctWord.word) {
-                    btn.classList.add('correct');
-                    this.audio.playSound('success');
-                    state.score++;
-                    document.getElementById('listening-score').textContent = state.score;
-                } else {
-                    btn.classList.add('incorrect');
-                    this.audio.playSound('error');
-                    // Show correct answer
-                    optionsContainer.querySelectorAll('.listening-option').forEach(o => {
-                        if (o.textContent.includes(correctWord.word)) {
-                            o.classList.add('correct');
-                        }
-                    });
-                }
-
-                setTimeout(() => {
-                    state.currentIndex++;
-                    this.renderListeningRound();
-                }, 1500);
-            });
-            optionsContainer.appendChild(btn);
-        });
-    }
-
-    // ===== UNSCRAMBLE GAME =====
-    initUnscrambleGame(lesson) {
-        this.unscrambleState = {
-            words: [...lesson.words].sort(() => Math.random() - 0.5).slice(0, 5),
-            currentIndex: 0,
-            correctCount: 0
-        };
-        this.renderUnscrambleWord();
-    }
-
-    renderUnscrambleWord() {
-        const state = this.unscrambleState;
-        if (state.currentIndex >= state.words.length) {
-            this.appState.completeLevel(this.currentLesson.id);
-            CelebrationManager.show(`Great unscrambling! ${state.correctCount} words correct! 🔀⭐`);
-            return;
-        }
-
-        const word = state.words[state.currentIndex];
-        const letters = word.word.split('');
-        const shuffled = [...letters].sort(() => Math.random() - 0.5);
-        // Ensure it's actually shuffled
-        if (shuffled.join('') === letters.join('') && letters.length > 1) {
-            shuffled.reverse();
-        }
-
-        state.currentAnswer = [];
-        state.currentLetters = shuffled;
-
-        document.getElementById('unscramble-hint').textContent = word.emoji;
-
-        // Slots
-        const slotsContainer = document.getElementById('unscramble-slots');
-        slotsContainer.innerHTML = '';
-        letters.forEach((_, i) => {
-            const slot = document.createElement('div');
-            slot.className = 'unscramble-slot';
-            slot.dataset.index = i;
-            slot.addEventListener('click', () => {
-                if (slot.classList.contains('filled')) {
-                    // Remove letter from slot
-                    const tileIdx = slot.dataset.tileIndex;
-                    const tile = document.querySelector(`.unscramble-tile[data-index="${tileIdx}"]`);
-                    if (tile) tile.classList.remove('used');
-                    slot.textContent = '';
-                    slot.classList.remove('filled');
-                    state.currentAnswer[i] = null;
-                    delete slot.dataset.tileIndex;
-                }
-            });
-            slotsContainer.appendChild(slot);
-        });
-
-        // Tiles
-        const tilesContainer = document.getElementById('unscramble-tiles');
-        tilesContainer.innerHTML = '';
-        shuffled.forEach((letter, i) => {
-            const tile = document.createElement('button');
-            tile.className = 'unscramble-tile';
-            tile.textContent = letter;
-            tile.dataset.index = i;
-            tile.addEventListener('click', () => {
-                if (tile.classList.contains('used')) return;
-                const emptySlot = slotsContainer.querySelector('.unscramble-slot:not(.filled)');
-                if (emptySlot) {
-                    emptySlot.textContent = letter;
-                    emptySlot.classList.add('filled');
-                    emptySlot.dataset.tileIndex = i.toString();
-                    state.currentAnswer[parseInt(emptySlot.dataset.index)] = letter;
-                    tile.classList.add('used');
-                }
-            });
-            tilesContainer.appendChild(tile);
-        });
-
-        // Clear button
-        document.getElementById('clear-unscramble-btn').onclick = () => {
-            slotsContainer.querySelectorAll('.unscramble-slot').forEach(slot => {
-                const tileIdx = slot.dataset.tileIndex;
-                const tile = document.querySelector(`.unscramble-tile[data-index="${tileIdx}"]`);
-                if (tile) tile.classList.remove('used');
-                slot.textContent = '';
-                slot.classList.remove('filled');
-                delete slot.dataset.tileIndex;
-            });
-            state.currentAnswer = [];
-        };
-
-        // Check button
-        document.getElementById('check-unscramble-btn').onclick = () => {
-            const slots = slotsContainer.querySelectorAll('.unscramble-slot');
-            let correct = true;
-            slots.forEach((slot, i) => {
-                if (slot.textContent === letters[i]) {
-                    slot.style.borderColor = 'var(--green)';
-                    slot.style.background = '#d1fae5';
-                } else {
-                    slot.style.borderColor = 'var(--primary)';
-                    slot.style.background = '#fee2e2';
-                    correct = false;
-                }
-            });
-
-            if (correct) {
-                this.audio.playSound('success');
-                this.audio.speak(word.word);
-                state.correctCount++;
-                setTimeout(() => {
-                    state.currentIndex++;
-                    this.renderUnscrambleWord();
-                }, 1500);
-            } else {
-                this.audio.playSound('error');
-                setTimeout(() => {
-                    slots.forEach(s => {
-                        s.style.borderColor = '';
-                        s.style.background = '';
-                    });
-                }, 1000);
-            }
-        };
-    }
-
-    // ===== TRACING GAME =====
-    initTracingGame() {
-        this.tracingState = {
-            currentIndex: 0,
-            letters: CURRICULUM.abc.letters,
-            isDrawing: false
-        };
-
-        const canvas = document.getElementById('tracing-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas size based on container
-        const container = canvas.parentElement;
-        canvas.width = container.offsetWidth;
-        canvas.height = container.offsetHeight;
-
-        ctx.strokeStyle = '#FF6B6B';
-        ctx.lineWidth = 8;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        // Mouse events
-        canvas.addEventListener('mousedown', (e) => this.startDraw(e, canvas));
-        canvas.addEventListener('mousemove', (e) => this.draw(e, canvas));
-        canvas.addEventListener('mouseup', () => this.stopDraw());
-        canvas.addEventListener('mouseleave', () => this.stopDraw());
-
-        // Touch events
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousedown', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        });
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousemove', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        });
-        canvas.addEventListener('touchend', () => this.stopDraw());
-
-        // Buttons
-        document.getElementById('prev-letter-btn').onclick = () => {
-            this.tracingState.currentIndex = Math.max(0, this.tracingState.currentIndex - 1);
-            this.updateTracingLetter();
-        };
-
-        document.getElementById('next-letter-btn').onclick = () => {
-            this.tracingState.currentIndex = Math.min(25, this.tracingState.currentIndex + 1);
-            this.updateTracingLetter();
-        };
-
-        document.getElementById('clear-canvas-btn').onclick = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        };
-
-        document.getElementById('complete-trace-btn').onclick = () => {
-            this.audio.playSound('success');
-            CelebrationManager.show('Beautiful letter! ✏️⭐');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            this.tracingState.currentIndex = Math.min(25, this.tracingState.currentIndex + 1);
-            this.updateTracingLetter();
-        };
-
-        this.updateTracingLetter();
-    }
-
-    startDraw(e, canvas) {
-        this.tracingState.isDrawing = true;
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-    }
-
-    draw(e, canvas) {
-        if (!this.tracingState.isDrawing) return;
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-    }
-
-    stopDraw() {
-        this.tracingState.isDrawing = false;
-    }
-
-    updateTracingLetter() {
-        const letter = this.tracingState.letters[this.tracingState.currentIndex];
-        document.getElementById('current-trace-letter').textContent = letter.letter;
-        document.getElementById('guide-letter').textContent = letter.letter;
-        
-        // Clear canvas
-        const canvas = document.getElementById('tracing-canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    // Hint button
+    $('#hintBtn').onclick = () => {
+      if (placed.length < letters.length) {
+        const nextLetter = letters[placed.length];
+        const tile = pool.querySelector(`.letter-tile:not(.used)[data-letter="${nextLetter}"]`);
+        if (tile) tile.click();
+      }
+    };
+    mascot.say(`Spell "${w.w}"! 🔀`);
+  };
+  next();
 }
 
-// ===== INITIALIZE APP =====
-document.addEventListener('DOMContentLoaded', () => {
-    // Loading screen
-    const loadingScreen = document.getElementById('loading-screen');
-    setTimeout(() => {
-        loadingScreen.classList.add('fade-out');
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            document.getElementById('app').classList.remove('hidden');
-        }, 500);
-    }, 1800);
+// ---------- Canvas Trace ----------
+function buildTrace() {
+  const area = $('#gameArea');
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  let idx = 0;
+  gameState.total = Math.min(5, letters.length);
 
-    // Initialize app
-    const appState = new AppState();
-    const audioManager = new AudioManager();
-    const viewManager = new ViewManager(appState, audioManager);
+  const canvas = document.createElement('canvas');
+  canvas.id = 'traceCanvas';
+  canvas.width = 320; canvas.height = 320;
+  const ctx = canvas.getContext('2d');
 
-    // Make accessible for debugging
-    window.app = { appState, audioManager, viewManager };
-});
+  const wrap = el('div', { class: 'trace-wrap' });
+  const label = el('div', { style: { fontSize: '1.3rem', fontWeight: 700, marginBottom: 10 } } , 'Trace the letter!');
+  wrap.append(label);
+  wrap.append(canvas);
+
+  const controls = el('div', { class: 'trace-controls' });
+  const clearBtn = el('button', { class: 'btn-chunky', onclick: drawGuide }, '🧹 Clear');
+  const doneBtn = el('button', { class: 'btn-chunky btn-next', onclick: () => {
+    SFX.correct();
+    gameState.score++;
+    mascot.cheer();
+    launchConfetti(20);
+    idx++;
+    if (idx >= gameState.total) finishGame();
+    else drawGuide();
+    updateHUD2();
+  }}, '✅ Done');
+  controls.append(clearBtn, doneBtn);
+  wrap.append(controls);
+  area.append(wrap);
+
+  function drawGuide() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f3f4f6';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = 'bold 240px Baloo 2, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+    ctx.fillText(letters[idx], canvas.width/2, canvas.height/2);
+    ctx.strokeStyle = 'rgba(168, 85, 247, 0.5)';
+    ctx.setLineDash([8, 8]);
+    ctx.lineWidth = 3;
+    ctx.strokeText(letters[idx], canvas.width/2, canvas.height/2);
+    label.textContent = `Trace: ${letters[idx]}`;
+  }
+
+  // Drawing
+  let drawing = false, lastX = 0, lastY = 0;
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return {
+      x: (t.clientX - r.left) * (canvas.width / r.width),
+      y: (t.clientY - r.top) * (canvas.height / r.height)
+    };
+  }
+  function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; }
+  function move(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const p = getPos(e);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#ec4899';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+  }
+  function end() { drawing = false; }
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('mouseleave', end);
+  canvas.addEventListener('touchstart', start);
+  canvas.addEventListener('touchmove', move);
+  canvas.addEventListener('touchend', end);
+
+  drawGuide();
+  mascot.say('Trace with your finger! ✏️');
+}
+
+// ---------- HUD update during game ----------
+function updateHUD2() {
+  $('#hudStars').textContent = gameState.score;
+  $('#hudScore').textContent = gameState.score;
+  $('#hudProgress').textContent = `${gameState.score}/${gameState.total}`;
+}
+
+// ---------- Finish game ----------
+function finishGame() {
+  SFX.win();
+  launchConfetti(120);
+  const score = gameState.score;
+  const total = gameState.total || 1;
+  const ratio = score / total;
+  let stars = 0;
+  if (ratio >= 0.95) stars = 3;
+  else if (ratio >= 0.7) stars = 2;
+  else if (ratio >= 0.4) stars = 1;
+
+  // Save best
+  const prev = state.stars[currentZone.id] || 0;
+  if (stars > prev) state.stars[currentZone.id] = stars;
+
+  // Streak
+  const today = new Date().toDateString();
+  if (state.lastPlay !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    state.streak = (state.lastPlay === yesterday) ? state.streak + 1 : 1;
+    state.lastPlay = today;
+  }
+
+  // Badges
+  checkBadges();
+  saveState();
+
+  // Modal
+  showModal(el('div', {},
+    el('h2', {}, '🎉 Level Complete!'),
+    el('div', { class: 'big-stars' }, '⭐'.repeat(stars) + '☆'.repeat(3 - stars)),
+    el('p', {}, `Score: ${score} / ${total}`),
+    el('div', { class: 'modal-buttons' },
+      el('button', { class: 'btn-chunky', onclick: () => { closeModal(); startGame(gameState.gameId); } }, '🔁 Play Again'),
+      el('button', { class: 'btn-chunky btn-next', onclick: () => { closeModal(); showScreen('mapScreen'); renderMap(); } }, '🗺️ Map')
+    )
+  ));
+  mascot.cheer();
+  mascot.say(`You earned ${stars} star${stars !== 1 ? 's' : ''}! 🌟`);
+}
+
+// ============ BADGES ============
+const BADGES = [
+  { id: 'first_star', name: 'First Star', icon: '⭐', check: () => Object.values(state.stars).some(s => s > 0) },
+  { id: 'abc_master', name: 'ABC Master', icon: '🔤', check: () => (state.stars.abc || 0) === 3 },
+  { id: 'cvc_king', name: 'CVC King', icon: '🐱', check: () => ['l1','l2','l3','l4','l5','l6'].every(id => (state.stars[id] || 0) >= 2) },
+  { id: 'blend_boss', name: 'Blend Boss', icon: '🔔', check: () => (state.stars.l12 || 0) === 3 },
+  { id: 'streak_3', name: '3-Day Streak', icon: '🔥', check: () => state.streak >= 3 },
+  { id: 'streak_7', name: 'Week Warrior', icon: '💎', check: () => state.streak >= 7 },
+  { id: 'half_way', name: 'Halfway Hero', icon: '🦸', check: () => Object.values(state.stars).filter(s => s > 0).length >= 13 },
+  { id: 'champion', name: 'Phonics Champ', icon: '👑', check: () => Object.values(state.stars).filter(s => s === 3).length >= 20 }
+];
+function checkBadges() {
+  BADGES.forEach(b => {
+    if (!state.badges.includes(b.id) && b.check()) {
+      state.badges.push(b.id);
+      SFX.unlock();
+      setTimeout(() => {
+        mascot.say(`New badge: ${b.name}! 🏆`);
+        showModal(el('div', {},
+          el('h2', {}, '🏆 Badge Unlocked!'),
+          el('div', { style: { fontSize: '4rem' } }, b.icon),
+          el('p', { style: { fontSize: '1.3rem', fontWeight: 700 } }, b.name),
+          el('div', { class: 'modal-buttons' },
+            el('button', { class: 'btn-chunky', onclick: closeModal }, 'Awesome!')
+          )
+        ));
+      }, 1200);
+    }
+  });
+}
+
+// ============ MODAL ============
+function showModal(content) {
+  const root = $('#modalRoot');
+  root.innerHTML = '';
+  const modal = el('div', { class: 'modal' }, content);
+  root.append(modal);
+  root.classList.add('active');
+}
+function closeModal() { $('#modalRoot').classList.remove('active'); }
+
+// ============ TROPHY ROOM ============
+function openTrophyRoom() {
+  SFX.tap();
+  const grid = el('div', { class: 'trophy-grid' });
+  BADGES.forEach(b => {
+    const unlocked = state.badges.includes(b.id);
+    grid.append(el('div', { class: 'trophy' + (unlocked ? '' : ' locked') },
+      el('div', { class: 't-icon' }, b.icon),
+      el('div', { class: 't-name' }, b.name)
+    ));
+  });
+  showModal(el('div', {},
+    el('h2', {}, '🏆 Trophy Room'),
+    el('p', {}, `${state.badges.length} / ${BADGES.length} badges`),
+    grid,
+    el('div', { class: 'modal-buttons' },
+      el('button', { class: 'btn-chunky', onclick: closeModal }, 'Close')
+    )
+  ));
+}
+
+// ============ EVENT WIRING ============
+$('#backBtn').onclick = () => { SFX.tap(); showScreen('mapScreen'); renderMap(); };
+$('#exitGameBtn').onclick = () => {
+  SFX.tap();
+  if (confirm('Exit this game? Progress will be lost.')) {
+    showScreen('lessonScreen');
+    openLesson(currentZone.id);
+  }
+};
+$('#muteBtn').onclick = () => {
+  state.muted = !state.muted;
+  $('#muteBtn').textContent = state.muted ? '🔇' : '🔊';
+  saveState();
+};
+$('#trophyBtn').onclick = openTrophyRoom;
+$('#themeBtn').onclick = () => {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', state.theme);
+  $('#themeBtn').textContent = state.theme === 'light' ? '🌙' : '☀️';
+  saveState();
+};
+$('#hintBtn').onclick = () => { mascot.say('You can do it! 💪'); SFX.tap(); };
+
+// ============ INIT ============
+function init() {
+  if (state.theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    $('#themeBtn').textContent = '☀️';
+  }
+  if (state.muted) $('#muteBtn').textContent = '🔇';
+  renderMap();
+  mascot.wave();
+  // Resume audio on first interaction
+  document.addEventListener('click', () => { getAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+}
+init();
