@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My ABC & Phonics - Fun Learning Adventure!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <h1 class="loading-title">🌟 My ABC & Phonics 🌟</h1>
+            <p class="loading-subtitle">Get ready for a fun adventure!</p>
+            <div class="loading-bar">
+                <div class="loading-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button id="home-btn" class="nav-btn" title="Home">🏠</button>
+                <h1 class="app-title">🌈 My ABC & Phonics</h1>
+            </div>
+            <div class="header-right">
+                <div class="star-counter">
+                    <span class="star-icon">⭐</span>
+                    <span id="total-stars">0</span>
+                </div>
+                <div class="progress-badge">
+                    <span id="level-badge">Level 1</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Quest Map View -->
+            <section id="quest-map" class="view active">
+                <div class="map-header">
+                    <h2>🗺️ Learning Adventure Map</h2>
+                    <p>Tap a level to start learning!</p>
+                </div>
+                <div class="map-zones">
+                    <!-- ABC Zone -->
+                    <div class="zone abc-zone">
+                        <h3 class="zone-title">🔤 ABC Alphabet Zone</h3>
+                        <div class="zone-levels" id="abc-zone-levels"></div>
+                    </div>
+                    <!-- Phonics Lessons Zone -->
+                    <div class="zone phonics-zone">
+                        <h3 class="zone-title">📚 Phonics Lessons</h3>
+                        <div class="zone-levels" id="phonics-zone-levels"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABC Alphabet View -->
+            <section id="abc-view" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="quest-map">← Back</button>
+                    <h2>🔤 ABC Alphabet & Picture Dictionary</h2>
+                </div>
+                <div class="abc-grid" id="abc-grid"></div>
+                <div class="abc-controls">
+                    <button id="abc-quiz-btn" class="game-btn">🎯 Alphabet Quiz</button>
+                    <button id="abc-trace-btn" class="game-btn">✏️ Trace Letters</button>
+                </div>
+            </section>
+
+            <!-- Lesson View -->
+            <section id="lesson-view" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="quest-map">← Back</button>
+                    <h2 id="lesson-title">Lesson</h2>
+                </div>
+                <div class="lesson-content" id="lesson-content"></div>
+                <div class="lesson-games" id="lesson-games"></div>
+            </section>
+
+            <!-- Game Views -->
+            <section id="sound-cards-game" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="lesson-view">← Back</button>
+                    <h2>🔊 Sound Cards</h2>
+                </div>
+                <div class="game-area" id="sound-cards-area"></div>
+            </section>
+
+            <section id="drag-drop-game" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="lesson-view">← Back</button>
+                    <h2>🧩 Word Builder</h2>
+                </div>
+                <div class="game-area" id="drag-drop-area">
+                    <div class="word-display" id="word-display"></div>
+                    <div class="word-image" id="word-image"></div>
+                    <div class="drop-zone" id="drop-zone"></div>
+                    <div class="letter-tiles" id="letter-tiles"></div>
+                    <div class="game-controls">
+                        <button id="check-word-btn" class="game-btn success-btn">✓ Check</button>
+                        <button id="next-word-btn" class="game-btn">Next Word →</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="magic-e-game" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="lesson-view">← Back</button>
+                    <h2>✨ Magic 'e' Wand</h2>
+                </div>
+                <div class="game-area" id="magic-e-area">
+                    <div class="magic-e-display">
+                        <div class="word-before" id="word-before">TAP</div>
+                        <div class="magic-wand" id="magic-wand">
+                            <span class="wand-icon">🪄</span>
+                            <button id="wand-btn" class="wand-btn">Tap to Transform!</button>
+                        </div>
+                        <div class="word-after" id="word-after">TAPE</div>
+                    </div>
+                    <div class="magic-e-explanation" id="magic-e-explanation"></div>
+                    <div class="game-controls">
+                        <button id="next-magic-btn" class="game-btn">Next Word →</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="listening-game" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="lesson-view">← Back</button>
+                    <h2>👂 Listening Quiz</h2>
+                </div>
+                <div class="game-area" id="listening-area">
+                    <div class="listening-prompt">
+                        <button id="play-sound-btn" class="big-play-btn">🔊 Listen!</button>
+                        <p>Click the correct word!</p>
+                    </div>
+                    <div class="listening-options" id="listening-options"></div>
+                    <div class="listening-score">
+                        <span>Score: <span id="listening-score">0</span>/5</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="unscramble-game" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="lesson-view">← Back</button>
+                    <h2>🔀 Word Unscramble</h2>
+                </div>
+                <div class="game-area" id="unscramble-area">
+                    <div class="unscramble-hint" id="unscramble-hint"></div>
+                    <div class="unscramble-slots" id="unscramble-slots"></div>
+                    <div class="unscramble-tiles" id="unscramble-tiles"></div>
+                    <div class="game-controls">
+                        <button id="clear-unscramble-btn" class="game-btn">🔄 Clear</button>
+                        <button id="check-unscramble-btn" class="game-btn success-btn">✓ Check</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tracing-game" class="view">
+                <div class="view-header">
+                    <button class="back-btn" data-view="quest-map">← Back</button>
+                    <h2>✏️ Letter Tracing</h2>
+                </div>
+                <div class="game-area" id="tracing-area">
+                    <div class="tracing-controls">
+                        <button id="prev-letter-btn" class="game-btn">← Prev</button>
+                        <span id="current-trace-letter" class="trace-letter-display">A</span>
+                        <button id="next-letter-btn" class="game-btn">Next →</button>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="tracing-canvas" width="400" height="400"></canvas>
+                        <div class="guide-letter" id="guide-letter">A</div>
+                    </div>
+                    <div class="tracing-actions">
+                        <button id="clear-canvas-btn" class="game-btn">🗑️ Clear</button>
+                        <button id="complete-trace-btn" class="game-btn success-btn">✓ Done!</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Celebration Overlay -->
+        <div id="celebration" class="celebration-overlay hidden">
+            <div class="celebration-content">
+                <div class="celebration-stars"></div>
+                <h2 class="celebration-title">🎉 Amazing! 🎉</h2>
+                <p class="celebration-text" id="celebration-text">You earned a star!</p>
+                <button id="close-celebration" class="game-btn">Continue →</button>
+            </div>
+        </div>
+
+        <!-- Kazakh Translation Popup -->
+        <div id="translation-popup" class="translation-popup hidden">
+            <div class="popup-content">
+                <button class="popup-close" id="close-popup">×</button>
+                <div class="popup-letter" id="popup-letter"></div>
+                <div class="popup-word" id="popup-word"></div>
+                <div class="popup-image" id="popup-image"></div>
+                <div class="popup-kazakh" id="popup-kazakh"></div>
+                <button id="popup-sound-btn" class="game-btn">🔊 Say it!</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>🌟 Keep learning, keep growing! 🌟</p>
+            <p class="footer-credit">Based on "My ABC & Phonics" by Akerke Beibitzhan</p>
+        </footer>
+    </div>
+
+    <!-- Confetti Container -->
+    <div id="confetti-container" class="confetti-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
