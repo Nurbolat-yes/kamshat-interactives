@@ -3,7 +3,6 @@
    13 topics focused on Present Simple & everyday English
    All topics are unlocked by default.
    ========================================================= */
-
 // ---------- TOPIC DATA ----------
 const TOPICS = [
   {
