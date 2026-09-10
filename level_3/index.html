@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grammar Explorer 🧭 — Level 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Mascot: Ollie the Explorer Owl -->
+<div id="mascot" class="mascot">
+  <div class="mascot-backpack"></div>
+  <div class="mascot-body">
+    <div class="mascot-hat">
+      <div class="hat-brim"></div>
+      <div class="hat-top"></div>
+      <div class="hat-band"></div>
+    </div>
+    <div class="mascot-eyes">
+      <span class="eye left"></span>
+      <span class="eye right"></span>
+    </div>
+    <div class="mascot-beak"></div>
+    <div class="mascot-compass">
+      <div class="compass-needle"></div>
+    </div>
+    <div class="mascot-wing left"></div>
+    <div class="mascot-wing right"></div>
+  </div>
+  <div id="mascot-bubble" class="mascot-bubble hidden">Adventure awaits! 🧭</div>
+</div>
+
+<nav class="topbar">
+  <button id="nav-home" class="nav-btn">🏠 Base Camp</button>
+  <button id="nav-topics" class="nav-btn">🗺️ Map</button>
+  <button id="nav-progress" class="nav-btn">🏆 Journal</button>
+  <div class="stars-display">⭐ <span id="total-stars">0</span></div>
+</nav>
+
+<!-- ============ HOME ============ -->
+<section id="page-home" class="page active">
+  <div class="home-hero">
+    <div class="level-badge">LEVEL 3</div>
+    <h1 class="title-rainbow">Grammar Explorer</h1>
+    <p class="subtitle">Journey through time & tenses! 🧭✨</p>
+    <button id="start-btn" class="big-btn rainbow-btn">Start Exploring! 🧭</button>
+  </div>
+
+  <div class="home-grid">
+    <div class="feature-card teal">
+      <div class="feature-icon">⏰</div>
+      <h3>Past, Present & Future</h3>
+      <p>Master every tense!</p>
+    </div>
+    <div class="feature-card purple">
+      <div class="feature-icon">🗺️</div>
+      <h3>13 Expeditions</h3>
+      <p>Each topic is an adventure</p>
+    </div>
+    <div class="feature-card orange">
+      <div class="feature-icon">⭐</div>
+      <h3>Collect Stars</h3>
+      <p>Up to 3 stars per topic</p>
+    </div>
+    <div class="feature-card green">
+      <div class="feature-icon">🏆</div>
+      <h3>Earn Diploma</h3>
+      <p>Finish all 13 to win!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOPICS MENU ============ -->
+<section id="page-topics" class="page">
+  <h2 class="page-title">The Explorer's Map 🗺️</h2>
+  <p class="page-sub">Choose any path — all expeditions are open!</p>
+  <div id="topics-grid" class="topics-grid"></div>
+</section>
+
+<!-- ============ TOPIC PAGE ============ -->
+<section id="page-topic" class="page">
+  <div class="topic-header">
+    <button id="back-to-topics" class="nav-btn">◀ Map</button>
+    <h2 id="topic-title" class="page-title"></h2>
+    <div class="topic-nav">
+      <button id="prev-topic-btn" class="nav-btn">◀ Prev</button>
+      <button id="next-topic-btn" class="nav-btn">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="learn">📖 Learn</button>
+    <button class="tab" data-tab="practice">🎮 Practice</button>
+    <button class="tab" data-tab="quiz">📝 Quiz</button>
+  </div>
+
+  <div id="tab-learn" class="tab-content active">
+    <div id="learn-content" class="learn-box"></div>
+    <button id="go-practice-btn" class="big-btn">Let's Practice! 🎮</button>
+  </div>
+
+  <div id="tab-practice" class="tab-content">
+    <div id="practice-area" class="practice-box"></div>
+    <div class="practice-controls">
+      <button id="check-answer-btn" class="big-btn green-btn">Check ✓</button>
+      <button id="next-exercise-btn" class="big-btn blue-btn hidden">Next ➡</button>
+    </div>
+    <div id="practice-feedback" class="feedback"></div>
+  </div>
+
+  <div id="tab-quiz" class="tab-content">
+    <div id="quiz-area" class="quiz-box"></div>
+    <div class="quiz-controls">
+      <button id="quiz-next-btn" class="big-btn blue-btn hidden">Next Question ➡</button>
+    </div>
+    <div id="quiz-feedback" class="feedback"></div>
+  </div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section id="page-progress" class="page">
+  <h2 class="page-title">Explorer's Journal 🏆</h2>
+  <div class="progress-summary">
+    <div class="stat-card">
+      <div class="stat-icon">🗺️</div>
+      <div class="stat-value"><span id="completed-count">0</span>/13</div>
+      <div class="stat-label">Expeditions Done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value" id="total-stars-big">0</div>
+      <div class="stat-label">Stars Earned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value" id="accuracy-display">0%</div>
+      <div class="stat-label">Accuracy</div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Expedition Badges</h3>
+  <div id="badges-grid" class="badges-grid"></div>
+
+  <div id="diploma" class="diploma hidden">
+    <div class="diploma-inner">
+      <h2>🎉 CONGRATULATIONS! 🎉</h2>
+      <p>You've explored all 13 expeditions!</p>
+      <div class="diploma-badge">🏆</div>
+      <p class="diploma-name">Master Grammar Explorer!</p>
+      <p class="diploma-stars">⭐ <span id="final-stars">0</span> stars ⭐</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <div id="modal-body"></div>
+    <button id="modal-close" class="big-btn">OK! 👍</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
