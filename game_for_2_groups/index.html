@@ -513,6 +513,27 @@ body {
 }
 
 /* Question card */
+.quiz-topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin: 0 0 16px;
+}
+.quiz-stage-label {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px; font-weight: 700;
+}
+.timer-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+  font-family: 'Fredoka', sans-serif; font-size: 18px; font-weight: 700;
+}
+.timer-pill strong { font-size: 20px; }
+.dual-quiz-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
 .question-card {
   padding: 24px;
   border-radius: 24px;
@@ -520,6 +541,36 @@ body {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 14px 36px rgba(0,0,0,0.25);
+}
+.team-panel-header {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.team-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 120px; padding: 8px 12px;
+  border-radius: 999px; font-family: 'Fredoka', sans-serif; font-weight: 700;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.35);
+}
+.panel-counter {
+  font-size: 13px; font-weight: 700; opacity: 0.85;
+}
+.panel-timer {
+  min-width: 62px; padding: 8px 10px;
+  border-radius: 999px; background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.35);
+  text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15px;
+  transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.panel-timer.warning {
+  background: linear-gradient(135deg, rgba(255,78,91,0.95), rgba(203,49,49,0.95));
+  border-color: rgba(255,255,255,0.7);
+  box-shadow: 0 0 0 2px rgba(255,90,90,0.4), 0 0 18px rgba(255,90,90,0.8);
+  animation: timerFlash 0.6s infinite alternate;
+}
+@keyframes timerFlash {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.05); opacity: 0.8; }
 }
 .progress-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -829,20 +880,27 @@ body {
 <section class="screen" id="screen-quiz">
   <div class="quiz-wrap">
     <div class="minigame-banner" id="minigameBanner"></div>
-    <div class="question-card">
-      <div class="progress-row">
-        <span id="qCounter">Сұрақ 1 / 25</span>
-        <span id="qStage">1-кезең</span>
+    <div class="quiz-topbar">
+      <div class="quiz-stage-label" id="qStage">1-кезең</div>
+    </div>
+    <div class="dual-quiz-grid">
+      <div class="question-card team-panel" id="teamPanel0">
+        <div class="team-panel-header">
+          <div class="team-chip" id="teamChip0">Команда 1</div>
+          <div class="panel-counter" id="teamCounter0">Сұрақ 1 / 25</div>
+          <div class="panel-timer" id="panelTimer0">15с</div>
+        </div>
+        <div class="question-text" id="questionText0"></div>
+        <div class="options" id="options0"></div>
       </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="question-text" id="questionText"></div>
-      <div class="options" id="options"></div>
-      <div class="host-controls" id="hostControls">
-        <button class="host-btn" id="hostBtn1" style="background:linear-gradient(135deg,#ffd86b,#ff9a3c);">+1 <span id="hostName1">Команда 1</span></button>
-        <button class="host-btn" id="hostBtn2" style="background:linear-gradient(135deg,#6ad1ff,#2575fc);">+1 <span id="hostName2">Команда 2</span></button>
-      </div>
-      <div class="next-row" id="nextRow">
-        <button class="btn secondary" id="nextBtn">Келесі сұрақ →</button>
+      <div class="question-card team-panel" id="teamPanel1">
+        <div class="team-panel-header">
+          <div class="team-chip" id="teamChip1">Команда 2</div>
+          <div class="panel-counter" id="teamCounter1">Сұрақ 1 / 25</div>
+          <div class="panel-timer" id="panelTimer1">15с</div>
+        </div>
+        <div class="question-text" id="questionText1"></div>
+        <div class="options" id="options1"></div>
       </div>
     </div>
   </div>
@@ -1008,11 +1066,20 @@ const state = {
     { name: "Команда 1", color: "#ffd86b", score: 0, stageScore: 0 },
     { name: "Команда 2", color: "#6ad1ff", score: 0, stageScore: 0 },
   ],
-  currentStage: 1,       // 1,2,3
-  currentQuestion: 0,    // index within stage
-  answered: false,       // has current question been answered?
-  pointAwarded: false,   // has host awarded point for current question?
+  currentStage: 1,
+  currentRound: 0,
+  answered: false,
+  pointAwarded: false,
   completedStages: new Set(),
+  teamOrders: [[], []],
+  teamCurrentQuestion: [0, 0],
+  teamAnswered: [false, false],
+  teamTimedOut: [false, false],
+  teamSelectedAnswers: [null, null],
+  teamTimers: [30, 30],
+  teamTimerIntervals: [null, null],
+  roundTimer: 30,
+  roundTimerInterval: null,
   // Mini-game progress (rope offset / race steps)
   // NOTE on rope persistence: we reset the rope at the start of each stage
   // (clear visual between stages) but cumulative team SCORE persists across
@@ -1058,6 +1125,7 @@ const AudioEngine = (() => {
 
   function click() { tone({freq: 700, dur:0.05, type:'square', vol:0.08}); }
   function hover() { tone({freq: 900, dur:0.03, type:'sine', vol:0.04}); }
+  function timerTick() { tone({freq: 820, dur:0.06, type:'square', vol:0.07}); }
   function correct() {
     tone({freq:660, dur:0.12, type:'triangle', vol:0.18});
     setTimeout(()=>tone({freq:880, dur:0.16, type:'triangle', vol:0.18}), 100);
@@ -1111,7 +1179,7 @@ const AudioEngine = (() => {
   }
   function isMuted() { return muted; }
 
-  return { ensureCtx, click, hover, correct, wrong, point, fanfare, drumroll, boing, hoof, tug, startBg, stopBg, setMuted, isMuted };
+  return { ensureCtx, click, hover, timerTick, correct, wrong, point, fanfare, drumroll, boing, hoof, tug, startBg, stopBg, setMuted, isMuted };
 })();
 
 /* ============================================================
@@ -1345,10 +1413,12 @@ function updateScoreboard() {
   document.getElementById('sbRightBadge').style.background = t2.color;
   document.getElementById('sbLeftBadge').textContent = t1.name.charAt(0).toUpperCase();
   document.getElementById('sbRightBadge').textContent = t2.name.charAt(0).toUpperCase();
-  document.getElementById('hostName1').textContent = t1.name;
-  document.getElementById('hostName2').textContent = t2.name;
-  document.getElementById('hostBtn1').style.background = `linear-gradient(135deg, ${t1.color}, ${shade(t1.color,-20)})`;
-  document.getElementById('hostBtn2').style.background = `linear-gradient(135deg, ${t2.color}, ${shade(t2.color,-20)})`;
+  const chip0 = document.getElementById('teamChip0');
+  const chip1 = document.getElementById('teamChip1');
+  if (chip0) chip0.textContent = t1.name;
+  if (chip1) chip1.textContent = t2.name;
+  if (chip0) chip0.style.background = `linear-gradient(135deg, ${t1.color}, ${shade(t1.color, -20)})`;
+  if (chip1) chip1.style.background = `linear-gradient(135deg, ${t2.color}, ${shade(t2.color, -20)})`;
 }
 function shade(hex, percent) {
   // Simple hex shade helper
@@ -1406,7 +1476,17 @@ function renderStages() {
    ============================================================ */
 function startStage(stageNum) {
   state.currentStage = stageNum;
-  state.currentQuestion = 0;
+  state.currentRound = 0;
+  state.teamOrders = [
+    shuffleQuestions(currentQuestions()),
+    shuffleQuestions(currentQuestions())
+  ];
+  state.teamCurrentQuestion = [0, 0];
+  state.teamAnswered = [false, false];
+  state.teamTimedOut = [false, false];
+  state.teamSelectedAnswers = [null, null];
+  state.teamTimers = [15, 15];
+  state.teamTimerIntervals = [null, null];
   state.answered = false;
   state.pointAwarded = false;
   // Reset per-stage score
@@ -1415,8 +1495,10 @@ function startStage(stageNum) {
   // Reset mini-game progress for this stage
   state.ropeOffset = 0;
   state.raceSteps = [0, 0];
+  stopTeamTimer(0);
+  stopTeamTimer(1);
   renderMinigame();
-  renderQuestion();
+  renderRound();
   showScreen('quiz');
 }
 
@@ -1516,70 +1598,146 @@ function updateRace() {
 /* ============================================================
    QUESTION RENDER
    ============================================================ */
-function renderQuestion() {
-  const qs = currentQuestions();
-  const q = qs[state.currentQuestion];
-  state.answered = false;
-  state.pointAwarded = false;
+function shuffleQuestions(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
-  document.getElementById('qCounter').textContent = `Сұрақ ${state.currentQuestion+1} / ${qs.length}`;
-  document.getElementById('qStage').textContent = STAGE_META[state.currentStage-1].title;
-  document.getElementById('progressFill').style.width = ((state.currentQuestion) / qs.length * 100) + '%';
-  document.getElementById('questionText').textContent = q.question;
+function stopTeamTimer(teamIndex) {
+  if (state.teamTimerIntervals[teamIndex]) {
+    clearInterval(state.teamTimerIntervals[teamIndex]);
+    state.teamTimerIntervals[teamIndex] = null;
+  }
+}
 
-  const opts = document.getElementById('options');
-  opts.innerHTML = '';
-  ['A','B','C','D'].forEach(key => {
+function startTeamTimer(teamIndex) {
+  stopTeamTimer(teamIndex);
+  state.teamTimers[teamIndex] = 15;
+  updateTeamTimerUI(teamIndex);
+
+  state.teamTimerIntervals[teamIndex] = setInterval(() => {
+    state.teamTimers[teamIndex] -= 1;
+    updateTeamTimerUI(teamIndex);
+
+    if (state.teamTimers[teamIndex] <= 5) {
+      AudioEngine.timerTick();
+    }
+
+    if (state.teamTimers[teamIndex] <= 0) {
+      handleTeamTimeout(teamIndex);
+    }
+  }, 1000);
+}
+
+function updateTeamTimerUI(teamIndex) {
+  const timerEl = document.getElementById(`panelTimer${teamIndex}`);
+  if (!timerEl) return;
+  timerEl.textContent = `${state.teamTimers[teamIndex]}с`;
+  timerEl.classList.toggle('warning', state.teamTimers[teamIndex] <= 5);
+}
+
+function renderTeamPanel(teamIndex) {
+  const teamOrders = state.teamOrders[teamIndex];
+  const qIndex = state.teamCurrentQuestion[teamIndex];
+  const q = teamOrders[qIndex];
+  const questionText = document.getElementById(`questionText${teamIndex}`);
+  const options = document.getElementById(`options${teamIndex}`);
+  const teamChip = document.getElementById(`teamChip${teamIndex}`);
+  const counter = document.getElementById(`teamCounter${teamIndex}`);
+
+  if (!questionText || !options || !teamChip || !counter) return;
+
+  if (!q) {
+    questionText.textContent = '✅ Барлық сұрақтар аяқталды';
+    options.innerHTML = '';
+    counter.textContent = 'Дайын';
+    teamChip.textContent = `${state.teams[teamIndex].name} ✓`;
+    stopTeamTimer(teamIndex);
+    updateTeamTimerUI(teamIndex);
+    return;
+  }
+
+  teamChip.textContent = state.teams[teamIndex].name;
+  counter.textContent = `Сұрақ ${qIndex + 1} / ${teamOrders.length}`;
+  questionText.textContent = q.question;
+  options.innerHTML = '';
+
+  const selected = state.teamSelectedAnswers[teamIndex];
+  const isAnswered = state.teamAnswered[teamIndex];
+  const isTimedOut = state.teamTimedOut[teamIndex];
+
+  ['A', 'B', 'C', 'D'].forEach(key => {
     if (!q.options[key]) return;
     const btn = document.createElement('button');
     btn.className = 'option';
     btn.innerHTML = `<span class="letter">${key}</span><span>${q.options[key]}</span>`;
-    btn.addEventListener('click', () => onAnswer(key, btn));
+    btn.disabled = isAnswered || isTimedOut;
     btn.addEventListener('mouseenter', () => AudioEngine.hover());
-    opts.appendChild(btn);
-  });
 
-  document.getElementById('hostControls').classList.remove('visible');
-  document.getElementById('nextRow').classList.remove('visible');
+    if (isAnswered || isTimedOut) {
+      if (key === q.correctAnswer) btn.classList.add('correct');
+      if (selected && selected === key && key !== q.correctAnswer) btn.classList.add('wrong');
+    }
+
+    if (!(isAnswered || isTimedOut)) {
+      btn.addEventListener('click', () => onAnswer(teamIndex, key));
+    }
+
+    options.appendChild(btn);
+  });
 }
 
-function onAnswer(chosen, btnEl) {
-  if (state.answered) return;
-  state.answered = true;
-  const q = currentQuestions()[state.currentQuestion];
-  const allBtns = document.querySelectorAll('#options .option');
-  allBtns.forEach(b => b.disabled = true);
+function renderRound() {
+  state.teamAnswered = [false, false];
+  state.teamTimedOut = [false, false];
+  state.teamSelectedAnswers = [null, null];
+
+  document.getElementById('qStage').textContent = STAGE_META[state.currentStage - 1].title;
+  renderTeamPanel(0);
+  renderTeamPanel(1);
+  startTeamTimer(0);
+  startTeamTimer(1);
+}
+
+function onAnswer(teamIndex, chosen) {
+  if (state.teamAnswered[teamIndex]) return;
+
+  state.teamAnswered[teamIndex] = true;
+  state.teamSelectedAnswers[teamIndex] = chosen;
+  stopTeamTimer(teamIndex);
+
+  const q = state.teamOrders[teamIndex][state.teamCurrentQuestion[teamIndex]];
+  const teamBtns = document.querySelectorAll(`#options${teamIndex} .option`);
+  teamBtns.forEach(btn => btn.disabled = true);
 
   if (chosen === q.correctAnswer) {
-    btnEl.classList.add('correct');
     AudioEngine.correct();
-    Confetti.burst(60);
-    document.getElementById('hostControls').classList.add('visible');
+    Confetti.burst(40);
+    awardPoint(teamIndex);
   } else {
-    btnEl.classList.add('wrong');
     AudioEngine.wrong();
-    document.getElementById('hostControls').classList.remove('visible');
-    document.getElementById('nextRow').classList.add('visible');
-    // Highlight correct one too
-    allBtns.forEach(b => {
-      const letter = b.querySelector('.letter').textContent;
-      if (letter === q.correctAnswer) b.classList.add('correct');
-    });
+    const correctBtn = [...teamBtns].find(b => b.querySelector('.letter').textContent === q.correctAnswer);
+    if (correctBtn) correctBtn.classList.add('correct');
+    const wrongBtn = [...teamBtns].find(b => b.querySelector('.letter').textContent === chosen);
+    if (wrongBtn) wrongBtn.classList.add('wrong');
   }
+
+  renderTeamPanel(teamIndex);
+  setTimeout(() => advanceTeam(teamIndex), 900);
 }
 
 function awardPoint(teamIndex) {
-  if (state.pointAwarded) return;
-  state.pointAwarded = true;
   state.teams[teamIndex].score += 1;
   state.teams[teamIndex].stageScore += 1;
   AudioEngine.point();
   popScore(teamIndex);
   updateScoreboard();
 
-  // Advance mini-game
   if (state.currentStage === 1) {
-    // Tug: team 0 pulls left (negative offset), team 1 pulls right (positive)
     const delta = teamIndex === 0 ? -12 : +12;
     state.ropeOffset = Math.max(-100, Math.min(100, state.ropeOffset + delta));
     updateTug();
@@ -1589,24 +1747,36 @@ function awardPoint(teamIndex) {
     updateRace();
     if (state.currentStage === 2) AudioEngine.hoof(); else AudioEngine.boing();
   }
-
-  // Show next button
-  document.getElementById('nextRow').classList.add('visible');
 }
 
-function nextQuestion() {
-  AudioEngine.click();
-  const qs = currentQuestions();
-  if (state.currentQuestion + 1 >= qs.length) {
-    // Stage complete
-    state.completedStages.add(state.currentStage);
-    AudioEngine.fanfare();
-    Confetti.burst(120);
-    showStageEnd();
-  } else {
-    state.currentQuestion++;
-    renderQuestion();
+function handleTeamTimeout(teamIndex) {
+  stopTeamTimer(teamIndex);
+  state.teamAnswered[teamIndex] = true;
+  state.teamTimedOut[teamIndex] = true;
+  renderTeamPanel(teamIndex);
+  setTimeout(() => advanceTeam(teamIndex), 900);
+}
+
+function advanceTeam(teamIndex) {
+  state.teamCurrentQuestion[teamIndex] += 1;
+
+  if (state.teamCurrentQuestion[teamIndex] >= state.teamOrders[teamIndex].length) {
+    if (state.teamCurrentQuestion[0] >= state.teamOrders[0].length && state.teamCurrentQuestion[1] >= state.teamOrders[1].length) {
+      state.completedStages.add(state.currentStage);
+      AudioEngine.fanfare();
+      Confetti.burst(120);
+      showStageEnd();
+    } else {
+      renderTeamPanel(teamIndex);
+    }
+    return;
   }
+
+  state.teamAnswered[teamIndex] = false;
+  state.teamTimedOut[teamIndex] = false;
+  state.teamSelectedAnswers[teamIndex] = null;
+  startTeamTimer(teamIndex);
+  renderTeamPanel(teamIndex);
 }
 
 /* ============================================================
@@ -1696,13 +1866,19 @@ function showWinner() {
    RESTART
    ============================================================ */
 function restartTournament() {
+  stopTeamTimer(0);
+  stopTeamTimer(1);
   state.teams[0].score = 0;
   state.teams[1].score = 0;
   state.teams[0].stageScore = 0;
   state.teams[1].stageScore = 0;
   state.completedStages.clear();
   state.currentStage = 1;
-  state.currentQuestion = 0;
+  state.currentRound = 0;
+  state.teamOrders = [[], []];
+  state.teamAnswered = [false, false];
+  state.teamTimedOut = [false, false];
+  state.teamSelectedAnswers = [null, null];
   state.ropeOffset = 0;
   state.raceSteps = [0,0];
   updateScoreboard();
@@ -1735,11 +1911,6 @@ function wireEvents() {
     AudioEngine.click();
     showScreen('setup');
   });
-
-  // Quiz host buttons
-  document.getElementById('hostBtn1').addEventListener('click', () => awardPoint(0));
-  document.getElementById('hostBtn2').addEventListener('click', () => awardPoint(1));
-  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
 
   // Winner restart
   document.getElementById('finalRestartBtn').addEventListener('click', () => {
