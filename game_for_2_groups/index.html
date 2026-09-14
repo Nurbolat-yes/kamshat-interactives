@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Арқан тартыс / Бәйге / Қаппен жарыс — Білім додасы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   GLOBAL RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow-x: hidden; }
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  color: #fff;
+  background: linear-gradient(135deg, #6a11cb 0%, #ff4e9a 50%, #ffb86b 100%);
+  background-size: 400% 400%;
+  animation: bgShift 22s ease infinite;
+  min-height: 100vh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+@keyframes bgShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================================
+   3D BACKGROUND CANVAS (three.js)
+   ============================================================ */
+#bg3d {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+/* ============================================================
+   SCATTERED FLOATING SPRITES (CSS/SVG)
+   ============================================================ */
+.sprites {
+  position: fixed; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sprite {
+  position: absolute;
+  font-size: 28px;
+  opacity: 0.85;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  will-change: transform;
+}
+.sprite.s1 { animation: bob1 7s ease-in-out infinite; }
+.sprite.s2 { animation: bob2 9s ease-in-out infinite; }
+.sprite.s3 { animation: bob3 11s ease-in-out infinite; }
+.sprite.s4 { animation: spin 14s linear infinite; }
+@keyframes bob1 {
+  0%,100% { transform: translateY(0) rotate(-6deg); }
+  50%     { transform: translateY(-22px) rotate(6deg); }
+}
+@keyframes bob2 {
+  0%,100% { transform: translateY(0) translateX(0) rotate(4deg); }
+  50%     { transform: translateY(-14px) translateX(10px) rotate(-8deg); }
+}
+@keyframes bob3 {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%     { transform: translateY(-18px) scale(1.08); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   CONFETTI CANVAS
+   ============================================================ */
+#confetti {
+  position: fixed; inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+/* ============================================================
+   UTILITY BAR (mute + restart)
+   ============================================================ */
+.util-bar {
+  position: fixed;
+  bottom: 18px; right: 18px;
+  z-index: 9999;
+  display: flex; gap: 10px;
+}
+.util-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.35);
+  transition: transform .15s ease, background .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.util-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.35); }
+.util-btn:active { transform: scale(0.95); }
+
+/* ============================================================
+   SCOREBOARD HEADER (persistent during quiz)
+   ============================================================ */
+.scoreboard {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: none;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0));
+}
+.scoreboard.visible { display: flex; }
+.team-score {
+  flex: 1;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.35);
+  max-width: 320px;
+}
+.team-score.right { flex-direction: row-reverse; text-align: right; margin-left: auto; }
+.team-badge {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+  color: #fff;
+  box-shadow: 0 0 18px currentColor;
+}
+.team-info { display: flex; flex-direction: column; line-height: 1.1; }
+.team-name {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.team-points {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  text-shadow: 0 0 14px currentColor, 0 2px 6px rgba(0,0,0,0.4);
+  transition: transform .25s ease;
+}
+.team-points.pop { animation: popScore .5s ease; }
+@keyframes popScore {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.45); filter: brightness(1.6); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeSlide .5s ease both;
+}
+.screen.active { display: flex; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   GLASSMORPHISM CARD
+   ============================================================ */
+.glass {
+  background: rgba(28, 22, 36, 0.38);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.24);
+  box-shadow:
+    0 18px 48px rgba(0,0,0,0.28),
+    inset 0 0 0 1px rgba(255,255,255,0.22);
+  padding: 28px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* ============================================================
+   LANDING SCREEN
+   ============================================================ */
+.hero-title {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(34px, 6vw, 64px);
+  text-align: center;
+  line-height: 1.05;
+  background: linear-gradient(90deg, #fff 0%, #ffe27a 50%, #ff9ed8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  animation: heroPulse 3s ease-in-out infinite;
+}
+@keyframes heroPulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.03); }
+}
+.hero-sub {
+  text-align: center;
+  margin-top: 10px;
+  font-size: clamp(15px, 2vw, 19px);
+  opacity: 0.95;
+  font-weight: 600;
+}
+.hero-tag {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 15px;
+  opacity: 0.9;
+  max-width: 640px;
+  line-height: 1.55;
+}
+.btn {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 16px 30px;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff4e9a, #ffb86b);
+  box-shadow: 0 10px 24px rgba(255,78,154,0.45), inset 0 0 0 1px rgba(255,255,255,0.4);
+  transition: transform .15s ease, box-shadow .2s;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+.btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 14px 30px rgba(255,78,154,0.55); }
+.btn:active { transform: scale(0.97); }
+.btn.secondary {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  box-shadow: 0 10px 24px rgba(37,117,252,0.45), inset 0 0 0 1px rgba(255,255,255,0.4);
+}
+.btn.gold {
+  background: linear-gradient(135deg, #ffd86b, #ff9a3c);
+  box-shadow: 0 10px 24px rgba(255,154,60,0.45), inset 0 0 0 1px rgba(255,255,255,0.4);
+  color: #3a1a00;
+}
+.btn.ghost {
+  background: rgba(255,255,255,0.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+/* ============================================================
+   TEAM SETUP
+   ============================================================ */
+.teams-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+.team-card {
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(22, 18, 34, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
+}
+.team-card h3 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+.team-card input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255,255,255,0.85);
+  color: #222;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  box-shadow: inset 0 0 0 2px transparent;
+  transition: box-shadow .2s;
+}
+.team-card input[type="text"]:focus { box-shadow: inset 0 0 0 2px #ffd86b; }
+.color-palette {
+  display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+}
+.color-swatch {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid rgba(255,255,255,0.5);
+  transition: transform .15s;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.active { border-color: #fff; box-shadow: 0 0 16px currentColor; transform: scale(1.12); }
+
+/* ============================================================
+   STAGE SELECTION
+   ============================================================ */
+.stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.stage-card {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(22, 18, 34, 0.26);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 10px 28px rgba(0,0,0,0.2);
+  text-align: center;
+  transition: transform .2s;
+  position: relative;
+}
+.stage-card:hover { transform: translateY(-4px); }
+.stage-card.locked { opacity: 0.55; pointer-events: none; }
+.stage-icon { font-size: 54px; margin-bottom: 8px; }
+.stage-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.stage-sub { font-size: 14px; opacity: 0.9; margin-bottom: 14px; }
+.lock-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 22px;
+}
+
+/* ============================================================
+   QUIZ SCREEN
+   ============================================================ */
+.quiz-wrap { width: 100%; max-width: 980px; }
+.minigame-banner {
+  width: 100%;
+  margin: 14px 0 18px;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: rgba(22, 18, 34, 0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 10px 26px rgba(0,0,0,0.22);
+  overflow: hidden;
+}
+.minigame-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  margin-bottom: 8px;
+  text-align: center;
+  opacity: 0.95;
+}
+
+/* Tug of war */
+.tug {
+  position: relative;
+  height: 110px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  border-radius: 16px;
+  overflow: hidden;
+}
+.tug .rope {
+  position: absolute;
+  top: 50%; left: 10%; right: 10%;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, #c98a3c 0 10px, #a86a22 10px 20px);
+  border-radius: 6px;
+  transform: translateY(-50%);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
+.tug .knot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #ffd86b 60%, #ff9a3c);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 18px #ffd86b, 0 4px 10px rgba(0,0,0,0.4);
+  transition: left .7s cubic-bezier(.34,1.56,.64,1);
+}
+.tug .centerline {
+  position: absolute;
+  top: 10%; bottom: 10%;
+  left: 50%;
+  width: 3px;
+  background: rgba(255,255,255,0.6);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+.tug .threshold {
+  position: absolute;
+  top: 10%; bottom: 10%;
+  width: 3px;
+  background: rgba(255,255,255,0.35);
+  border-radius: 2px;
+}
+.tug .threshold.left { left: 22%; }
+.tug .threshold.right { right: 22%; }
+.tug .puller {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 44px;
+  transition: transform .4s ease;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+.tug .puller.left { left: 3%; }
+.tug .puller.right { right: 3%; transform: translateY(-50%) scaleX(-1); }
+.tug .puller.tug-left  { animation: tugL .5s ease; }
+.tug .puller.tug-right { animation: tugR .5s ease; }
+@keyframes tugL {
+  0%,100% { transform: translateY(-50%) translateX(0); }
+  50%     { transform: translateY(-50%) translateX(-10px); }
+}
+@keyframes tugR {
+  0%,100% { transform: translateY(-50%) scaleX(-1) translateX(0); }
+  50%     { transform: translateY(-50%) scaleX(-1) translateX(-10px); }
+}
+
+/* Horse / Sack race */
+.race {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.race-lane {
+  position: relative;
+  height: 64px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  border-radius: 14px;
+  overflow: hidden;
+}
+.race-lane .track {
+  position: absolute;
+  top: 50%; left: 6%; right: 6%;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.4) 0 8px, transparent 8px 16px);
+  transform: translateY(-50%);
+  border-radius: 3px;
+}
+.race-lane .flag {
+  position: absolute;
+  left: 4%; top: 50%;
+  transform: translateY(-50%);
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.race-lane .team-tag {
+  position: absolute;
+  right: 8px; top: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.3);
+}
+.race-lane .racer {
+  position: absolute;
+  top: 50%;
+  right: 6%;
+  left: auto;
+  transform: translateY(-50%);
+  font-size: 38px;
+  transition: right .6s cubic-bezier(.34,1.56,.64,1);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+.race-lane .racer.hop { animation: hop .5s ease; }
+.race-lane .racer.gallop { animation: gallop .5s ease; }
+@keyframes hop {
+  0%   { transform: translateY(-50%) translateX(0); }
+  40%  { transform: translateY(-110%) translateX(6px); }
+  100% { transform: translateY(-50%) translateX(0); }
+}
+@keyframes gallop {
+  0%,100% { transform: translateY(-50%) rotate(0deg); }
+  25%     { transform: translateY(-60%) rotate(-4deg); }
+  75%     { transform: translateY(-40%) rotate(4deg); }
+}
+.race-lane .team-tag {
+  position: absolute;
+  left: 8px; top: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.3);
+}
+
+/* Question card */
+.question-card {
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(22, 18, 34, 0.32);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 14px 36px rgba(0,0,0,0.25);
+}
+.progress-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.2);
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ffd86b, #ff4e9a, #6a11cb);
+  background-size: 200% 100%;
+  animation: progShift 3s linear infinite;
+  border-radius: 999px;
+  transition: width .5s ease;
+  box-shadow: 0 0 14px rgba(255,78,154,0.6);
+}
+@keyframes progShift {
+  from { background-position: 0% 0; }
+  to   { background-position: 200% 0; }
+}
+.question-text {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.option {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.12));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 6px 16px rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  text-align: left;
+  border: none;
+  color: #fff;
+  transition: transform .15s, background .2s, box-shadow .2s;
+  display: flex; gap: 10px; align-items: center;
+}
+.option:hover:not(:disabled) { transform: translateY(-2px); background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.2)); }
+.option:active:not(:disabled) { transform: scale(0.98); }
+.option:disabled { cursor: default; }
+.option .letter {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option.correct {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  box-shadow: 0 0 22px rgba(46,204,113,0.7), inset 0 0 0 2px rgba(255,255,255,0.5);
+  animation: correctPulse .8s ease;
+}
+.option.wrong {
+  background: linear-gradient(135deg, #ff5e62, #c0392b);
+  box-shadow: 0 0 22px rgba(255,94,98,0.6), inset 0 0 0 2px rgba(255,255,255,0.5);
+  animation: wrongShake .5s ease;
+}
+@keyframes correctPulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.04); }
+}
+@keyframes wrongShake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-8px); }
+  40%     { transform: translateX(8px); }
+  60%     { transform: translateX(-6px); }
+  80%     { transform: translateX(6px); }
+}
+
+/* Host controls */
+.host-controls {
+  display: none;
+  margin-top: 18px;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.host-controls.visible { display: flex; }
+.host-btn {
+  flex: 1;
+  min-width: 180px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: none;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.4);
+  transition: transform .15s;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.host-btn:hover { transform: translateY(-2px) scale(1.02); }
+.host-btn:active { transform: scale(0.97); }
+.next-row {
+  display: none;
+  justify-content: center;
+  margin-top: 14px;
+}
+.next-row.visible { display: flex; }
+
+/* ============================================================
+   STAGE END / WINNER
+   ============================================================ */
+.stage-end-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 18px 0;
+}
+.stage-end-card {
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+  text-align: center;
+}
+.stage-end-card h3 { font-family: 'Fredoka', sans-serif; font-size: 22px; margin-bottom: 6px; }
+.stage-end-card .big {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 46px;
+  font-weight: 700;
+  text-shadow: 0 0 18px currentColor;
+}
+.stage-end-card .label { opacity: 0.85; font-size: 13px; margin-top: 4px; }
+.winner-wrap { text-align: center; }
+.trophy {
+  font-size: 96px;
+  animation: trophyBounce 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(255,216,107,0.6));
+}
+@keyframes trophyBounce {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50%     { transform: translateY(-14px) rotate(4deg); }
+}
+.winner-name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  background: linear-gradient(90deg, #ffd86b, #ff9ed8, #6ad1ff);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: winnerPop 1s ease both;
+  text-shadow: 0 0 30px rgba(255,216,107,0.5);
+}
+@keyframes winnerPop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+   LOADING SCREEN
+   ============================================================ */
+#loading {
+  position: fixed; inset: 0;
+  z-index: 99999;
+  background: linear-gradient(135deg, #6a11cb, #ff4e9a);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 18px;
+  transition: opacity .4s;
+}
+#loading.hidden { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 64px; height: 64px;
+  border: 6px solid rgba(255,255,255,0.25);
+  border-top-color: #ffd86b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+#loading p { font-family: 'Fredoka', sans-serif; font-size: 20px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .teams-grid { grid-template-columns: 1fr; }
+  .options { grid-template-columns: 1fr; }
+  .stage-end-grid { grid-template-columns: 1fr; }
+  .team-score { padding: 8px 10px; }
+  .team-name { font-size: 13px; }
+  .team-points { font-size: 22px; }
+  .team-badge { width: 36px; height: 36px; font-size: 17px; }
+  .host-btn { min-width: 140px; font-size: 16px; padding: 14px; }
+  .glass { padding: 18px; }
+  .util-bar { bottom: 10px; right: 10px; }
+  .util-btn { width: 42px; height: 42px; font-size: 19px; }
+  .scoreboard { padding: 8px 10px; }
+  .screen { padding: 16px 12px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========================= LOADING ========================= -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Дайындалуда...</p>
+</div>
+
+<!-- ========================= 3D BACKGROUND ========================= -->
+<canvas id="bg3d"></canvas>
+
+<!-- ========================= SCATTERED SPRITES ========================= -->
+<div class="sprites" id="sprites"></div>
+
+<!-- ========================= CONFETTI ========================= -->
+<canvas id="confetti"></canvas>
+
+<!-- ========================= UTILITY BAR ========================= -->
+<div class="util-bar">
+  <button class="util-btn" id="muteBtn" title="Дыбыс">🔊</button>
+  <button class="util-btn" id="restartBtn" title="Қайта бастау">↻</button>
+</div>
+
+<!-- ========================= SCOREBOARD ========================= -->
+<div class="scoreboard" id="scoreboard">
+  <div class="team-score left" id="sbLeft">
+    <div class="team-badge" id="sbLeftBadge">1</div>
+    <div class="team-info">
+      <div class="team-name" id="sbLeftName">Команда 1</div>
+      <div class="team-points" id="sbLeftPoints" style="color:#ffd86b">0</div>
+    </div>
+  </div>
+  <div class="team-score right" id="sbRight">
+    <div class="team-badge" id="sbRightBadge">2</div>
+    <div class="team-info">
+      <div class="team-name" id="sbRightName">Команда 2</div>
+      <div class="team-points" id="sbRightPoints" style="color:#6ad1ff">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= SCREEN: LANDING ========================= -->
+<section class="screen active" id="screen-landing">
+  <div class="glass" style="text-align:center; margin: 0 auto;">
+    <h1 class="hero-title">Арқан тартыс<br>Бәйге<br>Қаппен жарыс</h1>
+    <p class="hero-sub">🎉 Білім додасы — 3 кезең, 75 сұрақ 🎉</p>
+    <p class="hero-tag" style="margin-left:auto; margin-right:auto;">
+      Қазақ тілі мен әдебиеті + Ағылшын тілі бойынша ойын-той турнирі.<br>
+      Екі команда жарысады. Жүргізуші сұрақтарды көрсетіп, дұрыс жауаптан кейін ұпайды тиісті командаға қосады.
+    </p>
+    <div style="margin-top:22px; display:flex; justify-content:center;">
+      <button class="btn" id="startBtn">▶ Бастау / Start</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SCREEN: TEAM SETUP ========================= -->
+<section class="screen" id="screen-setup">
+  <div class="glass">
+    <h2 style="font-family:'Fredoka',sans-serif; text-align:center; font-size:28px;">🏆 Командаларды tanystyru</h2>
+    <p style="text-align:center; opacity:0.9; margin-top:6px;">Атауын жазыңыз және түсін таңдаңыз</p>
+    <div class="teams-grid">
+      <div class="team-card">
+        <h3 style="color:#ffd86b;">🟡 Команда 1</h3>
+        <input type="text" id="team1Name" value="Команда 1" maxlength="20" />
+        <div class="color-palette" id="palette1"></div>
+      </div>
+      <div class="team-card">
+        <h3 style="color:#6ad1ff;">🔵 Команда 2</h3>
+        <input type="text" id="team2Name" value="Команда 2" maxlength="20" />
+        <div class="color-palette" id="palette2"></div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:22px;">
+      <button class="btn gold" id="toStagesBtn">Келесі →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SCREEN: STAGE SELECT ========================= -->
+<section class="screen" id="screen-stages">
+  <div class="glass">
+    <h2 style="font-family:'Fredoka',sans-serif; text-align:center; font-size:28px;">Кезеңді таңдаңыз</h2>
+    <div class="stages-grid" id="stagesGrid"></div>
+    <div style="text-align:center; margin-top:18px;">
+      <button class="btn ghost" id="backToSetupBtn">← Артқа</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SCREEN: QUIZ ========================= -->
+<section class="screen" id="screen-quiz">
+  <div class="quiz-wrap">
+    <div class="minigame-banner" id="minigameBanner"></div>
+    <div class="question-card">
+      <div class="progress-row">
+        <span id="qCounter">Сұрақ 1 / 25</span>
+        <span id="qStage">1-кезең</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="options"></div>
+      <div class="host-controls" id="hostControls">
+        <button class="host-btn" id="hostBtn1" style="background:linear-gradient(135deg,#ffd86b,#ff9a3c);">+1 <span id="hostName1">Команда 1</span></button>
+        <button class="host-btn" id="hostBtn2" style="background:linear-gradient(135deg,#6ad1ff,#2575fc);">+1 <span id="hostName2">Команда 2</span></button>
+      </div>
+      <div class="next-row" id="nextRow">
+        <button class="btn secondary" id="nextBtn">Келесі сұрақ →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SCREEN: STAGE END ========================= -->
+<section class="screen" id="screen-stageEnd">
+  <div class="glass">
+    <h2 style="font-family:'Fredoka',sans-serif; text-align:center; font-size:28px;" id="stageEndTitle">Кезең аяқталды!</h2>
+    <div class="stage-end-grid">
+      <div class="stage-end-card" id="endCard1">
+        <h3 id="endName1">Команда 1</h3>
+        <div class="big" id="endStage1">0</div>
+        <div class="label">Осы кезеңде</div>
+        <div class="big" id="endTotal1" style="font-size:30px; margin-top:8px;">0</div>
+        <div class="label">Жалпы</div>
+      </div>
+      <div class="stage-end-card" id="endCard2">
+        <h3 id="endName2">Команда 2</h3>
+        <div class="big" id="endStage2">0</div>
+        <div class="label">Осы кезеңде</div>
+        <div class="big" id="endTotal2" style="font-size:30px; margin-top:8px;">0</div>
+        <div class="label">Жалпы</div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn gold" id="nextStageBtn">Келесі кезең →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SCREEN: WINNER ========================= -->
+<section class="screen" id="screen-winner">
+  <div class="glass winner-wrap">
+    <div class="trophy" id="trophyIcon">🏆</div>
+    <h2 style="font-family:'Fredoka',sans-serif; font-size:22px; margin-top:10px;" id="winnerSubtitle">Жеңімпаз!</h2>
+    <div class="winner-name" id="winnerName">—</div>
+    <div style="margin-top:22px;" class="stage-end-grid">
+      <div class="stage-end-card">
+        <h3 id="finalName1">—</h3>
+        <div class="big" id="finalScore1">0</div>
+        <div class="label">Ұпай</div>
+      </div>
+      <div class="stage-end-card">
+        <h3 id="finalName2">—</h3>
+        <div class="big" id="finalScore2">0</div>
+        <div class="label">Ұпай</div>
+      </div>
+    </div>
+    <div style="margin-top:22px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn gold" id="finalRestartBtn">🔄 Қайта бастау</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= THREE.JS (optional 3D background) ========================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const CONFIG = {
+  // If true, stages must be played in order. If false, free navigation.
+  LOCK_STAGES_SEQUENTIALLY: false,
+  QUESTIONS_PER_STAGE: 25,
+  TEAM_COLORS: ['#ffd86b', '#6ad1ff', '#ff6b9a', '#7CFFB2', '#c58aff', '#ff9a3c'],
+};
+
+/* ============================================================
+   QUIZ DATA — 75 questions (25 per stage)
+   Mix of Kazakh language/literature + English
+   ============================================================ */
+const quizData = {
+  stage1: [
+    { id:1, type:"multiple_choice", question:"Қай сөзде буын саны мен әріп саны сәйкес келеді?", options:{A:"Оқушы",B:"Аю",C:"Еңбек",D:"Кітап"}, correctAnswer:"B" },
+    { id:2, type:"multiple_choice", question:"«Кітап» сөзінде неше буын бар?", options:{A:"1",B:"3",C:"2",D:"4"}, correctAnswer:"C" },
+    { id:3, type:"multiple_choice", question:"Қазақ әліпбиінде неше әріп бар?", options:{A:"33",B:"42",C:"36",D:"28"}, correctAnswer:"B" },
+    { id:4, type:"multiple_choice", question:"Дауысты дыбыстардың санын көрсет:", options:{A:"12",B:"9",C:"15",D:"6"}, correctAnswer:"B" },
+    { id:5, type:"multiple_choice", question:"Қай сөз жуан буынды?", options:{A:"Күз",B:"Дала",C:"Көлік",D:"Бүркіт"}, correctAnswer:"B" },
+    { id:6, type:"multiple_choice", question:"«Мектеп» сөзінің дұрыс буынға бөлінуі:", options:{A:"Ме-к-теп",B:"Мек-теп",C:"Ме-ктеп",D:"Мекте-п"}, correctAnswer:"B" },
+    { id:7, type:"multiple_choice", question:"Қай сөзде үнді дыбыс бар?", options:{A:"Шырт",B:"Нан",C:"Қыс",D:"Тас"}, correctAnswer:"B" },
+    { id:8, type:"multiple_choice", question:"«Ана тілі» — бұл қандай сөз тіркес?", options:{A:"Фразеологизм",B:"Тұрақты сөз тіркес",C:"Еркін тіркес",D:"Мақал"}, correctAnswer:"C" },
+    { id:9, type:"multiple_choice", question:"Зат есімнің сұрағы қандай?", options:{A:"Қай? Қашан?",B:"Кім? Не?",C:"Қалай? Қайда?",D:"Қанша? Неше?"}, correctAnswer:"B" },
+    { id:10, type:"multiple_choice", question:"«Жүгір» — қай сөз табы?", options:{A:"Зат есім",B:"Сын есім",C:"Етістік",D:"Үстеу"}, correctAnswer:"C" },
+    { id:11, type:"multiple_choice", question:"«Алтын» сөзінің синонимі:", options:{A:"Күміс",B:"Бағалы",C:"Қымбат",D:"Сары"}, correctAnswer:"B" },
+    { id:12, type:"multiple_choice", question:"Антоним дегеніміз не?", options:{A:"Мағыналас сөздер",B:"Қарсы мағыналы сөздер",C:"Дыбыстас сөздер",D:"Туынды сөздер"}, correctAnswer:"B" },
+    { id:13, type:"multiple_choice", question:"«Көз» сөзінің антонимі жоқ, бірақ «үлкен» сөзінің антонимі:", options:{A:"Алып",B:"Кішкентай",C:"Зор",D:"Кең"}, correctAnswer:"B" },
+    { id:14, type:"multiple_choice", question:"«Бәйтерек» эпосындағы батыр кім?", options:{A:"Қобыланды",B:"Ер Тарғын",C:"Алпамыс",D:"Қамбар"}, correctAnswer:"C" },
+    { id:15, type:"multiple_choice", question:"Абай Құнанбайұлы қай ғасырда өмір сүрген?", options:{A:"XVII",B:"XVIII",C:"XIX",D:"XX"}, correctAnswer:"C" },
+    { id:16, type:"multiple_choice", question:"«Қара сөздер» кімнің шығармасы?", options:{A:"Шәкәрім",B:"Абай",C:"Мағжан",D:"Мұхтар"}, correctAnswer:"B" },
+    { id:17, type:"multiple_choice", question:"What is the plural of 'child'?", options:{A:"Childs",B:"Childrens",C:"Children",D:"Childes"}, correctAnswer:"C" },
+    { id:18, type:"multiple_choice", question:"Choose the correct form: 'She ___ to school every day.'", options:{A:"go",B:"goes",C:"going",D:"gone"}, correctAnswer:"B" },
+    { id:19, type:"multiple_choice", question:"What color is the sky on a clear day?", options:{A:"Green",B:"Blue",C:"Red",D:"Yellow"}, correctAnswer:"B" },
+    { id:20, type:"multiple_choice", question:"How many months are there in a year?", options:{A:"10",B:"11",C:"12",D:"13"}, correctAnswer:"C" },
+    { id:21, type:"multiple_choice", question:"Қай сөз зат есім?", options:{A:"Жүгір",B:"Кітап",C:"Әдемі",D:"Жылдам"}, correctAnswer:"B" },
+    { id:22, type:"multiple_choice", question:"«Бес» саны қай саны?", options:{A:"Реттік",C:"Жақсы",B:"Есептік",D:"Бөлшек"}, correctAnswer:"B" },
+    { id:23, type:"multiple_choice", question:"«Күн» мен «күн» — бұл қандай сөздер?", options:{A:"Синоним",B:"Антоним",C:"Омоним",D:"Фразеологизм"}, correctAnswer:"C" },
+    { id:24, type:"multiple_choice", question:"What is 7 × 8?", options:{A:"54",B:"56",C:"58",D:"64"}, correctAnswer:"B" },
+    { id:25, type:"multiple_choice", question:"Қазақстанның астанасы қай қала?", options:{A:"Алматы",B:"Астана",C:"Шымкент",D:"Ақтау"}, correctAnswer:"B" },
+  ],
+  stage2: [
+    { id:26, type:"multiple_choice", question:"«Көктем» маусымында табиғат қалай өзгереді?", options:{A:"Қар жауады",B:"Жапырақ жайқалады",C:"Күн қысқарады",D:"Аяз болады"}, correctAnswer:"B" },
+    { id:27, type:"multiple_choice", question:"Мағжан Жұмабаев қай ақын?", options:{A:"Жазушы",B:"Ақын",C:"Күйші",D:"Әнші"}, correctAnswer:"B" },
+    { id:28, type:"multiple_choice", question:"«Қобыланды батыр» — бұл қандай жанр?", options:{A:"Ертегі",B:"Батырлар жыры",C:"Мақал",D:"Жұмбақ"}, correctAnswer:"B" },
+    { id:29, type:"multiple_choice", question:"Choose the correct sentence:", options:{A:"He go to school.",B:"He goes to school.",C:"He going to school.",D:"He gone to school."}, correctAnswer:"B" },
+    { id:30, type:"multiple_choice", question:"What is the opposite of 'hot'?", options:{A:"Warm",B:"Cold",C:"Cool",D:"Boiling"}, correctAnswer:"B" },
+    { id:31, type:"multiple_choice", question:"Which animal says 'moo'?", options:{A:"Dog",B:"Cat",C:"Cow",D:"Sheep"}, correctAnswer:"C" },
+    { id:32, type:"multiple_choice", question:"«Алтын адам» сөз тіркесінің мағынасы:", options:{A:"Алтыннан жасалған адам",B:"Жомарт, жақсы адам",C:"Бай адам",D:"Ескі адам"}, correctAnswer:"B" },
+    { id:33, type:"multiple_choice", question:"Ыбырай Алтынсарин немен танымал?", options:{A:"Күйші",B:"Ағартушы, педагог",C:"Батыр",D:"Суретші"}, correctAnswer:"B" },
+    { id:34, type:"multiple_choice", question:"Қазақ халқының бас киімі:", options:{A:"Шляпа",B:"Бөрік",C:"Берет",D:"Кепка"}, correctAnswer:"B" },
+    { id:35, type:"multiple_choice", question:"Which day comes after Monday?", options:{A:"Wednesday",B:"Tuesday",C:"Sunday",D:"Friday"}, correctAnswer:"B" },
+    { id:36, type:"multiple_choice", question:"What is the past tense of 'go'?", options:{A:"Goed",B:"Gone",C:"Went",D:"Going"}, correctAnswer:"C" },
+    { id:37, type:"multiple_choice", question:"«Домбыра» — бұл қандай аспап?", options:{A:"Үрлемелі",B:"Ішекті",C:"Соқпалы",D:"Пернелі"}, correctAnswer:"B" },
+    { id:38, type:"multiple_choice", question:"«Күй атасы» кім?", options:{A:"Абай",B:"Құрманғазы",C:"Шәкәрім",D:"Жамбыл"}, correctAnswer:"B" },
+    { id:39, type:"multiple_choice", question:"How many legs does a spider have?", options:{A:"6",B:"8",C:"10",D:"4"}, correctAnswer:"B" },
+    { id:40, type:"multiple_choice", question:"What do bees make?", options:{A:"Milk",B:"Honey",C:"Bread",D:"Juice"}, correctAnswer:"B" },
+    { id:41, type:"multiple_choice", question:"«Ақбілек» — бұл кім?", options:{A:"Батыр",B:"Ақын",C:"Ханым",D:"Күйші"}, correctAnswer:"C" },
+    { id:42, type:"multiple_choice", question:"Қай айда Наурыз мерекесі?", options:{A:"Қаңтар",B:"Ақпан",C:"Наурыз",D:"Сәуір"}, correctAnswer:"C" },
+    { id:43, type:"multiple_choice", question:"What is 'күн' in English?", options:{A:"Moon",B:"Star",C:"Sun",D:"Cloud"}, correctAnswer:"C" },
+    { id:44, type:"multiple_choice", question:"'Apple' қазақша не?", options:{A:"Алмұрт",B:"Алма",C:"Жүзім",D:"Өрік"}, correctAnswer:"B" },
+    { id:45, type:"multiple_choice", question:"Which word is a color?", options:{A:"Run",B:"Blue",C:"Happy",D:"Book"}, correctAnswer:"B" },
+    { id:46, type:"multiple_choice", question:"'Кітапхана' дегеніміз не?", options:{A:"Мектеп",B:"Кітап дүкені",C:"Кітап сақтайтын орын",D:"Театр"}, correctAnswer:"C" },
+    { id:47, type:"multiple_choice", question:"How do you say 'рахмет' in English?", options:{A:"Hello",B:"Please",C:"Thank you",D:"Sorry"}, correctAnswer:"C" },
+    { id:48, type:"multiple_choice", question:"'Good morning' қазақша:", options:{A:"Қайырлы кеш",B:"Қайырлы таң",C:"Қайырлы күн",D:"Қайырлы түн"}, correctAnswer:"B" },
+    { id:49, type:"multiple_choice", question:"What number is 'он бес'?", options:{A:"13",B:"14",C:"15",D:"50"}, correctAnswer:"C" },
+    { id:50, type:"multiple_choice", question:"Шоқан Уәлиханов кім болған?", options:{A:"Ақын",B:"Ғалым, саяхатшы",C:"Күйші",D:"Батыр"}, correctAnswer:"B" },
+  ],
+  stage3: [
+    { id:51, type:"multiple_choice", question:"What is the capital of Kazakhstan?", options:{A:"Almaty",B:"Astana",C:"Shymkent",D:"Aktobe"}, correctAnswer:"B" },
+    { id:52, type:"multiple_choice", question:"Which planet is closest to the Sun?", options:{A:"Venus",B:"Earth",C:"Mercury",D:"Mars"}, correctAnswer:"C" },
+    { id:53, type:"multiple_choice", question:"How many continents are there?", options:{A:"5",B:"6",C:"7",D:"8"}, correctAnswer:"C" },
+    { id:54, type:"multiple_choice", question:"What language is spoken in Kazakhstan besides Kazakh?", options:{A:"French",B:"Russian",C:"German",D:"Spanish"}, correctAnswer:"B" },
+    { id:55, type:"multiple_choice", question:"'Бүркіт' — бұл қандай құс?", options:{A:"Жыртқыш құс",B:"Су құсы",C:"Үй құсы",D:"Әнші құс"}, correctAnswer:"A" },
+    { id:56, type:"multiple_choice", question:"What is the largest ocean?", options:{A:"Atlantic",B:"Indian",C:"Arctic",D:"Pacific"}, correctAnswer:"D" },
+    { id:57, type:"multiple_choice", question:"'Бауырсақ' — бұл не?", options:{A:"Сусын",B:"Тағам",C:"Киім",D:"Ойын"}, correctAnswer:"B" },
+    { id:58, type:"multiple_choice", question:"Choose the correct article: '___ apple a day keeps the doctor away.'", options:{A:"A",B:"An",C:"The",D:"—"}, correctAnswer:"B" },
+    { id:59, type:"multiple_choice", question:"What is 15 + 27?", options:{A:"41",B:"42",C:"43",D:"44"}, correctAnswer:"B" },
+    { id:60, type:"multiple_choice", question:"Which month has 28 or 29 days?", options:{A:"March",B:"February",C:"April",D:"June"}, correctAnswer:"B" },
+    { id:61, type:"multiple_choice", question:"'Қызыл' — қай түс?", options:{A:"Blue",B:"Green",C:"Red",D:"Yellow"}, correctAnswer:"C" },
+    { id:62, type:"multiple_choice", question:"What do you use to write?", options:{A:"Fork",B:"Pen",C:"Spoon",D:"Plate"}, correctAnswer:"B" },
+    { id:63, type:"multiple_choice", question:"Қазақстанның тұңғыш ғарышкері кім?", options:{A:"Тоқтар Әубәкіров",B:"Талғат Мұсабаев",C:"Айдын Аймбетов",D:"Юрий Гагарин"}, correctAnswer:"A" },
+    { id:64, type:"multiple_choice", question:"What is 'су' in English?", options:{A:"Fire",B:"Water",C:"Air",D:"Earth"}, correctAnswer:"B" },
+    { id:65, type:"multiple_choice", question:"Which animal is the king of the jungle?", options:{A:"Tiger",B:"Elephant",C:"Lion",D:"Bear"}, correctAnswer:"C" },
+    { id:66, type:"multiple_choice", question:"«Ақ жол» дегеніміз не?", options:{A:"Қара жол",B:"Сәттілік тілеу",C:"Тау жолы",D:"Өзен"}, correctAnswer:"B" },
+    { id:67, type:"multiple_choice", question:"What time is 'сағат бес'?", options:{A:"4:00",B:"5:00",C:"6:00",D:"5:30"}, correctAnswer:"B" },
+    { id:68, type:"multiple_choice", question:"How many days are in a week?", options:{A:"5",B:"6",C:"7",D:"8"}, correctAnswer:"C" },
+    { id:69, type:"multiple_choice", question:"What color do you get mixing red and yellow?", options:{A:"Green",B:"Purple",C:"Orange",D:"Brown"}, correctAnswer:"C" },
+    { id:70, type:"multiple_choice", question:"'Мектеп' ағылшынша:", options:{A:"Home",B:"School",C:"Park",D:"Shop"}, correctAnswer:"B" },
+    { id:71, type:"multiple_choice", question:"Which is the biggest mammal?", options:{A:"Elephant",B:"Blue whale",C:"Giraffe",D:"Hippo"}, correctAnswer:"B" },
+    { id:72, type:"multiple_choice", question:"What does 'Hello' mean in Kazakh?", options:{A:"Сау бол",B:"Сәлем",C:"Рахмет",D:"Кешіріңіз"}, correctAnswer:"B" },
+    { id:73, type:"multiple_choice", question:"Қай сөз көпше түрде?", options:{A:"Кітап",B:"Балалар",C:"Оқушы",D:"Мұғалім"}, correctAnswer:"B" },
+    { id:74, type:"multiple_choice", question:"What is the opposite of 'big'?", options:{A:"Huge",B:"Tall",C:"Small",D:"Wide"}, correctAnswer:"C" },
+    { id:75, type:"multiple_choice", question:"'Достық' ағылшынша:", options:{A:"Enemy",B:"Friendship",C:"Family",D:"Love"}, correctAnswer:"B" },
+  ],
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  teams: [
+    { name: "Команда 1", color: "#ffd86b", score: 0, stageScore: 0 },
+    { name: "Команда 2", color: "#6ad1ff", score: 0, stageScore: 0 },
+  ],
+  currentStage: 1,       // 1,2,3
+  currentQuestion: 0,    // index within stage
+  answered: false,       // has current question been answered?
+  pointAwarded: false,   // has host awarded point for current question?
+  completedStages: new Set(),
+  // Mini-game progress (rope offset / race steps)
+  // NOTE on rope persistence: we reset the rope at the start of each stage
+  // (clear visual between stages) but cumulative team SCORE persists across
+  // the whole tournament, as required.
+  ropeOffset: 0,         // -100..+100, 0 = center, negative = team1 pulling
+  raceSteps: [0, 0],     // steps per team in current race stage
+};
+
+/* ============================================================
+   AUDIO ENGINE (Web Audio API — synthesized tones, no files needed)
+   ============================================================ */
+const AudioEngine = (() => {
+  let ctx = null;
+  let muted = false;
+  let bgGain = null;
+  let bgNodes = [];
+
+  function ensureCtx() {
+    if (!ctx) {
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch(e) { ctx = null; }
+    }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function tone({freq=440, dur=0.2, type='sine', vol=0.2, attack=0.01, release=0.05, freqEnd=null} = {}) {
+    if (muted) return;
+    const c = ensureCtx(); if (!c) return;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, c.currentTime);
+    if (freqEnd !== null) osc.frequency.exponentialRampToValueAtTime(Math.max(1,freqEnd), c.currentTime + dur);
+    g.gain.setValueAtTime(0, c.currentTime);
+    g.gain.linearRampToValueAtTime(vol, c.currentTime + attack);
+    g.gain.linearRampToValueAtTime(0, c.currentTime + dur + release);
+    osc.connect(g).connect(c.destination);
+    osc.start();
+    osc.stop(c.currentTime + dur + release + 0.05);
+  }
+
+  function click() { tone({freq: 700, dur:0.05, type:'square', vol:0.08}); }
+  function hover() { tone({freq: 900, dur:0.03, type:'sine', vol:0.04}); }
+  function correct() {
+    tone({freq:660, dur:0.12, type:'triangle', vol:0.18});
+    setTimeout(()=>tone({freq:880, dur:0.16, type:'triangle', vol:0.18}), 100);
+    setTimeout(()=>tone({freq:1175, dur:0.22, type:'triangle', vol:0.18}), 220);
+  }
+  function wrong() { tone({freq:220, dur:0.2, type:'sawtooth', vol:0.12, freqEnd:110}); }
+  function point() { tone({freq:1046, dur:0.1, type:'square', vol:0.15}); setTimeout(()=>tone({freq:1318, dur:0.12, type:'square', vol:0.15}), 80); }
+  function fanfare() {
+    const notes = [523, 659, 784, 1046];
+    notes.forEach((f,i)=>setTimeout(()=>tone({freq:f, dur:0.22, type:'triangle', vol:0.2}), i*150));
+  }
+  function drumroll() {
+    for (let i=0; i<18; i++) {
+      setTimeout(()=>tone({freq:120+Math.random()*40, dur:0.05, type:'square', vol:0.08}), i*70);
+    }
+  }
+  function boing() { tone({freq:200, dur:0.15, type:'sine', vol:0.18, freqEnd:600}); }
+  function hoof() { tone({freq:140, dur:0.05, type:'square', vol:0.12}); setTimeout(()=>tone({freq:110, dur:0.05, type:'square', vol:0.12}), 70); }
+  function tug() { tone({freq:90, dur:0.12, type:'sawtooth', vol:0.14}); }
+
+  // Background ambient: simple looping pad
+  function startBg() {
+    const c = ensureCtx(); if (!c) return;
+    stopBg();
+    bgGain = c.createGain();
+    bgGain.gain.value = muted ? 0 : 0.04;
+    bgGain.connect(c.destination);
+    const freqs = [220, 277, 330];
+    freqs.forEach(f => {
+      const osc = c.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      const lfo = c.createOscillator();
+      lfo.frequency.value = 0.15 + Math.random()*0.2;
+      const lfoGain = c.createGain();
+      lfoGain.gain.value = 2;
+      lfo.connect(lfoGain).connect(osc.frequency);
+      osc.connect(bgGain);
+      osc.start(); lfo.start();
+      bgNodes.push(osc, lfo);
+    });
+  }
+  function stopBg() {
+    bgNodes.forEach(n => { try { n.stop(); } catch(e){} });
+    bgNodes = [];
+    bgGain = null;
+  }
+  function setMuted(m) {
+    muted = m;
+    if (bgGain) bgGain.gain.value = muted ? 0 : 0.04;
+  }
+  function isMuted() { return muted; }
+
+  return { ensureCtx, click, hover, correct, wrong, point, fanfare, drumroll, boing, hoof, tug, startBg, stopBg, setMuted, isMuted };
+})();
+
+/* ============================================================
+   SPRITES — scattered floating decorations
+   ============================================================ */
+function buildSprites() {
+  const container = document.getElementById('sprites');
+  const emojis = ['🎈','⭐','☁️','🎉','✨','🌈','🪁','🎀','🌟','💫','🦋','🐞','🍀','🎁','🧸','🪀','🎊','🌸'];
+  const classes = ['s1','s2','s3','s4'];
+  const count = window.innerWidth < 640 ? 22 : 40;
+  for (let i=0; i<count; i++) {
+    const s = document.createElement('div');
+    s.className = 'sprite ' + classes[Math.floor(Math.random()*classes.length)];
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    // Place along edges/corners primarily, with some scatter
+    const edge = Math.random();
+    let x, y;
+    if (edge < 0.55) {
+      // edges
+      const side = Math.floor(Math.random()*4);
+      if (side===0) { x = Math.random()*100; y = Math.random()*12; }
+      else if (side===1) { x = Math.random()*100; y = 88 + Math.random()*12; }
+      else if (side===2) { x = Math.random()*12; y = Math.random()*100; }
+      else { x = 88 + Math.random()*12; y = Math.random()*100; }
+    } else {
+      x = Math.random()*100;
+      y = Math.random()*100;
+    }
+    s.style.left = x + '%';
+    s.style.top = y + '%';
+    s.style.fontSize = (18 + Math.random()*26) + 'px';
+    s.style.animationDelay = (-Math.random()*10) + 's';
+    s.style.opacity = 0.55 + Math.random()*0.35;
+    container.appendChild(s);
+  }
+}
+
+/* ============================================================
+   THREE.JS BACKGROUND (optional — graceful fallback)
+   ============================================================ */
+function init3D() {
+  try {
+    if (typeof THREE === 'undefined') return;
+    const canvas = document.getElementById('bg3d');
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.z = 10;
+
+    const colors = [0xff4e9a, 0xffb86b, 0x6ad1ff, 0xc58aff, 0xffd86b, 0x7CFFB2];
+    const shapes = [];
+    const count = window.innerWidth < 640 ? 14 : 26;
+    for (let i=0; i<count; i++) {
+      const geoType = Math.floor(Math.random()*3);
+      let geo;
+      if (geoType === 0) geo = new THREE.IcosahedronGeometry(0.5 + Math.random()*0.4, 0);
+      else if (geoType === 1) geo = new THREE.TorusGeometry(0.35 + Math.random()*0.2, 0.12, 8, 16);
+      else geo = new THREE.OctahedronGeometry(0.45 + Math.random()*0.3, 0);
+      const mat = new THREE.MeshBasicMaterial({ color: colors[i % colors.length], wireframe: true, transparent: true, opacity: 0.55 });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set((Math.random()-0.5)*18, (Math.random()-0.5)*10, (Math.random()-0.5)*8 - 2);
+      m.userData = {
+        rx: (Math.random()-0.5)*0.01,
+        ry: (Math.random()-0.5)*0.01,
+        bobSpeed: 0.3 + Math.random()*0.6,
+        bobAmp: 0.3 + Math.random()*0.6,
+        baseY: m.position.y,
+      };
+      scene.add(m);
+      shapes.push(m);
+    }
+
+    let t0 = performance.now();
+    function loop() {
+      const t = (performance.now() - t0) / 1000;
+      shapes.forEach(s => {
+        s.rotation.x += s.userData.rx;
+        s.rotation.y += s.userData.ry;
+        s.position.y = s.userData.baseY + Math.sin(t * s.userData.bobSpeed) * s.userData.bobAmp;
+      });
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  } catch (e) {
+    console.warn('3D background failed, using CSS fallback:', e);
+  }
+}
+
+/* ============================================================
+   CONFETTI (canvas-based)
+   ============================================================ */
+const Confetti = (() => {
+  const canvas = document.getElementById('confetti');
+  const ctx2 = canvas.getContext('2d');
+  let pieces = [];
+  let running = false;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function burst(count=140) {
+    const colors = ['#ffd86b','#ff4e9a','#6ad1ff','#7CFFB2','#c58aff','#ff9a3c','#ffffff'];
+    for (let i=0; i<count; i++) {
+      pieces.push({
+        x: canvas.width/2 + (Math.random()-0.5)*200,
+        y: canvas.height/2,
+        vx: (Math.random()-0.5)*12,
+        vy: -8 - Math.random()*10,
+        g: 0.25 + Math.random()*0.15,
+        size: 6 + Math.random()*8,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rot: Math.random()*Math.PI*2,
+        vr: (Math.random()-0.5)*0.3,
+        life: 180 + Math.random()*80,
+      });
+    }
+    if (!running) { running = true; loop(); }
+  }
+
+  function loop() {
+    ctx2.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life--;
+      ctx2.save();
+      ctx2.translate(p.x, p.y);
+      ctx2.rotate(p.rot);
+      ctx2.fillStyle = p.color;
+      ctx2.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.5);
+      ctx2.restore();
+    });
+    pieces = pieces.filter(p => p.life > 0 && p.y < canvas.height + 40);
+    if (pieces.length > 0) requestAnimationFrame(loop);
+    else { running = false; ctx2.clearRect(0,0,canvas.width,canvas.height); }
+  }
+
+  return { burst };
+})();
+
+/* ============================================================
+   SCREEN NAVIGATION
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + id);
+  if (el) el.classList.add('active');
+  // Scoreboard visible during quiz only
+  document.getElementById('scoreboard').classList.toggle('visible', id === 'quiz');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================
+   TEAM SETUP
+   ============================================================ */
+function buildColorPalette(containerId, teamIndex) {
+  const cont = document.getElementById(containerId);
+  cont.innerHTML = '';
+  CONFIG.TEAM_COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch';
+    sw.style.background = c;
+    sw.style.color = c;
+    if (state.teams[teamIndex].color === c) sw.classList.add('active');
+    sw.addEventListener('click', () => {
+      AudioEngine.click();
+      state.teams[teamIndex].color = c;
+      [...cont.children].forEach(x => x.classList.remove('active'));
+      sw.classList.add('active');
+      updateScoreboard();
+    });
+    cont.appendChild(sw);
+  });
+}
+
+function initTeamSetup() {
+  // Restore from localStorage if available
+  try {
+    const saved = JSON.parse(localStorage.getItem('quizTeams') || 'null');
+    if (saved && saved.length === 2) {
+      state.teams[0].name = saved[0].name || state.teams[0].name;
+      state.teams[0].color = saved[0].color || state.teams[0].color;
+      state.teams[1].name = saved[1].name || state.teams[1].name;
+      state.teams[1].color = saved[1].color || state.teams[1].color;
+    }
+  } catch(e){}
+  document.getElementById('team1Name').value = state.teams[0].name;
+  document.getElementById('team2Name').value = state.teams[1].name;
+  buildColorPalette('palette1', 0);
+  buildColorPalette('palette2', 1);
+}
+
+function saveTeams() {
+  state.teams[0].name = document.getElementById('team1Name').value.trim() || 'Команда 1';
+  state.teams[1].name = document.getElementById('team2Name').value.trim() || 'Команда 2';
+  try { localStorage.setItem('quizTeams', JSON.stringify([
+    { name: state.teams[0].name, color: state.teams[0].color },
+    { name: state.teams[1].name, color: state.teams[1].color },
+  ])); } catch(e){}
+  updateScoreboard();
+}
+
+/* ============================================================
+   SCOREBOARD
+   ============================================================ */
+function updateScoreboard() {
+  const t1 = state.teams[0], t2 = state.teams[1];
+  document.getElementById('sbLeftName').textContent = t1.name;
+  document.getElementById('sbRightName').textContent = t2.name;
+  document.getElementById('sbLeftPoints').textContent = t1.score;
+  document.getElementById('sbRightPoints').textContent = t2.score;
+  document.getElementById('sbLeftPoints').style.color = t1.color;
+  document.getElementById('sbRightPoints').style.color = t2.color;
+  document.getElementById('sbLeftBadge').style.background = t1.color;
+  document.getElementById('sbRightBadge').style.background = t2.color;
+  document.getElementById('sbLeftBadge').textContent = t1.name.charAt(0).toUpperCase();
+  document.getElementById('sbRightBadge').textContent = t2.name.charAt(0).toUpperCase();
+  document.getElementById('hostName1').textContent = t1.name;
+  document.getElementById('hostName2').textContent = t2.name;
+  document.getElementById('hostBtn1').style.background = `linear-gradient(135deg, ${t1.color}, ${shade(t1.color,-20)})`;
+  document.getElementById('hostBtn2').style.background = `linear-gradient(135deg, ${t2.color}, ${shade(t2.color,-20)})`;
+}
+function shade(hex, percent) {
+  // Simple hex shade helper
+  const h = hex.replace('#','');
+  const num = parseInt(h,16);
+  let r = (num>>16) + percent;
+  let g = ((num>>8)&0xff) + percent;
+  let b = (num&0xff) + percent;
+  r = Math.max(0,Math.min(255,r));
+  g = Math.max(0,Math.min(255,g));
+  b = Math.max(0,Math.min(255,b));
+  return '#' + ((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
+function popScore(teamIndex) {
+  const el = document.getElementById(teamIndex === 0 ? 'sbLeftPoints' : 'sbRightPoints');
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+}
+
+/* ============================================================
+   STAGE SELECT
+   ============================================================ */
+const STAGE_META = [
+  { key: 'stage1', title: '1-КЕЗЕҢ — «Арқан тартыс»', sub: '25 сұрақ • Тартыс ойыны', icon: '🪢' },
+  { key: 'stage2', title: '2-КЕЗЕҢ — «Бәйге»', sub: '25 сұрақ • Ат жарысы', icon: '🐎' },
+  { key: 'stage3', title: '3-КЕЗЕҢ — «Қаппен жарыс»', sub: '25 сұрақ • Қап ішіндегі жарыс', icon: '🏃' },
+];
+function renderStages() {
+  const grid = document.getElementById('stagesGrid');
+  grid.innerHTML = '';
+  STAGE_META.forEach((m, i) => {
+    const stageNum = i+1;
+    const locked = CONFIG.LOCK_STAGES_SEQUENTIALLY && !state.completedStages.has(stageNum-1) && stageNum > 1 && !state.completedStages.has(stageNum);
+    const done = state.completedStages.has(stageNum);
+    const card = document.createElement('div');
+    card.className = 'stage-card' + (locked ? ' locked' : '');
+    card.innerHTML = `
+      ${locked ? '<div class="lock-badge">🔒</div>' : ''}
+      <div class="stage-icon">${m.icon}</div>
+      <div class="stage-title">${m.title}</div>
+      <div class="stage-sub">${m.sub}</div>
+      <button class="btn ${done ? 'ghost' : 'gold'}" data-stage="${stageNum}">${done ? '✓ Аяқталды' : '▶ Ойнау'}</button>
+    `;
+    card.querySelector('button').addEventListener('click', () => {
+      AudioEngine.click();
+      startStage(stageNum);
+    });
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================
+   STAGE FLOW
+   ============================================================ */
+function startStage(stageNum) {
+  state.currentStage = stageNum;
+  state.currentQuestion = 0;
+  state.answered = false;
+  state.pointAwarded = false;
+  // Reset per-stage score
+  state.teams[0].stageScore = 0;
+  state.teams[1].stageScore = 0;
+  // Reset mini-game progress for this stage
+  state.ropeOffset = 0;
+  state.raceSteps = [0, 0];
+  renderMinigame();
+  renderQuestion();
+  showScreen('quiz');
+}
+
+function currentQuestions() {
+  const key = 'stage' + state.currentStage;
+  return quizData[key];
+}
+
+/* ============================================================
+   MINIGAME RENDER
+   ============================================================ */
+function renderMinigame() {
+  const banner = document.getElementById('minigameBanner');
+  const t1 = state.teams[0], t2 = state.teams[1];
+  if (state.currentStage === 1) {
+    banner.innerHTML = `
+      <div class="minigame-title">🪢 Арқан тартыс — ${t1.name} ⇄ ${t2.name}</div>
+      <div class="tug" id="tugGame">
+        <div class="threshold left"></div>
+        <div class="centerline"></div>
+        <div class="threshold right"></div>
+        <div class="rope"></div>
+        <div class="knot" id="knot"></div>
+        <div class="puller left" id="pullerL" style="color:${t1.color}">🧑‍🌾</div>
+        <div class="puller right" id="pullerR" style="color:${t2.color}">🧑‍🌾</div>
+      </div>
+    `;
+    updateTug();
+  } else if (state.currentStage === 2) {
+    banner.innerHTML = `
+      <div class="minigame-title">🐎 Бәйге — Ат жарысы</div>
+      <div class="race" id="raceGame">
+        <div class="race-lane">
+          <div class="team-tag" style="color:${t1.color}">${t1.name}</div>
+          <div class="track"></div>
+          <div class="flag">🏁</div>
+          <div class="racer" id="racer0" style="color:${t1.color}">🏇</div>
+        </div>
+        <div class="race-lane">
+          <div class="team-tag" style="color:${t2.color}">${t2.name}</div>
+          <div class="track"></div>
+          <div class="flag">🏁</div>
+          <div class="racer" id="racer1" style="color:${t2.color}">🏇</div>
+        </div>
+      </div>
+    `;
+    updateRace();
+  } else {
+    banner.innerHTML = `
+      <div class="minigame-title">🏃 Қаппен жарыс</div>
+      <div class="race" id="raceGame">
+        <div class="race-lane">
+          <div class="team-tag" style="color:${t1.color}">${t1.name}</div>
+          <div class="track"></div>
+          <div class="flag">🏁</div>
+          <div class="racer" id="racer0" style="color:${t1.color}">🤸</div>
+        </div>
+        <div class="race-lane">
+          <div class="team-tag" style="color:${t2.color}">${t2.name}</div>
+          <div class="track"></div>
+          <div class="flag">🏁</div>
+          <div class="racer" id="racer1" style="color:${t2.color}">🤸</div>
+        </div>
+      </div>
+    `;
+    updateRace();
+  }
+}
+
+function updateTug() {
+  const knot = document.getElementById('knot');
+  if (!knot) return;
+  // ropeOffset in [-100, +100]; map to left 10%..90% of rope
+  const pct = 50 + (state.ropeOffset / 100) * 40; // 10..90
+  knot.style.left = pct + '%';
+  // Thresholds at 22% and 78%
+  const pL = document.getElementById('pullerL');
+  const pR = document.getElementById('pullerR');
+  if (pL) { pL.classList.remove('tug-left'); void pL.offsetWidth; pL.classList.add('tug-left'); }
+  if (pR) { pR.classList.remove('tug-right'); void pR.offsetWidth; pR.classList.add('tug-right'); }
+}
+
+function updateRace() {
+  for (let i=0; i<2; i++) {
+    const el = document.getElementById('racer' + i);
+    if (!el) continue;
+    // steps out of QUESTIONS_PER_STAGE; map to 6%..92% from the right side
+    const pct = 6 + (state.raceSteps[i] / CONFIG.QUESTIONS_PER_STAGE) * 86;
+    el.style.left = 'auto';
+    el.style.right = Math.min(92, pct) + '%';
+    el.classList.remove('hop','gallop');
+    void el.offsetWidth;
+    el.classList.add(state.currentStage === 2 ? 'gallop' : 'hop');
+  }
+}
+
+/* ============================================================
+   QUESTION RENDER
+   ============================================================ */
+function renderQuestion() {
+  const qs = currentQuestions();
+  const q = qs[state.currentQuestion];
+  state.answered = false;
+  state.pointAwarded = false;
+
+  document.getElementById('qCounter').textContent = `Сұрақ ${state.currentQuestion+1} / ${qs.length}`;
+  document.getElementById('qStage').textContent = STAGE_META[state.currentStage-1].title;
+  document.getElementById('progressFill').style.width = ((state.currentQuestion) / qs.length * 100) + '%';
+  document.getElementById('questionText').textContent = q.question;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  ['A','B','C','D'].forEach(key => {
+    if (!q.options[key]) return;
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="letter">${key}</span><span>${q.options[key]}</span>`;
+    btn.addEventListener('click', () => onAnswer(key, btn));
+    btn.addEventListener('mouseenter', () => AudioEngine.hover());
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('hostControls').classList.remove('visible');
+  document.getElementById('nextRow').classList.remove('visible');
+}
+
+function onAnswer(chosen, btnEl) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = currentQuestions()[state.currentQuestion];
+  const allBtns = document.querySelectorAll('#options .option');
+  allBtns.forEach(b => b.disabled = true);
+
+  if (chosen === q.correctAnswer) {
+    btnEl.classList.add('correct');
+    AudioEngine.correct();
+    Confetti.burst(60);
+    document.getElementById('hostControls').classList.add('visible');
+  } else {
+    btnEl.classList.add('wrong');
+    AudioEngine.wrong();
+    document.getElementById('hostControls').classList.remove('visible');
+    document.getElementById('nextRow').classList.add('visible');
+    // Highlight correct one too
+    allBtns.forEach(b => {
+      const letter = b.querySelector('.letter').textContent;
+      if (letter === q.correctAnswer) b.classList.add('correct');
+    });
+  }
+}
+
+function awardPoint(teamIndex) {
+  if (state.pointAwarded) return;
+  state.pointAwarded = true;
+  state.teams[teamIndex].score += 1;
+  state.teams[teamIndex].stageScore += 1;
+  AudioEngine.point();
+  popScore(teamIndex);
+  updateScoreboard();
+
+  // Advance mini-game
+  if (state.currentStage === 1) {
+    // Tug: team 0 pulls left (negative offset), team 1 pulls right (positive)
+    const delta = teamIndex === 0 ? -12 : +12;
+    state.ropeOffset = Math.max(-100, Math.min(100, state.ropeOffset + delta));
+    updateTug();
+    AudioEngine.tug();
+  } else {
+    state.raceSteps[teamIndex] = Math.min(CONFIG.QUESTIONS_PER_STAGE, state.raceSteps[teamIndex] + 1);
+    updateRace();
+    if (state.currentStage === 2) AudioEngine.hoof(); else AudioEngine.boing();
+  }
+
+  // Show next button
+  document.getElementById('nextRow').classList.add('visible');
+}
+
+function nextQuestion() {
+  AudioEngine.click();
+  const qs = currentQuestions();
+  if (state.currentQuestion + 1 >= qs.length) {
+    // Stage complete
+    state.completedStages.add(state.currentStage);
+    AudioEngine.fanfare();
+    Confetti.burst(120);
+    showStageEnd();
+  } else {
+    state.currentQuestion++;
+    renderQuestion();
+  }
+}
+
+/* ============================================================
+   STAGE END
+   ============================================================ */
+function showStageEnd() {
+  const t1 = state.teams[0], t2 = state.teams[1];
+  document.getElementById('stageEndTitle').textContent =
+    STAGE_META[state.currentStage-1].title + ' — Аяқталды!';
+  document.getElementById('endName1').textContent = t1.name;
+  document.getElementById('endName2').textContent = t2.name;
+  document.getElementById('endName1').style.color = t1.color;
+  document.getElementById('endName2').style.color = t2.color;
+  document.getElementById('endStage1').textContent = t1.stageScore;
+  document.getElementById('endStage2').textContent = t2.stageScore;
+  document.getElementById('endStage1').style.color = t1.color;
+  document.getElementById('endStage2').style.color = t2.color;
+  document.getElementById('endTotal1').textContent = t1.score;
+  document.getElementById('endTotal2').textContent = t2.score;
+  document.getElementById('endTotal1').style.color = t1.color;
+  document.getElementById('endTotal2').style.color = t2.color;
+
+  const btn = document.getElementById('nextStageBtn');
+  if (state.currentStage >= 3) {
+    btn.textContent = '🏆 Түпкі нәтиже';
+    btn.onclick = () => { AudioEngine.click(); showWinner(); };
+  } else {
+    btn.textContent = 'Келесі кезең →';
+    btn.onclick = () => { AudioEngine.click(); showScreen('stages'); renderStages(); };
+  }
+  showScreen('stageEnd');
+}
+
+/* ============================================================
+   WINNER REVEAL
+   ============================================================ */
+function showWinner() {
+  const t1 = state.teams[0], t2 = state.teams[1];
+  document.getElementById('finalName1').textContent = t1.name;
+  document.getElementById('finalName2').textContent = t2.name;
+  document.getElementById('finalName1').style.color = t1.color;
+  document.getElementById('finalName2').style.color = t2.color;
+  document.getElementById('finalScore1').textContent = t1.score;
+  document.getElementById('finalScore2').textContent = t2.score;
+  document.getElementById('finalScore1').style.color = t1.color;
+  document.getElementById('finalScore2').style.color = t2.color;
+
+  showScreen('winner');
+
+  // Dramatic build-up
+  AudioEngine.drumroll();
+  document.getElementById('winnerName').textContent = '...';
+  document.getElementById('winnerSubtitle').textContent = 'Дауыл алдында...';
+  document.getElementById('trophyIcon').style.display = 'none';
+
+  setTimeout(() => {
+    const nameEl = document.getElementById('winnerName');
+    const subEl = document.getElementById('winnerSubtitle');
+    const trophy = document.getElementById('trophyIcon');
+    if (t1.score > t2.score) {
+      nameEl.textContent = t1.name;
+      nameEl.style.color = t1.color;
+      subEl.textContent = '🎉 Жеңімпаз! 🎉';
+      trophy.textContent = '🏆';
+    } else if (t2.score > t1.score) {
+      nameEl.textContent = t2.name;
+      nameEl.style.color = t2.color;
+      subEl.textContent = '🎉 Жеңімпаз! 🎉';
+      trophy.textContent = '🏆';
+    } else {
+      nameEl.textContent = 'Тең түсті!';
+      nameEl.style.color = '#ffd86b';
+      subEl.textContent = '🤝 Достық жеңді! 🤝';
+      trophy.textContent = '🤝';
+    }
+    trophy.style.display = 'block';
+    AudioEngine.fanfare();
+    setTimeout(()=>AudioEngine.fanfare(), 700);
+    // Confetti bursts
+    Confetti.burst(200);
+    setTimeout(()=>Confetti.burst(160), 400);
+    setTimeout(()=>Confetti.burst(160), 900);
+  }, 1600);
+}
+
+/* ============================================================
+   RESTART
+   ============================================================ */
+function restartTournament() {
+  state.teams[0].score = 0;
+  state.teams[1].score = 0;
+  state.teams[0].stageScore = 0;
+  state.teams[1].stageScore = 0;
+  state.completedStages.clear();
+  state.currentStage = 1;
+  state.currentQuestion = 0;
+  state.ropeOffset = 0;
+  state.raceSteps = [0,0];
+  updateScoreboard();
+  initTeamSetup();
+  showScreen('setup');
+}
+
+/* ============================================================
+   WIRE UP EVENTS
+   ============================================================ */
+function wireEvents() {
+  // Landing
+  document.getElementById('startBtn').addEventListener('click', () => {
+    AudioEngine.ensureCtx();
+    AudioEngine.click();
+    initTeamSetup();
+    showScreen('setup');
+  });
+
+  // Setup
+  document.getElementById('toStagesBtn').addEventListener('click', () => {
+    AudioEngine.click();
+    saveTeams();
+    renderStages();
+    showScreen('stages');
+  });
+
+  // Stages back
+  document.getElementById('backToSetupBtn').addEventListener('click', () => {
+    AudioEngine.click();
+    showScreen('setup');
+  });
+
+  // Quiz host buttons
+  document.getElementById('hostBtn1').addEventListener('click', () => awardPoint(0));
+  document.getElementById('hostBtn2').addEventListener('click', () => awardPoint(1));
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+
+  // Winner restart
+  document.getElementById('finalRestartBtn').addEventListener('click', () => {
+    AudioEngine.click();
+    restartTournament();
+  });
+
+  // Mute
+  const muteBtn = document.getElementById('muteBtn');
+  muteBtn.addEventListener('click', () => {
+    const m = !AudioEngine.isMuted();
+    AudioEngine.setMuted(m);
+    muteBtn.textContent = m ? '🔇' : '🔊';
+    if (!m) { AudioEngine.ensureCtx(); }
+    AudioEngine.click();
+  });
+
+  // Restart utility
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    AudioEngine.click();
+    if (confirm('Турнирді қайта бастау керек пе? / Restart tournament?')) {
+      restartTournament();
+    }
+  });
+
+  // Global hover sounds on buttons
+  document.addEventListener('mouseover', (e) => {
+    if (e.target.closest('.btn, .option, .host-btn, .stage-card')) {
+      AudioEngine.hover();
+    }
+  });
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+window.addEventListener('load', () => {
+  buildSprites();
+  init3D();
+  wireEvents();
+  updateScoreboard();
+  // Hide loading
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+    setTimeout(()=>document.getElementById('loading').remove(), 500);
+  }, 600);
+});
+</script>
+</body>
+</html>
