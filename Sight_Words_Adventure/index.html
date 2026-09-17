@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 Sight Words — Learn to Read in English 🌟</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-1: #fff7e6;
+    --bg-2: #ffe4f1;
+    --bg-3: #e4f3ff;
+    --accent: #ff6b6b;
+    --accent-2: #4ecdc4;
+    --accent-3: #ffd93d;
+    --accent-4: #a78bfa;
+    --text: #2d3436;
+    --card-bg: #ffffff;
+    --shadow: 0 6px 20px rgba(0,0,0,0.12);
+    --shadow-hover: 0 10px 28px rgba(0,0,0,0.2);
+  }
+
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    min-height: 100vh;
+    color: var(--text);
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 20px 10px 30px;
+    position: relative;
+  }
+
+  header h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--accent);
+    text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  header p {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: #555;
+    font-weight: bold;
+  }
+
+  .floating-emoji {
+    position: absolute;
+    font-size: 2.5rem;
+    animation: float 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .floating-emoji.e1 { top: 10px; left: 5%; animation-delay: 0s; }
+  .floating-emoji.e2 { top: 30px; right: 5%; animation-delay: 1s; }
+  .floating-emoji.e3 { bottom: 0; left: 15%; animation-delay: 2s; }
+  .floating-emoji.e4 { bottom: 10px; right: 15%; animation-delay: 3s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(10deg); }
+  }
+
+  .page-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+
+  .page-btn {
+    background: #fff;
+    border: 3px solid var(--accent-2);
+    color: var(--text);
+    padding: 12px 22px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    font-family: inherit;
+  }
+
+  .page-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .page-btn.active {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-4) 100%);
+    color: #fff;
+    border-color: transparent;
+    transform: scale(1.08);
+  }
+
+  .page-section {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .page-section.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    color: var(--accent-4);
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 0 #fff;
+  }
+
+  .words-grid {
+    display: grid;
+    /* Force a 5 columns x 4 rows layout for the 20-word pages */
+    grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: minmax(80px, 1fr);
+    gap: 18px;
+    padding: 10px;
+  }
+
+  .word-card {
+    background: var(--card-bg);
+    border: 4px solid transparent;
+    border-radius: 20px;
+    padding: 25px 15px;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: bold;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    user-select: none;
+    font-family: inherit;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .word-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-3), var(--accent-2), var(--accent-4));
+    border-radius: 16px 16px 0 0;
+  }
+
+  .word-card:hover {
+    transform: translateY(-5px) scale(1.04);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent-2);
+  }
+
+  .word-card.speaking {
+    transform: scale(1.12);
+    border-color: var(--accent);
+    background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+    box-shadow: 0 0 0 6px rgba(255, 107, 107, 0.3), 0 12px 30px rgba(255, 107, 107, 0.4);
+    z-index: 10;
+  }
+
+  .word-card .speaker-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.1rem;
+    opacity: 0.4;
+    transition: all 0.3s;
+  }
+
+  .word-card:hover .speaker-icon {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  .word-card.speaking .speaker-icon {
+    opacity: 1;
+    animation: pulse 0.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+  }
+
+  .sound-waves {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    gap: 3px;
+    align-items: flex-end;
+    height: 18px;
+  }
+
+  .word-card.speaking .sound-waves {
+    display: flex;
+  }
+
+  .sound-waves .bar {
+    width: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: wave 0.9s ease-in-out infinite;
+  }
+
+  .sound-waves .bar:nth-child(1) { animation-delay: 0s; height: 40%; }
+  .sound-waves .bar:nth-child(2) { animation-delay: 0.1s; height: 70%; }
+  .sound-waves .bar:nth-child(3) { animation-delay: 0.2s; height: 100%; }
+  .sound-waves .bar:nth-child(4) { animation-delay: 0.3s; height: 70%; }
+  .sound-waves .bar:nth-child(5) { animation-delay: 0.4s; height: 40%; }
+
+  @keyframes wave {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+  }
+
+  /* Challenge page */
+  .challenge-box {
+    background: #fff;
+    border-radius: 30px;
+    padding: 40px 25px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    border: 4px solid var(--accent-3);
+  }
+
+  .challenge-instruction {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    color: #555;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+
+  .hear-again-btn {
+    background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent-4) 100%);
+    color: #fff;
+    border: none;
+    padding: 16px 30px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 15px 0 30px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hear-again-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .hear-again-btn .big-speaker {
+    font-size: 1.5rem;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  .choice-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+    border: 4px solid var(--accent-2);
+    border-radius: 20px;
+    padding: 25px 15px;
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+    color: var(--text);
+  }
+
+  .choice-card:hover {
+    transform: translateY(-4px) scale(1.03);
+    border-color: var(--accent-4);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .choice-card.correct {
+    background: linear-gradient(135deg, #a8e6a3 0%, #4ecdc4 100%);
+    border-color: #2ecc71;
+    color: #fff;
+    animation: correctPop 0.6s ease;
+  }
+
+  .choice-card.wrong {
+    background: linear-gradient(135deg, #ffb3b3 0%, #ff6b6b 100%);
+    border-color: #e74c3c;
+    color: #fff;
+    animation: shake 0.5s ease;
+  }
+
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1.05); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .feedback {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+    min-height: 40px;
+  }
+
+  .feedback.good { color: #27ae60; }
+  .feedback.try-again { color: #e74c3c; }
+
+  .next-challenge-btn {
+    background: linear-gradient(135deg, var(--accent-3) 0%, var(--accent) 100%);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s;
+    font-family: inherit;
+    display: none;
+  }
+
+  .next-challenge-btn.show { display: inline-block; }
+
+  .next-challenge-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+  }
+
+  .score-display {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .score-item {
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: var(--shadow);
+    font-size: 1.1rem;
+  }
+
+  .score-item.correct-score { color: #27ae60; border: 2px solid #27ae60; }
+  .score-item.total-score { color: var(--accent-4); border: 2px solid var(--accent-4); }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    color: #777;
+    font-size: 0.95rem;
+  }
+
+  .voice-warning {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    color: #856404;
+    font-weight: bold;
+    display: none;
+  }
+
+  .voice-warning.show { display: block; }
+
+  @media (max-width: 600px) {
+    .words-grid {
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+    }
+    .word-card { padding: 20px 10px; min-height: 75px; }
+    .choices-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .page-btn { padding: 10px 16px; font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="floating-emoji e1">📚</span>
+    <span class="floating-emoji e2">🌈</span>
+    <span class="floating-emoji e3">⭐</span>
+    <span class="floating-emoji e4">🎈</span>
+    <h1>🌟 Sight Words Adventure 🌟</h1>
+    <p>Tap a word to HEAR it! 👂 See it 👀 Say it 🗣️</p>
+  </header>
+
+  <div id="voiceWarning" class="voice-warning">
+    🔊 Please allow sound and make sure English voices are available in your browser.
+  </div>
+
+  <nav class="page-nav">
+    <button class="page-btn active" data-page="1">📘 Page 1</button>
+    <button class="page-btn" data-page="2">📗 Page 2</button>
+    <button class="page-btn" data-page="3">📙 Page 3</button>
+    <button class="page-btn" data-page="4">📕 Page 4</button>
+    <button class="page-btn" data-page="5">🎯 Challenge</button>
+  </nav>
+
+  <!-- Pages 1-4: Word cards -->
+  <section class="page-section active" data-page-section="1">
+    <h2 class="section-title">📘 Page 1 — Let's Begin!</h2>
+    <div class="words-grid" id="grid-1"></div>
+  </section>
+
+  <section class="page-section" data-page-section="2">
+    <h2 class="section-title">📗 Page 2 — Keep Going!</h2>
+    <div class="words-grid" id="grid-2"></div>
+  </section>
+
+  <section class="page-section" data-page-section="3">
+    <h2 class="section-title">📙 Page 3 — Great Job!</h2>
+    <div class="words-grid" id="grid-3"></div>
+  </section>
+
+  <section class="page-section" data-page-section="4">
+    <h2 class="section-title">📕 Page 4 — You're a Star!</h2>
+    <div class="words-grid" id="grid-4"></div>
+  </section>
+
+  <!-- Challenge page -->
+  <section class="page-section" data-page-section="5">
+    <h2 class="section-title">🎯 Challenge — Listen and Choose!</h2>
+    <div class="challenge-box">
+      <p class="challenge-instruction">👂 Listen carefully. Which word do you hear?</p>
+      <button class="hear-again-btn" id="hearAgainBtn">
+        <span class="big-speaker">🔊</span>
+        <span>HEAR AGAIN</span>
+      </button>
+      <div class="choices-grid" id="choicesGrid"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-challenge-btn" id="nextChallengeBtn">🎲 Next Word</button>
+      <div class="score-display">
+        <div class="score-item correct-score">✅ Correct: <span id="correctCount">0</span></div>
+        <div class="score-item total-score">🎯 Tries: <span id="totalCount">0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Made with ❤️ for young English learners
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   SIGHT WORDS — 80 words across 4 pages (20 per page)
+   ========================================================= */
+const WORDS = {
+  1: ["I","a","the","is","it","to","in","you","and","he","she","we","they","me","my","am","can","do","no","go"],
+  2: ["was","were","have","has","his","her","said","come","came","are","at","be","but","for","from","not","on","this","that","with"],
+  3: ["all","would","could","should","will","their","there","what","when","where","who","how","why","because","people","know","about","into","just","like"],
+  4: ["through","think","than","then","them","some","see","so","up","out","if","our","own","too","very","after","before","big","little","many"]
+};
+
+const ALL_WORDS = [...WORDS[1], ...WORDS[2], ...WORDS[3], ...WORDS[4]];
+
+/* =========================================================
+   ENGLISH VOICE SELECTION — strict English only
+   ========================================================= */
+let englishVoice = null;
+
+function pickBestEnglishVoice() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+
+  // Priority 1: en-US natural/premium
+  const enUS = voices.filter(v => /^en(-|_)?US/i.test(v.lang) || v.lang === 'en-US');
+  // Priority 2: en-GB
+  const enGB = voices.filter(v => /^en(-|_)?GB/i.test(v.lang) || v.lang === 'en-GB');
+  // Priority 3: any en-*
+  const enAny = voices.filter(v => /^en(-|_)?/i.test(v.lang));
+
+  // Prefer "natural"/"premium"/"enhanced"/"neural" voices if available
+  const naturalKeywords = /natural|premium|enhanced|neural|online|google|microsoft/i;
+
+  const pickNatural = (list) => list.find(v => naturalKeywords.test(v.name)) || list[0];
+
+  const usNatural = pickNatural(enUS);
+  if (usNatural) return usNatural;
+
+  const gbNatural = pickNatural(enGB);
+  if (gbNatural) return gbNatural;
+
+  const anyNatural = pickNatural(enAny);
+  if (anyNatural) return anyNatural;
+
+  return null;
+}
+
+function updateEnglishVoice() {
+  englishVoice = pickBestEnglishVoice();
+  // Safety check: ensure selected voice is actually English
+  if (englishVoice && !/^en(-|_)?/i.test(englishVoice.lang)) {
+    englishVoice = null;
+  }
+}
+
+// Voices load asynchronously in many browsers
+if ('speechSynthesis' in window) {
+  updateEnglishVoice();
+  speechSynthesis.onvoiceschanged = () => {
+    updateEnglishVoice();
+  };
+  // Some browsers need a retry
+  setTimeout(updateEnglishVoice, 500);
+  setTimeout(updateEnglishVoice, 1500);
+}
+
+/* =========================================================
+   PRONUNCIATION — ONLY the clicked English word
+   ========================================================= */
+function speakWord(word) {
+  if (!('speechSynthesis' in window)) {
+    document.getElementById('voiceWarning').classList.add('show');
+    return;
+  }
+
+  // Cancel any ongoing speech
+  speechSynthesis.cancel();
+
+  // Ensure voice is up to date
+  updateEnglishVoice();
+
+  const utter = new SpeechSynthesisUtterance(word);
+  utter.lang = 'en-US';
+  utter.rate = 0.83;     // slightly slower for kids
+  utter.pitch = 1.0;
+  utter.volume = 1.0;
+
+  if (englishVoice) {
+    utter.voice = englishVoice;
+    // Keep lang consistent with voice
+    utter.lang = englishVoice.lang;
+  }
+
+  // Final safety: if somehow voice is non-English, force en-US default
+  if (utter.voice && !/^en(-|_)?/i.test(utter.voice.lang)) {
+    utter.voice = null;
+    utter.lang = 'en-US';
+  }
+
+  speechSynthesis.speak(utter);
+  return utter;
+}
+
+/* =========================================================
+   BUILD WORD CARDS (pages 1-4)
+   ========================================================= */
+function buildWordCards() {
+  for (let page = 1; page <= 4; page++) {
+    const grid = document.getElementById(`grid-${page}`);
+    WORDS[page].forEach(word => {
+      const btn = document.createElement('button');
+      btn.className = 'word-card';
+      btn.setAttribute('data-word', word);
+      btn.innerHTML = `
+        <span class="speaker-icon">🔊</span>
+        <span class="word-text">${word}</span>
+        <div class="sound-waves">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      `;
+      btn.addEventListener('click', () => handleCardClick(btn, word));
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function handleCardClick(card, word) {
+  // Remove speaking state from all cards
+  document.querySelectorAll('.word-card.speaking').forEach(c => c.classList.remove('speaking'));
+
+  // Add speaking state to this card
+  card.classList.add('speaking');
+
+  // Speak the word
+  const utter = speakWord(word);
+
+  // Remove speaking state when done
+  if (utter) {
+    utter.onend = () => card.classList.remove('speaking');
+    utter.onerror = () => card.classList.remove('speaking');
+  }
+  // Fallback timeout in case onend doesn't fire
+  setTimeout(() => card.classList.remove('speaking'), 2500);
+}
+
+/* =========================================================
+   PAGE NAVIGATION
+   ========================================================= */
+document.querySelectorAll('.page-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.getAttribute('data-page');
+    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`[data-page-section="${page}"]`).classList.add('active');
+
+    // If challenge page, start a new challenge
+    if (page === '5') {
+      startNewChallenge();
+    }
+
+    // Cancel any speech when switching pages
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  });
+});
+
+/* =========================================================
+   CHALLENGE PAGE
+   ========================================================= */
+let currentTarget = null;
+let correctCount = 0;
+let totalCount = 0;
+let challengeLocked = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startNewChallenge() {
+  challengeLocked = false;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextChallengeBtn').classList.remove('show');
+
+  // Pick target
+  currentTarget = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+
+  // Pick 3 distractors (different from target)
+  const pool = ALL_WORDS.filter(w => w !== currentTarget);
+  const distractors = shuffle(pool).slice(0, 3);
+  const choices = shuffle([currentTarget, ...distractors]);
+
+  const grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+  choices.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-card';
+    btn.textContent = word;
+    btn.setAttribute('data-word', word);
+    btn.addEventListener('click', () => handleChoiceClick(btn, word));
+    grid.appendChild(btn);
+  });
+
+  // Auto-play the target word after a short delay
+  setTimeout(() => {
+    speakWord(currentTarget);
+  }, 400);
+}
+
+function handleChoiceClick(btn, word) {
+  if (challengeLocked) return;
+
+  totalCount++;
+  document.getElementById('totalCount').textContent = totalCount;
+
+  const feedback = document.getElementById('feedback');
+
+  if (word === currentTarget) {
+    correctCount++;
+    document.getElementById('correctCount').textContent = correctCount;
+    btn.classList.add('correct');
+    feedback.textContent = '🎉 Correct! Well done!';
+    feedback.className = 'feedback good';
+    challengeLocked = true;
+    // Celebrate with the word
+    setTimeout(() => speakWord(word), 300);
+    document.getElementById('nextChallengeBtn').classList.add('show');
+  } else {
+    btn.classList.add('wrong');
+    feedback.textContent = '🤔 Try again! Listen carefully.';
+    feedback.className = 'feedback try-again';
+    // Replay the target
+    setTimeout(() => speakWord(currentTarget), 500);
+    // Remove wrong styling after shake
+    setTimeout(() => btn.classList.remove('wrong'), 600);
+  }
+}
+
+document.getElementById('hearAgainBtn').addEventListener('click', () => {
+  if (currentTarget) speakWord(currentTarget);
+});
+
+document.getElementById('nextChallengeBtn').addEventListener('click', () => {
+  startNewChallenge();
+});
+
+/* =========================================================
+   INIT
+   ========================================================= */
+buildWordCards();
+
+// Warm up speech synthesis on first user interaction (required by some browsers)
+let warmedUp = false;
+function warmUpSpeech() {
+  if (warmedUp) return;
+  warmedUp = true;
+  if ('speechSynthesis' in window) {
+    // Trigger voice loading
+    speechSynthesis.getVoices();
+    updateEnglishVoice();
+  }
+}
+document.addEventListener('click', warmUpSpeech, { once: true });
+document.addEventListener('touchstart', warmUpSpeech, { once: true });
+
+// Keep speech synthesis alive (some browsers pause long utterances)
+setInterval(() => {
+  if (speechSynthesis.speaking) {
+    speechSynthesis.pause();
+    speechSynthesis.resume();
+  }
+}, 10000);
+</script>
+
+</body>
+</html>
