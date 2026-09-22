@@ -53,7 +53,7 @@ Keep responses concise and student-friendly.`,
         }
 
         if (settings.apiKey) {
-            return `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(settings.apiKey)}`;
+            return `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=AQ.Ab8RN6KpbIPnBtdTh68ZYVzRdUpvOAJoV5vEuMrjpISAxgajyQ`;
         }
 
         return null;
