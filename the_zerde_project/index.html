@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI VOCAB LAB — Learn • Practice • Remember</title>
+<meta name="description" content="AI-style personalized vocabulary practice for Grade 8 students.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ NAVIGATION ============ -->
+<header class="nav-wrap">
+  <nav class="navbar" aria-label="Main navigation">
+    <a href="#home" class="logo" data-nav="home">
+      <span class="logo-icon" aria-hidden="true">🧠</span>
+      <span class="logo-text">
+        <strong>AI VOCAB LAB</strong>
+        <small>Learn • Practice • Remember</small>
+      </span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home" data-nav="home" class="nav-link active">Home</a></li>
+      <li><a href="#learn" data-nav="learn" class="nav-link">Learn</a></li>
+      <li><a href="#practice" data-nav="practice" class="nav-link">Practice</a></li>
+      <li><a href="#personalize" data-nav="personalize" class="nav-link">AI Personalize</a></li>
+      <li><a href="#quiz" data-nav="quiz" class="nav-link">Quiz</a></li>
+      <li><a href="#progress" data-nav="progress" class="nav-link">Progress</a></li>
+      <li><a href="#about" data-nav="about" class="nav-link">About Project</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============ HOME ============ -->
+<section id="home" class="page active">
+  <div class="hero">
+    <div class="hero-content">
+      <span class="badge">✨ Grade 8 Research Project</span>
+      <h1 class="hero-title">Learn English Vocabulary <span class="gradient-text">Your Way</span></h1>
+      <p class="hero-sub">Personalized vocabulary practice for Grade 8 students.</p>
+      <p class="hero-desc">Choose what you like, learn new words in familiar contexts, test yourself, and review them later.</p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary btn-lg" data-nav="personalize">
+          <span>🚀</span> Start Learning
+        </button>
+        <button class="btn btn-outline btn-lg" data-nav="how">
+          <span>📘</span> How It Works
+        </button>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="floating-card fc1">🌍</div>
+      <div class="floating-card fc2">💻</div>
+      <div class="floating-card fc3">🧠</div>
+      <div class="floating-card fc4">📚</div>
+      <div class="hero-circle"></div>
+    </div>
+  </div>
+
+  <!-- 5-Step Pathway -->
+  <div class="section-block">
+    <h2 class="section-title">The 5-Step Learning Pathway</h2>
+    <p class="section-sub">Based on our AI Vocabulary Learning Guide</p>
+    <div class="pathway">
+      <div class="step"><div class="step-num">1</div><div class="step-title">Meet the Word</div><div class="step-desc">See the word, its meaning and sound.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">2</div><div class="step-title">See It in Context</div><div class="step-desc">Read it in a real sentence.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">3</div><div class="step-title">Use It Personally</div><div class="step-desc">Connect it to YOUR interests.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">4</div><div class="step-title">Test Yourself</div><div class="step-desc">Practice with fun activities.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">5</div><div class="step-title">Review Later</div><div class="step-desc">Remember it for a long time.</div></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">20</div><div class="stat-label">Target Words</div></div>
+    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Units</div></div>
+    <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Learning Steps</div></div>
+    <div class="stat-card"><div class="stat-num">∞</div><div class="stat-label">Personalized Practice</div></div>
+  </div>
+
+  <!-- How it works -->
+  <div id="how" class="section-block">
+    <h2 class="section-title">How It Works</h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-icon">🎯</div><h3>Choose Your Interest</h3><p>Tell us what you like — sports, gaming, music, films, tech or art.</p></div>
+      <div class="how-card"><div class="how-icon">🤖</div><h3>AI-Style Personalization</h3><p>Examples and practice adapt to YOUR interests automatically.</p></div>
+      <div class="how-card"><div class="how-icon">🎮</div><h3>Practice & Play</h3><p>Match words, fill gaps, answer questions, and have fun.</p></div>
+      <div class="how-card"><div class="how-icon">📈</div><h3>Track Progress</h3><p>See your achievements, review weak words, and grow every day.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PERSONALIZE ============ -->
+<section id="personalize" class="page">
+  <div class="page-header">
+    <h1>Make Learning <span class="gradient-text">Personal</span></h1>
+    <p>Answer 3 quick questions and we'll create a learning path just for you.</p>
+  </div>
+
+  <div class="personalize-flow">
+    <!-- Q1 Interest -->
+    <div class="pq-card" id="pq1">
+      <div class="pq-step">Step 1 of 3</div>
+      <h2>What are you interested in?</h2>
+      <div class="interest-grid">
+        <button class="interest-btn" data-interest="sports"><span>⚽</span><b>Sports</b></button>
+        <button class="interest-btn" data-interest="gaming"><span>🎮</span><b>Gaming</b></button>
+        <button class="interest-btn" data-interest="music"><span>🎵</span><b>Music</b></button>
+        <button class="interest-btn" data-interest="films"><span>🎬</span><b>Films</b></button>
+        <button class="interest-btn" data-interest="technology"><span>💻</span><b>Technology</b></button>
+        <button class="interest-btn" data-interest="art"><span>🎨</span><b>Art</b></button>
+      </div>
+    </div>
+
+    <!-- Q2 Activity -->
+    <div class="pq-card hidden" id="pq2">
+      <div class="pq-step">Step 2 of 3</div>
+      <h2>What type of activity do you enjoy?</h2>
+      <div class="activity-grid">
+        <button class="activity-btn" data-activity="quiz"><span>📝</span><b>Quiz</b></button>
+        <button class="activity-btn" data-activity="story"><span>📖</span><b>Short Story</b></button>
+        <button class="activity-btn" data-activity="dialogue"><span>💬</span><b>Dialogue</b></button>
+        <button class="activity-btn" data-activity="game"><span>🎲</span><b>Game</b></button>
+        <button class="activity-btn" data-activity="fill"><span>✏️</span><b>Fill in the Gaps</b></button>
+      </div>
+    </div>
+
+    <!-- Q3 Style -->
+    <div class="pq-card hidden" id="pq3">
+      <div class="pq-step">Step 3 of 3</div>
+      <h2>Choose Your Learning Style</h2>
+      <div class="style-grid">
+        <button class="style-btn" data-style="visual"><span>👁️</span><b>Visual</b><small>I like pictures and examples</small></button>
+        <button class="style-btn" data-style="reading"><span>📚</span><b>Reading</b><small>I like reading sentences</small></button>
+        <button class="style-btn" data-style="active"><span>🏃</span><b>Active</b><small>I like doing and playing</small></button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="pq-card hidden" id="pqResult">
+      <div class="result-icon">🎉</div>
+      <h2>Your Learning Path is Ready!</h2>
+      <div class="result-summary" id="resultSummary"></div>
+      <div class="result-buttons">
+        <button class="btn btn-primary" data-nav="learn">📚 Start Learning</button>
+        <button class="btn btn-outline" id="restartPersonalize">↺ Change Answers</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacy-note">
+    🔒 <b>Your privacy matters.</b> This website does not ask for personal information.
+  </div>
+</section>
+
+<!-- ============ LEARN (UNITS) ============ -->
+<section id="learn" class="page">
+  <div class="page-header">
+    <h1>Choose Your <span class="gradient-text">Unit</span></h1>
+    <p>Each unit has 10 important words. Start with Unit 1 or Unit 2.</p>
+  </div>
+
+  <div class="units-grid">
+    <div class="unit-card unit-1" data-unit="unit1">
+      <div class="unit-icon">🌍</div>
+      <div class="unit-tag">UNIT 1</div>
+      <h2>OUR WORLD</h2>
+      <p class="unit-topic">Pollution and the Environment</p>
+      <div class="unit-words">
+        <span>pollution</span><span>environment</span><span>recycle</span>
+        <span>reuse</span><span>save</span><span>pollute</span>
+        <span>waste</span><span>protect</span><span>reduce</span><span>energy</span>
+      </div>
+      <button class="btn btn-primary">Learn Unit 1 →</button>
+    </div>
+
+    <div class="unit-card unit-2" data-unit="unit2">
+      <div class="unit-icon">💻</div>
+      <div class="unit-tag">UNIT 2</div>
+      <h2>DIGITAL WORLD</h2>
+      <p class="unit-topic">The Internet and Cybercrime</p>
+      <div class="unit-words">
+        <span>email</span><span>instant messaging</span><span>file sharing</span>
+        <span>hacker</span><span>virus</span><span>password</span>
+        <span>firewall</span><span>cybercrime</span><span>account</span><span>download</span>
+      </div>
+      <button class="btn btn-primary">Learn Unit 2 →</button>
+    </div>
+  </div>
+
+  <!-- Flashcard area -->
+  <div id="flashcardArea" class="hidden">
+    <div class="flashcard-header">
+      <button class="btn btn-ghost" id="backToUnits">← Back to Units</button>
+      <div class="flashcard-progress" id="fcProgress">Word 1 of 10</div>
+    </div>
+    <div class="flashcard" id="flashcard">
+      <div class="flashcard-inner" id="flashcardInner">
+        <div class="flashcard-face front">
+          <div class="word-emoji" id="wordEmoji">🌱</div>
+          <div class="word-main" id="wordMain">recycle</div>
+          <div class="word-pron" id="wordPron">/riːˈsaɪkəl/</div>
+          <button class="btn btn-ghost speaker-btn" id="speakBtn" aria-label="Listen">🔊 Listen</button>
+          <button class="btn btn-primary" id="showMeaningBtn">Show Meaning →</button>
+        </div>
+        <div class="flashcard-face back">
+          <div class="meaning-block">
+            <div class="meaning-label">Meaning</div>
+            <div class="meaning-text" id="meaningText"></div>
+          </div>
+          <div class="meaning-block">
+            <div class="meaning-label">Қазақша</div>
+            <div class="meaning-text kazakh" id="kazakhText"></div>
+          </div>
+          <div class="meaning-block">
+            <div class="meaning-label">Example</div>
+            <div class="meaning-text example" id="exampleText"></div>
+          </div>
+          <div class="meaning-block personal" id="personalBlock">
+            <div class="meaning-label">🤖 Your Personal Example</div>
+            <div class="meaning-text example" id="personalText"></div>
+          </div>
+          <button class="btn btn-primary" id="nextWordBtn">Next Word →</button>
+        </div>
+      </div>
+    </div>
+    <div class="flashcard-dots" id="fcDots"></div>
+  </div>
+</section>
+
+<!-- ============ PRACTICE ============ -->
+<section id="practice" class="page">
+  <div class="page-header">
+    <h1>Practice <span class="gradient-text">Modes</span></h1>
+    <p>Choose a fun way to practice your vocabulary.</p>
+  </div>
+
+  <div class="practice-menu" id="practiceMenu">
+    <div class="practice-card" data-mode="match"><div class="pm-icon">🎯</div><h3>Match the Word</h3><p>Match words with meanings.</p></div>
+    <div class="practice-card" data-mode="gap"><div class="pm-icon">✏️</div><h3>Fill in the Gap</h3><p>Choose the right word.</p></div>
+    <div class="practice-card" data-mode="meaning"><div class="pm-icon">🧠</div><h3>Choose the Meaning</h3><p>Pick the correct meaning.</p></div>
+    <div class="practice-card" data-mode="context"><div class="pm-icon">💡</div><h3>Context Challenge</h3><p>Use words in situations.</p></div>
+    <div class="practice-card" data-mode="tf"><div class="pm-icon">✅</div><h3>True or False</h3><p>Decide if the sentence is true.</p></div>
+  </div>
+
+  <!-- Practice Unit Selector -->
+  <div class="practice-setup hidden" id="practiceSetup">
+    <h3>Which unit do you want to practice?</h3>
+    <div class="unit-pick">
+      <button class="btn btn-outline" data-practice-unit="unit1">Unit 1 — Our World</button>
+      <button class="btn btn-outline" data-practice-unit="unit2">Unit 2 — Digital World</button>
+      <button class="btn btn-outline" data-practice-unit="mixed">Mixed (Both Units)</button>
+    </div>
+    <button class="btn btn-ghost" id="backPracticeMenu">← Back</button>
+  </div>
+
+  <!-- Practice Area -->
+  <div class="practice-area hidden" id="practiceArea">
+    <div class="practice-header">
+      <button class="btn btn-ghost" id="backPracticeSetup">← Back</button>
+      <div class="practice-score">Score: <span id="practiceScore">0</span> / <span id="practiceTotal">0</span></div>
+    </div>
+    <div class="practice-content" id="practiceContent"></div>
+    <div class="practice-feedback" id="practiceFeedback"></div>
+    <button class="btn btn-primary hidden" id="nextPracticeBtn">Next →</button>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" class="page">
+  <div class="page-header">
+    <h1>Take a <span class="gradient-text">Quiz</span></h1>
+    <p>Test what you remember. 10 questions, different types.</p>
+  </div>
+
+  <div id="quizSetup">
+    <div class="quiz-pick">
+      <button class="quiz-pick-btn" data-quiz-unit="unit1">
+        <div class="qpb-icon">🌍</div>
+        <h3>Unit 1 Quiz</h3>
+        <p>Our World</p>
+      </button>
+      <button class="quiz-pick-btn" data-quiz-unit="unit2">
+        <div class="qpb-icon">💻</div>
+        <h3>Unit 2 Quiz</h3>
+        <p>Digital World</p>
+      </button>
+      <button class="quiz-pick-btn" data-quiz-unit="mixed">
+        <div class="qpb-icon">🎯</div>
+        <h3>Mixed Quiz</h3>
+        <p>Both Units</p>
+      </button>
+    </div>
+  </div>
+
+  <div id="quizArea" class="hidden">
+    <div class="quiz-top">
+      <div class="quiz-progress-text">Question <span id="qNum">1</span> of 10</div>
+      <div class="progress-bar"><div class="progress-fill" id="qProgress"></div></div>
+    </div>
+    <div class="quiz-question" id="quizQuestion"></div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-feedback hidden" id="quizFeedback"></div>
+    <button class="btn btn-primary hidden" id="quizNextBtn">Next →</button>
+  </div>
+
+  <div id="quizResult" class="hidden">
+    <div class="result-big">
+      <div class="result-emoji" id="resultEmoji">🏆</div>
+      <h2>YOUR SCORE</h2>
+      <div class="result-score" id="resultScore">0 / 10</div>
+      <div class="result-percent" id="resultPercent">0%</div>
+      <p class="result-message" id="resultMessage"></p>
+      <div class="result-buttons">
+        <button class="btn btn-outline" id="reviewMistakesBtn">🔍 Review Mistakes</button>
+        <button class="btn btn-primary" id="tryAgainBtn">↺ Try Again</button>
+        <button class="btn btn-outline" data-nav="progress">📊 Go to Progress</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section id="progress" class="page">
+  <div class="page-header">
+    <h1>Your <span class="gradient-text">Progress</span></h1>
+    <p>See how far you've come. Keep going!</p>
+  </div>
+
+  <div class="progress-stats">
+    <div class="ps-card"><div class="ps-icon">📚</div><div class="ps-num" id="psWords">0 / 20</div><div class="ps-label">Words Learned</div></div>
+    <div class="ps-card"><div class="ps-icon">🎯</div><div class="ps-num" id="psAccuracy">0%</div><div class="ps-label">Quiz Accuracy</div></div>
+    <div class="ps-card"><div class="ps-icon">🎮</div><div class="ps-num" id="psActivities">0</div><div class="ps-label">Activities Done</div></div>
+    <div class="ps-card"><div class="ps-icon">🔁</div><div class="ps-num" id="psReview">0</div><div class="ps-label">Words to Review</div></div>
+  </div>
+
+  <div class="progress-bars-section">
+    <h3>Unit Progress</h3>
+    <div class="pb-row"><span>Unit 1 — Our World</span><div class="progress-bar big"><div class="progress-fill u1" id="pbUnit1"></div></div><span id="pbUnit1Text">0%</span></div>
+    <div class="pb-row"><span>Unit 2 — Digital World</span><div class="progress-bar big"><div class="progress-fill u2" id="pbUnit2"></div></div><span id="pbUnit2Text">0%</span></div>
+    <div class="pb-row"><span>Overall Progress</span><div class="progress-bar big"><div class="progress-fill overall" id="pbOverall"></div></div><span id="pbOverallText">0%</span></div>
+  </div>
+
+  <!-- Simple chart -->
+  <div class="chart-section">
+    <h3>Quiz Scores History</h3>
+    <div class="chart" id="chart"></div>
+    <p class="chart-empty hidden" id="chartEmpty">No quiz results yet. Take a quiz to see your chart!</p>
+  </div>
+
+  <div class="word-lists">
+    <div class="wl-card">
+      <h3>💪 My Strong Words</h3>
+      <div class="wl-list" id="strongWords"><p class="empty">Answer quiz questions correctly to build your strong words list.</p></div>
+    </div>
+    <div class="wl-card">
+      <h3>🔁 Words I Should Review</h3>
+      <div class="wl-list" id="weakWords"><p class="empty">No words to review yet. Great job!</p></div>
+      <button class="btn btn-primary hidden" id="practiceWeakBtn">🎯 Practice Weak Words</button>
+    </div>
+  </div>
+
+  <!-- Achievements -->
+  <div class="achievements-section">
+    <h3>🏆 Achievements</h3>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+
+  <button class="btn btn-ghost danger" id="resetProgressBtn">🗑️ Reset All Progress</button>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="page">
+  <div class="page-header">
+    <h1>About Our <span class="gradient-text">Research</span></h1>
+    <p>This website is the practical product of a Grade 8 research project.</p>
+  </div>
+
+  <div class="about-card">
+    <h3>🔬 Research Question</h3>
+    <p class="rq">"Can AI-personalized practice help 8th-grade students remember English vocabulary better?"</p>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-block">
+      <h3>🎯 Research Goal</h3>
+      <p>To find out whether personalized AI-assisted activities can help Grade 8 students learn and remember English vocabulary.</p>
+    </div>
+    <div class="about-block">
+      <h3>👥 Participants</h3>
+      <p>22 Grade 8 students took part in the research.</p>
+    </div>
+    <div class="about-block">
+      <h3>📐 Research Design</h3>
+      <p>Students worked with vocabulary from Unit 1 and Unit 2 using two different learning methods — traditional practice and AI-style personalized practice.</p>
+    </div>
+    <div class="about-block">
+      <h3>📋 Methods</h3>
+      <ul>
+        <li>Pre-test</li>
+        <li>Learning Activities</li>
+        <li>Post-test</li>
+        <li>Delayed Test</li>
+        <li>Student Survey</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="research-flow">
+    <h3>Research Process</h3>
+    <div class="rf-steps">
+      <div class="rf-step">PRE-TEST</div>
+      <div class="rf-arrow">↓</div>
+      <div class="rf-step">LEARN</div>
+      <div class="rf-arrow">↓</div>
+      <div class="rf-step">PRACTICE</div>
+      <div class="rf-arrow">↓</div>
+      <div class="rf-step">POST-TEST</div>
+      <div class="rf-arrow">↓</div>
+      <div class="rf-step">7-DAY REVIEW</div>
+      <div class="rf-arrow">↓</div>
+      <div class="rf-step">COMPARE RESULTS</div>
+    </div>
+  </div>
+
+  <div class="about-card responsible">
+    <h3>🛡️ Use AI Smartly</h3>
+    <ol class="ai-rules">
+      <li><b>Think first</b> — do not copy answers blindly.</li>
+      <li><b>Check</b> AI-generated information.</li>
+      <li><b>Never share</b> personal information.</li>
+      <li><b>Use AI to learn</b>, not to cheat.</li>
+      <li><b>You are responsible</b> for your final answer.</li>
+    </ol>
+    <p class="ai-message">💡 AI is a learning assistant, not a replacement for your thinking.</p>
+  </div>
+
+  <div class="about-card">
+    <h3>📝 Student Feedback</h3>
+    <form id="feedbackForm" class="feedback-form">
+      <div class="ff-q">
+        <label>1. Which method was more interesting?</label>
+        <div class="ff-options">
+          <label><input type="radio" name="q1" value="traditional" required> Traditional</label>
+          <label><input type="radio" name="q1" value="ai"> AI-personalized</label>
+          <label><input type="radio" name="q1" value="both"> Both</label>
+        </div>
+      </div>
+      <div class="ff-q">
+        <label>2. Which method helped you remember words better?</label>
+        <div class="ff-options">
+          <label><input type="radio" name="q2" value="traditional" required> Traditional</label>
+          <label><input type="radio" name="q2" value="ai"> AI-personalized</label>
+          <label><input type="radio" name="q2" value="both"> Both</label>
+          <label><input type="radio" name="q2" value="notsure"> Not sure</label>
+        </div>
+      </div>
+      <div class="ff-q">
+        <label>3. Did personalized examples make words easier to understand?</label>
+        <div class="ff-options">
+          <label><input type="radio" name="q3" value="yes" required> Yes</label>
+          <label><input type="radio" name="q3" value="sometimes"> Sometimes</label>
+          <label><input type="radio" name="q3" value="no"> No</label>
+        </div>
+      </div>
+      <div class="ff-q">
+        <label>4. Would you use this website again?</label>
+        <div class="ff-options">
+          <label><input type="radio" name="q4" value="yes" required> Yes</label>
+          <label><input type="radio" name="q4" value="maybe"> Maybe</label>
+          <label><input type="radio" name="q4" value="no"> No</label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+    <div class="feedback-thanks hidden" id="feedbackThanks">
+      ✅ Thank you! Your feedback has been saved on this device.
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPACED REVIEW ============ -->
+<section id="review" class="page">
+  <div class="page-header">
+    <h1>Smart <span class="gradient-text">Review</span></h1>
+    <p>Reviewing words after some time helps you remember them longer.</p>
+  </div>
+
+  <div class="review-timeline">
+    <div class="rt-step done"><div class="rt-dot">✓</div><div>Learn</div></div>
+    <div class="rt-line"></div>
+    <div class="rt-step" id="rtDay1"><div class="rt-dot">1</div><div>Day 1</div></div>
+    <div class="rt-line"></div>
+    <div class="rt-step" id="rtDay3"><div class="rt-dot">3</div><div>Day 3</div></div>
+    <div class="rt-line"></div>
+    <div class="rt-step" id="rtDay7"><div class="rt-dot">7</div><div>Day 7</div></div>
+  </div>
+
+  <div class="review-words-section">
+    <h3>📋 Words to Review</h3>
+    <p class="review-note">These words need a little more practice.</p>
+    <div class="review-words-list" id="reviewWordsList">
+      <p class="empty">No words to review yet. Great job!</p>
+    </div>
+    <button class="btn btn-primary hidden" id="practiceReviewBtn">🎯 Practice Weak Words</button>
+  </div>
+
+  <div class="review-checklist">
+    <h3>✅ Review Checklist</h3>
+    <div class="rc-item" data-day="1">
+      <input type="checkbox" id="rcDay1">
+      <label for="rcDay1"><b>Day 1 Review</b><br><small>Review the words you learned yesterday.</small></label>
+    </div>
+    <div class="rc-item" data-day="3">
+      <input type="checkbox" id="rcDay3">
+      <label for="rcDay3"><b>Day 3 Review</b><br><small>Check if you still remember the words.</small></label>
+    </div>
+    <div class="rc-item" data-day="7">
+      <input type="checkbox" id="rcDay7">
+      <label for="rcDay7"><b>Day 7 Review</b><br><small>Final review — long-term memory!</small></label>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ VOCABBOT ============ -->
+<button class="vocabbot-toggle" id="vocabbotToggle" aria-label="Open VocabBot">🤖</button>
+<aside class="vocabbot" id="vocabbot" aria-label="VocabBot assistant">
+  <div class="vb-header">
+    <div class="vb-title"><span>🤖</span> VocabBot</div>
+    <button class="vb-close" id="vocabbotClose" aria-label="Close">×</button>
+  </div>
+  <div class="vb-body" id="vbBody">
+    <div class="vb-msg bot">Hi! I'm VocabBot 👋 I can help you with vocabulary. Pick a word and ask me anything!</div>
+  </div>
+  <div class="vb-word-select">
+    <label>Current word:</label>
+    <select id="vbWordSelect"></select>
+  </div>
+  <div class="vb-actions">
+    <button class="btn btn-outline" data-vb="example">💡 Give me an example</button>
+    <button class="btn btn-outline" data-vb="explain">🧠 Explain this word</button>
+    <button class="btn btn-outline" data-vb="challenge">🎯 Give me a challenge</button>
+    <button class="btn btn-outline" data-vb="remember">💭 Help me remember it</button>
+  </div>
+</aside>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confetti -->
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<footer class="site-footer">
+  <p>🧠 AI VOCAB LAB — A Grade 8 Research Project • 2026</p>
+  <p><small>This prototype simulates AI personalization by adapting examples to the learner's interests.</small></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
