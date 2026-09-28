@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕵️‍♀️ AI Room Detective — Grade 5</title>
+<style>
+/* ============ CORE VARIABLES ============ */
+:root{
+  --navy:#0b1030;
+  --deep:#141a4a;
+  --purple:#5b2ea6;
+  --violet:#8a4bff;
+  --cyan:#22e3ff;
+  --yellow:#ffd84d;
+  --pink:#ff5fa2;
+  --green:#35e39a;
+  --red:#ff5577;
+  --white:#ffffff;
+  --ink:#0a0d2a;
+  --card:rgba(255,255,255,0.08);
+  --card-br:rgba(255,255,255,0.18);
+  --shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  color:var(--white);
+  background:
+    radial-gradient(1200px 800px at 10% 10%, rgba(138,75,255,.35), transparent 60%),
+    radial-gradient(900px 700px at 90% 20%, rgba(34,227,255,.25), transparent 60%),
+    radial-gradient(900px 700px at 50% 100%, rgba(255,95,162,.25), transparent 60%),
+    linear-gradient(135deg,#0a0e33 0%,#1a1260 50%,#0b1030 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  perspective:1400px;
+}
+
+/* ============ ANIMATED BACKGROUND ============ */
+.bg-stars{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.bg-stars span{
+  position:absolute;display:block;width:4px;height:4px;border-radius:50%;
+  background:#fff;opacity:.6;
+  box-shadow:0 0 8px #fff,0 0 16px rgba(34,227,255,.6);
+  animation:twinkle 3s infinite ease-in-out;
+}
+@keyframes twinkle{
+  0%,100%{opacity:.2;transform:scale(.8)}
+  50%{opacity:1;transform:scale(1.3)}
+}
+.bg-grid{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(138,75,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,227,255,.08) 1px, transparent 1px);
+  background-size:50px 50px;
+  mask-image:radial-gradient(circle at 50% 50%, #000 30%, transparent 80%);
+}
+
+/* ============ TOP BAR ============ */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:14px;
+  padding:12px 18px;
+  background:linear-gradient(180deg, rgba(10,14,51,.95), rgba(10,14,51,.7));
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.logo{
+  display:flex;align-items:center;gap:10px;font-weight:800;
+  font-size:18px;letter-spacing:.5px;
+}
+.logo-badge{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  display:grid;place-items:center;font-size:22px;
+  box-shadow:0 8px 24px rgba(138,75,255,.5), inset 0 0 12px rgba(255,255,255,.2);
+  animation:floaty 4s ease-in-out infinite;
+}
+@keyframes floaty{
+  0%,100%{transform:translateY(0) rotate(-3deg)}
+  50%{transform:translateY(-6px) rotate(3deg)}
+}
+.progress-wrap{flex:1;display:flex;flex-direction:column;gap:6px}
+.progress-steps{
+  display:flex;gap:6px;flex-wrap:wrap;font-size:12px;
+}
+.step{
+  padding:4px 10px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:#cfd6ff;cursor:pointer;transition:.25s;
+}
+.step.active{background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(34,227,255,.35)}
+.step.done{background:rgba(53,227,154,.18);border-color:rgba(53,227,154,.4);color:#bff5dc}
+.step:hover{transform:translateY(-2px)}
+.bar{height:6px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar > div{height:100%;width:0%;background:linear-gradient(90deg,var(--yellow),var(--pink),var(--cyan));transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 12px rgba(34,227,255,.6)}
+.score-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:999px;
+  background:linear-gradient(135deg, rgba(255,216,77,.2), rgba(255,95,162,.2));
+  border:1px solid rgba(255,216,77,.4);
+  font-weight:800;
+}
+.score-pill .num{color:var(--yellow);font-size:18px;min-width:22px;text-align:right}
+.teacher-btn{
+  padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:12px;
+}
+.teacher-btn:hover{background:rgba(255,255,255,.14)}
+
+/* ============ LAYOUT ============ */
+main{position:relative;z-index:2;padding:24px;max-width:1200px;margin:0 auto}
+.screen{display:none;animation:screenIn .6s ease both}
+.screen.active{display:block}
+@keyframes screenIn{
+  from{opacity:0;transform:translateY(20px) rotateX(8deg)}
+  to{opacity:1;transform:translateY(0) rotateX(0)}
+}
+
+/* ============ CARDS ============ */
+.card{
+  background:var(--card);
+  border:1px solid var(--card-br);
+  border-radius:24px;
+  padding:26px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+  position:relative;
+  transform-style:preserve-3d;
+}
+.card-3d{
+  transition:transform .4s ease, box-shadow .4s ease;
+}
+.card-3d:hover{
+  transform:translateY(-6px) rotateX(3deg) rotateY(-3deg);
+  box-shadow:0 30px 80px rgba(138,75,255,.35);
+}
+
+/* ============ TITLE / HEADINGS ============ */
+.title{
+  font-size:clamp(28px,4vw,44px);
+  font-weight:900;letter-spacing:.5px;
+  background:linear-gradient(90deg,#fff 0%,#ffd84d 40%,#ff5fa2 70%,#22e3ff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 6px 30px rgba(255,95,162,.25);
+}
+.subtitle{color:#cfd6ff;font-size:16px;margin-top:8px}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  font-size:12px;color:#e6eaff;margin-right:6px;
+}
+
+/* ============ BUTTONS ============ */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 22px;border-radius:14px;border:none;cursor:pointer;
+  font-weight:800;font-size:16px;color:#fff;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  box-shadow:0 10px 30px rgba(138,75,255,.45), inset 0 0 0 1px rgba(255,255,255,.2);
+  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  position:relative;overflow:hidden;
+}
+.btn:hover{transform:translateY(-3px) scale(1.02);filter:brightness(1.08)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);
+  transform:translateX(-120%);transition:transform .8s;
+}
+.btn:hover::after{transform:translateX(120%)}
+.btn-ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);box-shadow:none}
+.btn-yellow{background:linear-gradient(135deg,#ffd84d,#ff9a3c);color:#2a1a00}
+.btn-pink{background:linear-gradient(135deg,#ff5fa2,#ff8a5c)}
+.btn-green{background:linear-gradient(135deg,#35e39a,#22e3ff);color:#002a1a}
+.btn-red{background:linear-gradient(135deg,#ff5577,#ff8a5c)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:10px}
+
+/* ============ START SCREEN ============ */
+.start-hero{
+  display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:center;
+}
+@media(max-width:900px){.start-hero{grid-template-columns:1fr}}
+.start-card{padding:34px}
+.mascot-stage{
+  display:grid;place-items:center;min-height:360px;
+  position:relative;
+}
+.mascot{
+  width:260px;height:260px;position:relative;
+  animation:floaty 5s ease-in-out infinite;
+  filter:drop-shadow(0 30px 40px rgba(34,227,255,.35));
+}
+.mascot .body{
+  position:absolute;inset:0;border-radius:42% 42% 38% 38% / 46% 46% 34% 34%;
+  background:linear-gradient(160deg,#2a2f7a 0%, #5b2ea6 55%, #22e3ff 110%);
+  box-shadow:inset -20px -30px 60px rgba(0,0,0,.35), inset 20px 20px 60px rgba(255,255,255,.15);
+}
+.mascot .visor{
+  position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);
+  width:68%;height:36%;border-radius:40px;
+  background:linear-gradient(180deg,#0a0d2a,#1a1260);
+  border:3px solid rgba(34,227,255,.6);
+  box-shadow:0 0 20px rgba(34,227,255,.6), inset 0 0 20px rgba(34,227,255,.3);
+  overflow:hidden;
+}
+.mascot .eye{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff,#22e3ff 60%,#0a0d2a);
+  box-shadow:0 0 14px #22e3ff;
+  animation:blink 4s infinite;
+}
+.mascot .eye.l{left:22%}
+.mascot .eye.r{right:22%}
+@keyframes blink{
+  0%,92%,100%{transform:translateY(-50%) scaleY(1)}
+  95%{transform:translateY(-50%) scaleY(.1)}
+}
+.mascot .antenna{
+  position:absolute;left:50%;top:-22px;transform:translateX(-50%);
+  width:4px;height:30px;background:linear-gradient(180deg,#ffd84d,#ff5fa2);
+  border-radius:4px;
+}
+.mascot .antenna::after{
+  content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff,#ffd84d 60%,#ff5fa2);
+  box-shadow:0 0 18px #ffd84d;
+  animation:pulse 1.6s infinite;
+}
+@keyframes pulse{
+  0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 0 18px #ffd84d}
+  50%{transform:translateX(-50%) scale(1.2);box-shadow:0 0 28px #ff5fa2}
+}
+.mascot .badge{
+  position:absolute;right:-10px;bottom:20px;
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,#ffd84d,#ff5fa2);
+  display:grid;place-items:center;font-size:34px;
+  box-shadow:0 10px 30px rgba(255,95,162,.5);
+  animation:spin 12s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.objectives{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.obj{
+  padding:14px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(138,75,255,.25),rgba(34,227,255,.15));
+  border:1px solid rgba(255,255,255,.15);
+}
+.obj h4{font-size:14px;color:#ffd84d;margin-bottom:4px}
+.obj p{font-size:13px;color:#e6eaff}
+
+/* ============ MISSION HEADERS ============ */
+.mission-head{
+  display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap;
+}
+.mission-num{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,var(--yellow),var(--pink));
+  display:grid;place-items:center;font-size:28px;font-weight:900;color:#2a0a3a;
+  box-shadow:0 10px 30px rgba(255,95,162,.4);
+  transform:rotate(-6deg);
+}
+.mission-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+/* ============ VOCAB SCANNER (MISSION 1) ============ */
+.scanner{
+  display:grid;grid-template-columns:1fr;gap:18px;
+}
+.word-card{
+  padding:22px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(138,75,255,.25),rgba(34,227,255,.12));
+  border:1px solid rgba(255,255,255,.15);
+  position:relative;overflow:hidden;
+}
+.word-card::before{
+  content:"";position:absolute;inset:-2px;border-radius:22px;
+  background:conic-gradient(from 0deg,transparent 0 70%,rgba(34,227,255,.6) 80%,transparent 100%);
+  animation:rotate 6s linear infinite;opacity:.35;z-index:0;
+}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.word-card > *{position:relative;z-index:1}
+.word-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.word-big{
+  font-size:34px;font-weight:900;
+  background:linear-gradient(90deg,#fff,#ffd84d);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.word-icon{
+  width:70px;height:70px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.05));
+  display:grid;place-items:center;font-size:36px;
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:inset 0 0 20px rgba(34,227,255,.2);
+}
+.context{
+  margin-top:10px;padding:12px 14px;border-radius:12px;
+  background:rgba(0,0,0,.25);border-left:3px solid var(--cyan);
+  font-style:italic;color:#cfd6ff;font-size:14px;
+}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+@media(max-width:700px){.options{grid-template-columns:1fr}}
+.opt{
+  padding:14px;border-radius:12px;text-align:left;cursor:pointer;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:15px;transition:.2s;
+}
+.opt:hover{transform:translateY(-2px);background:rgba(255,255,255,.12)}
+.opt.selected{background:linear-gradient(135deg,rgba(138,75,255,.35),rgba(34,227,255,.25));border-color:var(--cyan)}
+.opt.correct{background:linear-gradient(135deg,rgba(53,227,154,.35),rgba(34,227,255,.25));border-color:var(--green)}
+.opt.wrong{background:linear-gradient(135deg,rgba(255,85,119,.35),rgba(255,138,92,.25));border-color:var(--red)}
+.opt:disabled{cursor:not-allowed}
+.feedback{
+  margin-top:14px;padding:14px;border-radius:12px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);
+  display:none;animation:pop .4s ease;
+}
+.feedback.show{display:block}
+@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.feedback.ok{border-color:rgba(53,227,154,.5)}
+.feedback.no{border-color:rgba(255,85,119,.5)}
+.ai-hint{
+  margin-top:10px;padding:12px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(34,227,255,.15),rgba(138,75,255,.15));
+  border:1px dashed rgba(34,227,255,.5);
+  display:none;animation:pop .4s ease;
+}
+.ai-hint.show{display:block}
+.ai-hint b{color:var(--cyan)}
+
+/* ============ TRUE/FALSE (MISSION 2) ============ */
+.tf-list{display:grid;gap:14px}
+.tf-item{
+  padding:18px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,95,162,.12),rgba(138,75,255,.12));
+  border:1px solid rgba(255,255,255,.15);
+}
+.tf-stmt{font-size:17px;margin-bottom:10px}
+.tf-actions{display:flex;gap:10px;flex-wrap:wrap}
+.tf-evidence{
+  margin-top:10px;padding:12px;border-radius:12px;
+  background:rgba(0,0,0,.3);border-left:3px solid var(--yellow);
+  display:none;font-size:14px;color:#e6eaff;
+}
+.tf-evidence.show{display:block;animation:pop .4s ease}
+
+/* ============ ROLE PLAY (MISSION 3) ============ */
+.role-head{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.dialogue{
+  max-height:420px;overflow-y:auto;padding:14px;border-radius:16px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);
+}
+.line{
+  padding:10px 14px;border-radius:12px;margin-bottom:8px;
+  display:flex;gap:10px;align-items:flex-start;
+  animation:slideIn .4s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.line .who{
+  font-weight:800;min-width:80px;padding:4px 10px;border-radius:8px;
+  background:rgba(255,255,255,.1);font-size:13px;
+}
+.line.bill .who{background:linear-gradient(135deg,#22e3ff,#5b2ea6);color:#fff}
+.line.jim .who{background:linear-gradient(135deg,#ff5fa2,#ffd84d);color:#2a0a3a}
+.line.mrs .who{background:linear-gradient(135deg,#35e39a,#22e3ff);color:#002a1a}
+.line .txt{flex:1;font-size:16px}
+.line .snd{cursor:pointer;opacity:.8}
+.line .snd:hover{opacity:1}
+.line.hidden-line{display:none}
+.emotion-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{
+  padding:8px 12px;border-radius:999px;cursor:pointer;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  font-size:13px;
+}
+.chip.active{background:linear-gradient(135deg,var(--yellow),var(--pink));color:#2a0a3a;border-color:transparent}
+.assess-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.assess-grid label{font-size:13px;color:#cfd6ff;display:block;margin-bottom:6px}
+.assess-grid input[type=range]{width:100%}
+
+/* ============ DREAM ROOM (FINAL) ============ */
+.room-wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+@media(max-width:900px){.room-wrap{grid-template-columns:1fr}}
+.room-stage{
+  aspect-ratio:16/10;border-radius:20px;overflow:hidden;position:relative;
+  background:
+    linear-gradient(180deg,#1a1260 0%,#0b1030 60%,#0a0d2a 100%);
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:inset 0 0 60px rgba(138,75,255,.25);
+}
+.room-floor{
+  position:absolute;left:0;right:0;bottom:0;height:38%;
+  background:linear-gradient(180deg,#3a2a8a 0%,#1a1260 100%);
+  transform:perspective(600px) rotateX(40deg);
+  transform-origin:bottom;
+  box-shadow:inset 0 0 40px rgba(34,227,255,.2);
+}
+.room-wall{
+  position:absolute;left:0;right:0;top:0;height:62%;
+  background:
+    radial-gradient(600px 300px at 50% 100%, rgba(255,216,77,.15), transparent 60%),
+    linear-gradient(180deg,#2a1a6a 0%,#1a1260 100%);
+}
+.room-window{
+  position:absolute;left:50%;top:10%;transform:translateX(-50%);
+  width:30%;height:38%;border-radius:12px;
+  background:linear-gradient(180deg,#22e3ff,#5b2ea6);
+  border:6px solid #8a4bff;
+  box-shadow:0 0 30px rgba(34,227,255,.4);
+}
+.room-window::before,.room-window::after{
+  content:"";position:absolute;background:#8a4bff;
+}
+.room-window::before{left:50%;top:0;bottom:0;width:4px;transform:translateX(-50%)}
+.room-window::after{top:50%;left:0;right:0;height:4px;transform:translateY(-50%)}
+.room-items{position:absolute;inset:0;pointer-events:none}
+.room-item{
+  position:absolute;font-size:54px;
+  filter:drop-shadow(0 10px 14px rgba(0,0,0,.5));
+  animation:dropIn .6s cubic-bezier(.2,.9,.2,1.2);
+  pointer-events:auto;cursor:grab;
+}
+@keyframes dropIn{from{opacity:0;transform:translateY(-40px) scale(.6)}to{opacity:1;transform:translateY(0) scale(1)}}
+.room-item.dragging{cursor:grabbing;transform:scale(1.1)}
+
+.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.palette button{
+  padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06);color:#fff;font-size:22px;cursor:pointer;
+  transition:.2s;
+}
+.palette button:hover{background:rgba(255,255,255,.15);transform:translateY(-2px)}
+.palette button.active{background:linear-gradient(135deg,var(--violet),var(--cyan));border-color:transparent}
+.phrase-chips,.desc-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.phrase-chips .chip,.desc-chips .chip{font-size:12px}
+
+.speak-frame{
+  margin-top:14px;padding:14px;border-radius:14px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);
+}
+.speak-frame p{margin:6px 0;color:#e6eaff}
+.speak-frame input{
+  width:100%;padding:8px 10px;border-radius:8px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:#fff;margin:4px 0;
+}
+.checklist{display:grid;gap:6px;margin-top:10px}
+.check{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  font-size:13px;
+}
+.check.done{background:rgba(53,227,154,.15);border-color:rgba(53,227,154,.4);color:#bff5dc}
+.mission-ready{
+  margin-top:10px;padding:14px;border-radius:14px;text-align:center;
+  background:linear-gradient(135deg,rgba(53,227,154,.25),rgba(34,227,255,.2));
+  border:1px solid rgba(53,227,154,.5);font-weight:800;display:none;
+}
+.mission-ready.show{display:block;animation:pop .5s ease}
+
+/* ============ FINAL SCORE ============ */
+.final-hero{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+@media(max-width:900px){.final-hero{grid-template-columns:1fr}}
+.trophy{
+  font-size:120px;text-align:center;
+  animation:trophy 2s ease-in-out infinite;
+  filter:drop-shadow(0 20px 40px rgba(255,216,77,.5));
+}
+@keyframes trophy{
+  0%,100%{transform:translateY(0) rotate(-5deg)}
+  50%{transform:translateY(-15px) rotate(5deg)}
+}
+.score-breakdown{display:grid;gap:10px;margin-top:14px}
+.sb-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;border-radius:12px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+}
+.sb-row .label{display:flex;align-items:center;gap:8px}
+.sb-row .val{font-weight:900;color:var(--yellow)}
+.band{
+  margin-top:14px;padding:14px;border-radius:14px;text-align:center;
+  background:linear-gradient(135deg,rgba(255,216,77,.2),rgba(255,95,162,.2));
+  border:1px solid rgba(255,216,77,.4);
+}
+
+/* ============ TEACHER PANEL ============ */
+.teacher-panel{
+  position:fixed;right:20px;bottom:20px;z-index:100;
+  width:320px;max-width:90vw;
+  background:linear-gradient(135deg,rgba(10,14,51,.95),rgba(26,18,96,.95));
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:18px;padding:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  display:none;
+}
+.teacher-panel.show{display:block;animation:pop .3s ease}
+.teacher-panel h3{margin-bottom:10px;color:var(--yellow)}
+.teacher-panel .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.teacher-panel .row .btn{flex:1}
+.answer-key{
+  max-height:220px;overflow-y:auto;padding:10px;border-radius:10px;
+  background:rgba(0,0,0,.3);font-size:13px;display:none;
+}
+.answer-key.show{display:block}
+
+/* ============ CONFETTI ============ */
+.confetti{
+  position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden;
+}
+.confetti span{
+  position:absolute;width:10px;height:14px;top:-20px;
+  animation:fall linear forwards;
+}
+@keyframes fall{
+  to{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+/* ============ FLOATING POINTS ============ */
+.float-point{
+  position:fixed;z-index:300;pointer-events:none;
+  font-size:24px;font-weight:900;color:var(--yellow);
+  text-shadow:0 4px 12px rgba(255,216,77,.6);
+  animation:floatUp 1.2s ease-out forwards;
+}
+@keyframes floatUp{
+  from{opacity:0;transform:translateY(0) scale(.5)}
+  20%{opacity:1;transform:translateY(-20px) scale(1.2)}
+  to{opacity:0;transform:translateY(-120px) scale(1)}
+}
+
+/* ============ TOAST ============ */
+.toast{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%);
+  padding:12px 20px;border-radius:12px;z-index:400;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  color:#fff;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:.3s;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(10px)}
+
+/* ============ UTILITIES ============ */
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spacer{height:14px}
+.center{text-align:center}
+.muted{color:#a9b2e0}
+.small{font-size:12px}
+hr.sep{border:none;border-top:1px solid rgba(255,255,255,.1);margin:14px 0}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:640px){
+  .topbar{flex-wrap:wrap}
+  .logo{font-size:15px}
+  .progress-steps{font-size:11px}
+  .step{padding:3px 8px}
+  .word-big{font-size:26px}
+  .mission-num{width:52px;height:52px;font-size:22px}
+  .title{font-size:28px}
+  .mascot{width:200px;height:200px}
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg-stars" id="bgStars"></div>
+<div class="bg-grid"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-badge">🕵️</div>
+    <div>AI ROOM DETECTIVE</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressSteps">
+      <div class="step active" data-go="start">🔍 Briefing</div>
+      <div class="step" data-go="m1">🧩 Mission 1</div>
+      <div class="step" data-go="m2">🤖 Mission 2</div>
+      <div class="step" data-go="m3">🎭 Mission 3</div>
+      <div class="step" data-go="final">🏠 Final</div>
+      <div class="step" data-go="score">🏆 Score</div>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+  </div>
+  <div class="score-pill" title="Total score">⭐ <span class="num" id="totalScore">0</span>/24</div>
+  <button class="teacher-btn" id="teacherBtn" title="Teacher Mode">👩‍🏫 Teacher</button>
+</div>
+
+<main>
+
+<!-- ============ START ============ -->
+<section class="screen active" id="screen-start">
+  <div class="card card-3d start-card start-hero">
+    <div>
+      <div class="tag">📚 Lesson: Talking about Your Room and Your Things</div>
+      <div class="spacer"></div>
+      <h1 class="title">AI ROOM DETECTIVE 🕵️‍♀️🤖</h1>
+      <p class="subtitle">"Can you solve the mystery of Jim's room?"</p>
+      <div class="spacer"></div>
+      <div class="row">
+        <span class="tag">🎯 5.4.4.1 • 5.5.4.1</span>
+        <span class="tag">⏱ 45 minutes</span>
+        <span class="tag">🏆 24 points</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="objectives">
+        <div class="obj"><h4>🎯 Learning Objectives</h4><p>Deduce word meaning from context; use descriptive vocabulary about rooms and belongings.</p></div>
+        <div class="obj"><h4>💡 Lesson Objectives</h4><p>Understand a dialogue, catch AI mistakes, role-play, and describe your dream room.</p></div>
+        <div class="obj"><h4>❤️ Adal Azamat Values</h4><p>Labour &amp; competence • Unity &amp; cooperation • Fairness &amp; responsibility</p></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:14px;background:linear-gradient(135deg,rgba(34,227,255,.15),rgba(138,75,255,.15));border:1px dashed rgba(34,227,255,.5)">
+        <b style="color:var(--cyan)">🤖 AI Detective says:</b>
+        <p style="margin-top:6px;color:#e6eaff">"Hello, Detective! Today you will investigate a mysterious room. Read carefully. Look for clues. Use context. Catch the AI's mistakes. Then create and describe your own dream room."</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-yellow" id="startBtn">START MISSION 🚀</button>
+    </div>
+    <div class="mascot-stage">
+      <div class="mascot">
+        <div class="antenna"></div>
+        <div class="body"></div>
+        <div class="visor">
+          <div class="eye l"></div>
+          <div class="eye r"></div>
+        </div>
+        <div class="badge">🔍</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION 1 ============ -->
+<section class="screen" id="screen-m1">
+  <div class="card card-3d">
+    <div class="mission-head">
+      <div class="mission-num">1</div>
+      <div>
+        <h2 class="title" style="font-size:clamp(22px,3vw,32px)">🧩 DECODE THE ROOM</h2>
+        <div class="mission-meta">
+          <span class="tag">⏱ 10 min</span>
+          <span class="tag">🎯 5.4.4.1</span>
+          <span class="tag">⭐ 6 points</span>
+        </div>
+        <p class="subtitle">Use context and visual clues to deduce word meanings. First guess, then verify.</p>
+      </div>
+    </div>
+    <div class="card" style="padding:12px;background:rgba(0,0,0,.25)">
+      <b style="color:var(--yellow)">📋 Descriptor:</b>
+      <span class="muted"> A learner deduces the meaning of unfamiliar words from context and visual clues.</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="scanner" id="scanner"></div>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="go('start')">← Back</button>
+      <button class="btn btn-green" id="toM2" disabled>Next: Catch the AI Lie →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION 2 ============ -->
+<section class="screen" id="screen-m2">
+  <div class="card card-3d">
+    <div class="mission-head">
+      <div class="mission-num">2</div>
+      <div>
+        <h2 class="title" style="font-size:clamp(22px,3vw,32px)">🤖 CATCH THE AI LIE</h2>
+        <div class="mission-meta">
+          <span class="tag">⏱ 12 min</span>
+          <span class="tag">🎯 5.4.4.1</span>
+          <span class="tag">⭐ 6 points</span>
+        </div>
+        <p class="subtitle">The AI read the dialogue but may have misunderstood. Catch the mistakes!</p>
+      </div>
+    </div>
+    <div class="card" style="padding:12px;background:rgba(0,0,0,.25)">
+      <b style="color:var(--yellow)">📋 Descriptor:</b>
+      <span class="muted"> A learner identifies true and false information and finds evidence in the dialogue.</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="card" style="padding:14px;background:linear-gradient(135deg,rgba(255,95,162,.15),rgba(138,75,255,.15));border:1px dashed rgba(255,95,162,.5)">
+      <b style="color:var(--pink)">🤖 AI says:</b>
+      <p style="margin-top:6px;color:#e6eaff">"Oops! I read the dialogue... but I may have misunderstood it. Can you catch my mistakes?"</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="tf-list" id="tfList"></div>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="go('m1')">← Back</button>
+      <button class="btn btn-green" id="toM3" disabled>Next: Speak Like an Expert →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION 3 ============ -->
+<section class="screen" id="screen-m3">
+  <div class="card card-3d">
+    <div class="mission-head">
+      <div class="mission-num">3</div>
+      <div>
+        <h2 class="title" style="font-size:clamp(22px,3vw,32px)">🎭 SPEAK LIKE A ROOM EXPERT</h2>
+        <div class="mission-meta">
+          <span class="tag">⏱ 8 min</span>
+          <span class="tag">🎯 Speaking</span>
+          <span class="tag">⭐ 6 points</span>
+        </div>
+        <p class="subtitle">Choose a character and read the dialogue aloud with the right emotion.</p>
+      </div>
+    </div>
+    <div class="card" style="padding:12px;background:rgba(0,0,0,.25)">
+      <b style="color:var(--yellow)">📋 Descriptor:</b>
+      <span class="muted"> A learner uses familiar vocabulary and expressions to participate in a short dialogue.</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="role-head">
+      <button class="btn btn-pink" data-role="bill">🎭 BILL MODE</button>
+      <button class="btn" data-role="jim">🎭 JIM MODE</button>
+      <button class="btn btn-ghost" id="nextLine">Next Line ▶</button>
+      <button class="btn btn-ghost" id="resetLines">↺ Reset</button>
+    </div>
+    <div class="emotion-chips">
+      <span class="chip" data-em="😮 surprised">😮 surprised</span>
+      <span class="chip" data-em="🤩 excited">🤩 excited</span>
+      <span class="chip" data-em="😎 confident">😎 confident</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="dialogue" id="dialogue"></div>
+    <div class="spacer"></div>
+    <div class="card" style="padding:14px;background:rgba(0,0,0,.25)">
+      <b style="color:var(--yellow)">👩‍🏫 Teacher Assessment (out of 6)</b>
+      <div class="assess-grid">
+        <div><label>Vocabulary: <span id="vVocab">0</span>/2</label><input type="range" min="0" max="2" value="0" id="rVocab"></div>
+        <div><label>Pronunciation: <span id="vPron">0</span>/2</label><input type="range" min="0" max="2" value="0" id="rPron"></div>
+        <div><label>Intonation: <span id="vInt">0</span>/2</label><input type="range" min="0" max="2" value="0" id="rInt"></div>
+      </div>
+      <button class="btn btn-green btn-sm" id="saveM3" style="margin-top:10px">Save Score</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="go('m2')">← Back</button>
+      <button class="btn btn-green" onclick="go('final')">Next: My Dream Room →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL MISSION ============ -->
+<section class="screen" id="screen-final">
+  <div class="card card-3d">
+    <div class="mission-head">
+      <div class="mission-num">★</div>
+      <div>
+        <h2 class="title" style="font-size:clamp(22px,3vw,32px)">🏠 FINAL MISSION — MY DREAM ROOM</h2>
+        <div class="mission-meta">
+          <span class="tag">⏱ 10 min</span>
+          <span class="tag">🎯 5.5.4.1</span>
+          <span class="tag">⭐ 6 points</span>
+        </div>
+        <p class="subtitle">Create your dream room and describe it like a pro!</p>
+      </div>
+    </div>
+    <div class="card" style="padding:12px;background:rgba(0,0,0,.25)">
+      <b style="color:var(--yellow)">📋 Descriptor:</b>
+      <span class="muted"> A learner uses high-frequency vocabulary and descriptive words to describe a room and personal belongings.</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="room-wrap">
+      <div>
+        <div class="room-stage" id="roomStage">
+          <div class="room-wall"></div>
+          <div class="room-window"></div>
+          <div class="room-floor"></div>
+          <div class="room-items" id="roomItems"></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-ghost btn-sm" id="clearRoom">🧹 Clear Room</button>
+          <button class="btn btn-ghost btn-sm" id="speakRoom">🎤 Speak About My Room</button>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="padding:14px">
+          <b style="color:var(--cyan)">🎨 Pick an item to place:</b>
+          <div class="palette" id="palette"></div>
+          <b style="color:var(--cyan)">📍 Location phrases:</b>
+          <div class="phrase-chips" id="phraseChips"></div>
+          <b style="color:var(--cyan)" style="margin-top:8px;display:block">✨ Descriptive words:</b>
+          <div class="desc-chips" id="descChips"></div>
+        </div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="speak-frame">
+      <b style="color:var(--yellow)">🎤 TELL US ABOUT YOUR ROOM</b>
+      <p>👋 "Welcome to my room!"</p>
+      <p>🏠 "My room is <input placeholder="big / small / bright / modern..." data-slot="adj1">."</p>
+      <p>🛋 "There is a <input placeholder="bed / TV / computer..." data-slot="obj1"> <input placeholder="next to / near / under..." data-slot="loc1"> <input placeholder="the window / the desk..." data-slot="place1">."</p>
+      <p>🎁 "I've got <input placeholder="a guitar / a computer..." data-slot="got1">."</p>
+      <p>💫 "My <input placeholder="room / bed / desk..." data-slot="thing"> is <input placeholder="beautiful / cool / comfortable..." data-slot="adj2">."</p>
+      <p>🌈 "My room is <input placeholder="adjective..." data-slot="adj3"> and <input placeholder="adjective..." data-slot="adj4">."</p>
+      <div class="checklist" id="checklist">
+        <div class="check" data-need="vocab">☐ 5 vocabulary words</div>
+        <div class="check" data-need="loc">☐ 2 location phrases</div>
+        <div class="check" data-need="desc">☐ 2 descriptive words</div>
+      </div>
+      <div class="mission-ready" id="missionReady">🎉 MISSION READY! You can present your room.</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="card" style="padding:14px;background:rgba(0,0,0,.25)">
+      <b style="color:var(--yellow)">👩‍🏫 Teacher Assessment (out of 6)</b>
+      <div class="assess-grid">
+        <div><label>Vocabulary: <span id="fVocab">0</span>/2</label><input type="range" min="0" max="2" value="0" id="rfVocab"></div>
+        <div><label>Descriptive language: <span id="fDesc">0</span>/2</label><input type="range" min="0" max="2" value="0" id="rfDesc"></div>
+        <div><label>Speaking: <span id="fSpeak">0</span>/2</label><input type="range" min="0" max="2" value="0" id="rfSpeak"></div>
+      </div>
+      <button class="btn btn-green btn-sm" id="saveFinal" style="margin-top:10px">Save Score</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="go('m3')">← Back</button>
+      <button class="btn btn-yellow" onclick="go('score')">See Final Score 🏆</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCORE ============ -->
+<section class="screen" id="screen-score">
+  <div class="card card-3d">
+    <div class="mission-head">
+      <div class="mission-num">🏆</div>
+      <div>
+        <h2 class="title" style="font-size:clamp(22px,3vw,32px)">MISSION COMPLETE</h2>
+        <p class="subtitle">Great work, Detective! Here is your report.</p>
+      </div>
+    </div>
+    <div class="final-hero">
+      <div class="trophy">🏆</div>
+      <div>
+        <div style="font-size:48px;font-weight:900;color:var(--yellow);text-shadow:0 6px 20px rgba(255,216,77,.5)">
+          <span id="finalTotal">0</span>/24
+        </div>
+        <div class="band" id="band">Keep practising 💪</div>
+        <div class="score-breakdown">
+          <div class="sb-row"><div class="label">🧩 Mission 1 — Decode</div><div class="val"><span id="sM1">0</span>/6</div></div>
+          <div class="sb-row"><div class="label">🤖 Mission 2 — Catch the Lie</div><div class="val"><span id="sM2">0</span>/6</div></div>
+          <div class="sb-row"><div class="label">🎭 Mission 3 — Role Play</div><div class="val"><span id="sM3">0</span>/6</div></div>
+          <div class="sb-row"><div class="label">🏠 Final — Dream Room</div><div class="val"><span id="sF">0</span>/6</div></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="row">
+          <button class="btn btn-ghost" onclick="go('start')">🔁 Restart Lesson</button>
+          <button class="btn btn-yellow" onclick="resetAll()">🧹 Reset All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- TEACHER PANEL -->
+<div class="teacher-panel" id="teacherPanel">
+  <h3>👩‍🏫 Teacher Mode</h3>
+  <div class="row">
+    <button class="btn btn-sm btn-yellow" id="showAnswers">Show Answers</button>
+    <button class="btn btn-sm btn-red" id="resetLesson">Reset Lesson</button>
+  </div>
+  <div class="row">
+    <button class="btn btn-sm btn-ghost" id="showDescriptors">Descriptors</button>
+    <button class="btn btn-sm btn-ghost" id="showKey">Answer Key</button>
+  </div>
+  <div class="answer-key" id="answerKey"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">+1 POINT ⭐</div>
+
+<!-- CONFETTI -->
+<div class="confetti" id="confetti"></div>
+
+<script>
+/* =========================================================
+   SOUND ENGINE (Web Audio API — no external files)
+   ========================================================= */
+const Sound = (()=>{
+  let ctx=null;
+  const getCtx=()=>{
+    if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+    return ctx;
+  };
+  const beep=(freq=440,dur=.15,type='sine',vol=.15)=>{
+    const c=getCtx(); if(!c) return;
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.value=freq;
+    g.gain.value=vol;
+    o.connect(g).connect(c.destination);
+    const t=c.currentTime;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.start(t); o.stop(t+dur+.02);
+  };
+  return {
+    click:()=>beep(600,.06,'square',.08),
+    correct:()=>{beep(660,.12,'triangle',.15); setTimeout(()=>beep(880,.14,'triangle',.15),110); setTimeout(()=>beep(1175,.18,'triangle',.15),240)},
+    wrong:()=>{beep(220,.18,'sawtooth',.12); setTimeout(()=>beep(160,.22,'sawtooth',.12),160)},
+    win:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.2,'triangle',.18),i*140))},
+    pop:()=>beep(900,.05,'sine',.1),
+    swoosh:()=>{const c=getCtx(); if(!c) return; const o=c.createOscillator(),g=c.createGain(); o.type='sine'; o.frequency.setValueAtTime(300,c.currentTime); o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.3); g.gain.setValueAtTime(.1,c.currentTime); g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.35); o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+.4)}
+  };
+})();
+
+/* =========================================================
+   BACKGROUND STARS
+   ========================================================= */
+(()=>{
+  const wrap=document.getElementById('bgStars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('span');
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    s.style.transform=`scale(${.5+Math.random()})`;
+    wrap.appendChild(s);
+  }
+})();
+
+/* =========================================================
+   STATE & NAVIGATION
+   ========================================================= */
+const state = {
+  scores:{m1:0,m2:0,m3:0,f:0},
+  m1Done:0, m2Done:0,
+  current:'start'
+};
+
+function loadState(){
+  try{
+    const s=localStorage.getItem('ard_state');
+    if(s){const o=JSON.parse(s); Object.assign(state,o)}
+  }catch(e){}
+}
+function saveState(){
+  try{localStorage.setItem('ard_state',JSON.stringify(state))}catch(e){}
+}
+loadState();
+
+const screens = ['start','m1','m2','m3','final','score'];
+function go(id){
+  Sound.swoosh();
+  state.current=id;
+  screens.forEach(s=>{
+    const el=document.getElementById('screen-'+s);
+    el.classList.toggle('active',s===id);
+  });
+  document.querySelectorAll('.step').forEach(s=>{
+    s.classList.toggle('active', s.dataset.go===id);
+  });
+  // mark done
+  const idx=screens.indexOf(id);
+  document.querySelectorAll('.step').forEach((s,i)=>{
+    if(i<idx) s.classList.add('done'); else s.classList.remove('done');
+  });
+  document.getElementById('barFill').style.width=(idx/(screens.length-1)*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+  saveState();
+}
+document.querySelectorAll('.step').forEach(s=>s.addEventListener('click',()=>{Sound.click();go(s.dataset.go)}));
+
+/* =========================================================
+   SCORE & TOAST
+   ========================================================= */
+function updateTotal(){
+  const total=state.scores.m1+state.scores.m2+state.scores.m3+state.scores.f;
+  document.getElementById('totalScore').textContent=total;
+  document.getElementById('finalTotal').textContent=total;
+  document.getElementById('sM1').textContent=state.scores.m1;
+  document.getElementById('sM2').textContent=state.scores.m2;
+  document.getElementById('sM3').textContent=state.scores.m3;
+  document.getElementById('sF').textContent=state.scores.f;
+  // band
+  const band=document.getElementById('band');
+  let txt='Keep practising 💪';
+  if(total>=21) txt='Excellent 🌟';
+  else if(total>=17) txt='Good 👏';
+  else if(total>=13) txt='Developing 🌱';
+  band.textContent=`${total} points — ${txt}`;
+  saveState();
+}
+function toast(msg,color){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  if(color) t.style.background=color;
+  else t.style.background='linear-gradient(135deg,var(--violet),var(--cyan))';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1400);
+}
+function floatPoint(x,y,text='+1 ⭐'){
+  const el=document.createElement('div');
+  el.className='float-point';
+  el.textContent=text;
+  el.style.left=x+'px'; el.style.top=y+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1300);
+}
+function confetti(){
+  const c=document.getElementById('confetti');
+  const colors=['#ffd84d','#ff5fa2','#22e3ff','#35e39a','#8a4bff','#ff8a5c'];
+  for(let i=0;i<80;i++){
+    const s=document.createElement('span');
+    s.style.left=Math.random()*100+'%';
+    s.style.background=colors[Math.floor(Math.random()*colors.length)];
+    s.style.animationDuration=(2+Math.random()*2)+'s';
+    s.style.animationDelay=(Math.random()*.5)+'s';
+    s.style.transform=`rotate(${Math.random()*360}deg)`;
+    c.appendChild(s);
+    setTimeout(()=>s.remove(),4500);
+  }
+}
+function awardPoint(mission,ev){
+  state.scores[mission]++;
+  updateTotal();
+  Sound.correct();
+  toast('+1 POINT ⭐');
+  if(ev){
+    const r=ev.target.getBoundingClientRect();
+    floatPoint(r.left+r.width/2, r.top, '+1 ⭐');
+  }
+}
+
+/* =========================================================
+   MISSION 1 — DECODE THE ROOM
+   ========================================================= */
+const vocab=[
+  {
+    word:'upstairs', icon:'🪜',
+    context:'"It\'s upstairs next to the bathroom."',
+    options:['outside the house','on a higher floor','in the garden'],
+    answer:1,
+    explain:'"Upstairs" means on a higher floor of the house. Jim\'s room is on the upper level, next to the bathroom.',
+    ai:'🤖 AI-style hint: When Mrs Smith says "upstairs next to the bathroom", think about houses with more than one floor. "Up-" means higher.'
+  },
+  {
+    word:'next to', icon:'📍',
+    context:'"It\'s upstairs next to the bathroom."',
+    options:['far from','very close to / beside','inside'],
+    answer:1,
+    explain:'"Next to" means very close to something, beside it. Jim\'s room is beside the bathroom.',
+    ai:'🤖 AI-style hint: "Next" = neighbour. "Next to" = beside, very close.'
+  },
+  {
+    word:'DVD player', icon:'📀',
+    context:'"Yes, and a DVD player."',
+    options:['a machine for watching DVDs','a type of book','a musical instrument'],
+    answer:0,
+    explain:'A DVD player is a machine that plays DVD discs so you can watch films.',
+    ai:'🤖 AI-style hint: DVD = Digital Versatile Disc. A "player" plays it — like a CD player for music.'
+  },
+  {
+    word:'guitar', icon:'🎸',
+    context:'"Hey, whose guitar is this?" — "My brother\'s. He\'s in the school band."',
+    options:['a type of computer','a musical instrument with strings','a kind of chair'],
+    answer:1,
+    explain:'A guitar is a musical instrument with strings. Jim\'s brother plays it in the school band.',
+    ai:'🤖 AI-style hint: "School band" + "guitar" → music. Guitars have strings and you play them.'
+  },
+  {
+    word:'school band', icon:'🎺',
+    context:'"My brother\'s. He\'s in the school band."',
+    options:['a group of students who play music together','a school club for reading','a school shop'],
+    answer:0,
+    explain:'A school band is a group of students who play musical instruments together at school.',
+    ai:'🤖 AI-style hint: "Band" = group of musicians. "School band" = musicians at school.'
+  },
+  {
+    word:'lucky', icon:'🍀',
+    context:'"You\'re very lucky. You\'ve got everything in your room."',
+    options:['sad','having good things / fortune','angry'],
+    answer:1,
+    explain:'"Lucky" means having good fortune. Bill thinks Jim is lucky because he has so many things in his room.',
+    ai:'🤖 AI-style hint: When you have many good things, people say "You\'re lucky!" — it means good fortune.'
+  }
+];
+
+function buildMission1(){
+  const wrap=document.getElementById('scanner');
+  wrap.innerHTML='';
+  vocab.forEach((v,i)=>{
+    const card=document.createElement('div');
+    card.className='word-card';
+    card.innerHTML=`
+      <div class="word-top">
+        <div class="word-icon">${v.icon}</div>
+        <div>
+          <div class="word-big">${v.word}</div>
+          <button class="btn btn-sm btn-ghost" data-speak="${v.word}. ${v.context}">🔊 Listen</button>
+        </div>
+      </div>
+      <div class="context">📖 ${v.context}</div>
+      <div class="options">
+        ${v.options.map((o,j)=>`<button class="opt" data-i="${i}" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-yellow btn-sm" data-check="${i}" disabled>CHECK ✓</button>
+        <button class="btn btn-sm btn-ghost" data-ai="${i}">🤖 ASK THE AI</button>
+      </div>
+      <div class="feedback" data-fb="${i}"></div>
+      <div class="ai-hint" data-ai-hint="${i}"></div>
+    `;
+    wrap.appendChild(card);
+  });
+  // events
+  wrap.querySelectorAll('.opt').forEach(b=>{
+    b.addEventListener('click',e=>{
+      Sound.click();
+      const i=+b.dataset.i;
+      const card=b.closest('.word-card');
+      card.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+      b.classList.add('selected');
+      card.querySelector(`[data-check="${i}"]`).disabled=false;
+    });
+  });
+  wrap.querySelectorAll('[data-check]').forEach(b=>{
+    b.addEventListener('click',e=>{
+      const i=+b.dataset.check;
+      const card=b.closest('.word-card');
+      const sel=card.querySelector('.opt.selected');
+      if(!sel) return;
+      const j=+sel.dataset.j;
+      const correct = j===vocab[i].answer;
+      const opts=card.querySelectorAll('.opt');
+      opts.forEach(o=>{
+        o.disabled=true;
+        const jj=+o.dataset.j;
+        if(jj===vocab[i].answer) o.classList.add('correct');
+        else if(o.classList.contains('selected')) o.classList.add('wrong');
+      });
+      b.disabled=true;
+      const fb=card.querySelector(`[data-fb="${i}"]`);
+      fb.classList.add('show');
+      fb.classList.add(correct?'ok':'no');
+      fb.innerHTML=`
+        <div><b>${correct?'✅ CORRECT!':'❌ Not quite.'}</b> The correct answer is <b>${String.fromCharCode(65+vocab[i].answer)}. ${vocab[i].options[vocab[i].answer]}</b></div>
+        <div class="small muted" style="margin-top:6px">💡 ${vocab[i].explain}</div>
+      `;
+      if(correct){
+        awardPoint('m1',e);
+        state.m1Done++;
+      } else {
+        Sound.wrong();
+        state.m1Done++;
+      }
+      if(state.m1Done>=vocab.length){
+        document.getElementById('toM2').disabled=false;
+      }
+      saveState();
+    });
+  });
+  wrap.querySelectorAll('[data-ai]').forEach(b=>{
+    b.addEventListener('click',e=>{
+      Sound.pop();
+      const i=+b.dataset.ai;
+      const h=b.closest('.word-card').querySelector(`[data-ai-hint="${i}"]`);
+      h.classList.add('show');
+      h.innerHTML=`<b>🤖 AI-style hint:</b> ${vocab[i].ai}`;
+    });
+  });
+  wrap.querySelectorAll('[data-speak]').forEach(b=>{
+    b.addEventListener('click',()=>speak(b.dataset.speak));
+  });
+}
+
+/* =========================================================
+   MISSION 2 — CATCH THE AI LIE
+   ========================================================= */
+const tf=[
+  {stmt:"Jim's room is next to the kitchen.", ans:false, evidence:`"It's upstairs next to the bathroom."`},
+  {stmt:"Jim's room is upstairs.", ans:true, evidence:`"It's upstairs next to the bathroom."`},
+  {stmt:"There is a TV in Jim's room.", ans:true, evidence:`"Hey, you've got a TV in your room." — "Yes..."`},
+  {stmt:"Jim has a computer.", ans:true, evidence:`"And that's my computer."`},
+  {stmt:"The guitar belongs to Jim.", ans:false, evidence:`"Whose guitar is this?" — "My brother's."`},
+  {stmt:"Jim has a brother.", ans:true, evidence:`"My brother's. He's in the school band."`}
+];
+
+function buildMission2(){
+  const wrap=document.getElementById('tfList');
+  wrap.innerHTML='';
+  tf.forEach((t,i)=>{
+    const el=document.createElement('div');
+    el.className='tf-item';
+    el.innerHTML=`
+      <div class="tf-stmt"><b>${i+1}.</b> ${t.stmt}</div>
+      <div class="tf-actions">
+        <button class="btn btn-green btn-sm" data-tf="${i}" data-v="true">✅ TRUE</button>
+        <button class="btn btn-red btn-sm" data-tf="${i}" data-v="false">❌ FALSE</button>
+        <button class="btn btn-ghost btn-sm" data-ev="${i}" style="display:none">🔎 SHOW EVIDENCE</button>
+      </div>
+      <div class="tf-evidence" data-evbox="${i}"></div>
+    `;
+    wrap.appendChild(el);
+  });
+  wrap.querySelectorAll('[data-tf]').forEach(b=>{
+    b.addEventListener('click',e=>{
+      const i=+b.dataset.tf;
+      const v=b.dataset.v==='true';
+      const item=b.closest('.tf-item');
+      const btns=item.querySelectorAll('[data-tf]');
+      btns.forEach(x=>x.disabled=true);
+      const correct = v===tf[i].ans;
+      const evBtn=item.querySelector(`[data-ev="${i}"]`);
+      evBtn.style.display='inline-flex';
+      const evBox=item.querySelector(`[data-evbox="${i}"]`);
+      evBox.classList.add('show');
+      evBox.innerHTML=`
+        <div><b>${correct?'✅ Correct!':'❌ Oops!'}</b> The statement is <b>${tf[i].ans?'TRUE':'FALSE'}</b>.</div>
+        <div class="small muted" style="margin-top:6px">📖 Evidence: ${tf[i].evidence}</div>
+      `;
+      if(correct){awardPoint('m2',e); Sound.correct();}
+      else{Sound.wrong();}
+      state.m2Done++;
+      if(state.m2Done>=tf.length){
+        document.getElementById('toM3').disabled=false;
+      }
+      saveState();
+    });
+  });
+  wrap.querySelectorAll('[data-ev]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      Sound.pop();
+      const i=+b.dataset.ev;
+      const box=b.closest('.tf-item').querySelector(`[data-evbox="${i}"]`);
+      box.classList.toggle('show');
+    });
+  });
+}
+
+/* =========================================================
+   MISSION 3 — ROLE PLAY
+   ========================================================= */
+const lines=[
+  {who:'bill', cls:'bill', text:"Hello, Mrs Smith. Is Jim here?"},
+  {who:'mrs', cls:'mrs', text:"Hi, Bill. Yes, he's in his room."},
+  {who:'bill', cls:'bill', text:"Where's that?"},
+  {who:'mrs', cls:'mrs', text:"It's upstairs next to the bathroom."},
+  {who:'bill', cls:'bill', text:"Thanks... Hi, Jim! Wow! Your room is great."},
+  {who:'jim', cls:'jim', text:"Hi, Bill. Yes, it's really big."},
+  {who:'bill', cls:'bill', text:"Hey, you've got a TV in your room."},
+  {who:'jim', cls:'jim', text:"Yes, and a DVD player. And that's my computer."},
+  {who:'bill', cls:'bill', text:"Fantastic! Hey, whose guitar is this?"},
+  {who:'jim', cls:'jim', text:"My brother's. He's in the school band."},
+  {who:'bill', cls:'bill', text:"You're very lucky. You've got everything in your room."},
+  {who:'jim', cls:'jim', text:"But you haven't got your brother in the same room!"}
+];
+let role='bill', lineIdx=0, emotion='😎 confident';
+
+function buildMission3(){
+  const d=document.getElementById('dialogue');
+  d.innerHTML='';
+  lines.forEach((l,i)=>{
+    const el=document.createElement('div');
+    el.className=`line ${l.cls} hidden-line`;
+    el.dataset.i=i;
+    el.innerHTML=`
+      <div class="who">${l.who.toUpperCase()}</div>
+      <div class="txt">${l.text}</div>
+      <div class="snd" data-speak-line="${i}" title="Listen">🔊</div>
+    `;
+    d.appendChild(el);
+  });
+  d.querySelectorAll('[data-speak-line]').forEach(b=>{
+    b.addEventListener('click',()=>speak(lines[+b.dataset.speakLine].text));
+  });
+  document.querySelectorAll('[data-role]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      Sound.click();
+      role=b.dataset.role;
+      document.querySelectorAll('[data-role]').forEach(x=>x.classList.remove('btn-yellow'));
+      b.classList.add('btn-yellow');
+      toast(`You are ${role.toUpperCase()}. Read ${role.toUpperCase()}'s lines! 🎭`);
+    });
+  });
+  document.querySelectorAll('[data-em]').forEach(c=>{
+    c.addEventListener('click',()=>{
+      Sound.click();
+      document.querySelectorAll('[data-em]').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+      emotion=c.dataset.em;
+      toast(`Emotion: ${emotion}`);
+    });
+  });
+  document.getElementById('nextLine').addEventListener('click',()=>{
+    Sound.pop();
+    if(lineIdx>=lines.length){toast('All lines shown!'); return;}
+    const el=d.querySelector(`.line[data-i="${lineIdx}"]`);
+    el.classList.remove('hidden-line');
+    // highlight my lines
+    const isMine = (role==='bill' && lines[lineIdx].cls==='bill') ||
+                   (role==='jim' && lines[lineIdx].cls==='jim');
+    if(isMine){
+      el.style.boxShadow='0 0 0 2px var(--yellow), 0 0 20px rgba(255,216,77,.4)';
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+    lineIdx++;
+  });
+  document.getElementById('resetLines').addEventListener('click',()=>{
+    Sound.click();
+    lineIdx=0;
+    d.querySelectorAll('.line').forEach(l=>{l.classList.add('hidden-line');l.style.boxShadow=''});
+  });
+}
+
+/* ranges */
+['rVocab','rPron','rInt'].forEach(id=>{
+  const el=document.getElementById(id);
+  const vId='v'+id.slice(1);
+  el.addEventListener('input',()=>{document.getElementById(vId).textContent=el.value});
+});
+document.getElementById('saveM3').addEventListener('click',e=>{
+  const v=+document.getElementById('rVocab').value;
+  const p=+document.getElementById('rPron').value;
+  const i=+document.getElementById('rInt').value;
+  state.scores.m3=v+p+i;
+  updateTotal();
+  Sound.win();
+  toast(`Mission 3 saved: ${state.scores.m3}/6`);
+  confetti();
+  saveState();
+});
+
+/* =========================================================
+   FINAL MISSION — DREAM ROOM
+   ========================================================= */
+const items=[
+  {e:'🛏',n:'bed'},{e:'💻',n:'computer'},{e:'📺',n:'TV'},
+  {e:'🎸',n:'guitar'},{e:'📚',n:'bookshelf'},{e:'🪑',n:'desk'},
+  {e:'🌱',n:'plant'},{e:'🎧',n:'headphones'}
+];
+const phrases=['next to','near','under','on','in','behind'];
+const descs=['big','small','bright','modern','beautiful','comfortable','cool'];
+let selectedItem=null;
+
+function buildFinal(){
+  const pal=document.getElementById('palette');
+  items.forEach((it,i)=>{
+    const b=document.createElement('button');
+    b.textContent=it.e+' '+it.n;
+    b.addEventListener('click',()=>{
+      Sound.click();
+      pal.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      selectedItem=it;
+      toast(`Selected: ${it.n}. Click in the room to place it!`);
+    });
+    pal.appendChild(b);
+  });
+  const ph=document.getElementById('phraseChips');
+  phrases.forEach(p=>{
+    const c=document.createElement('span');
+    c.className='chip'; c.textContent=p;
+    c.addEventListener('click',()=>{Sound.pop();c.classList.toggle('active');updateChecklist()});
+    ph.appendChild(c);
+  });
+  const dc=document.getElementById('descChips');
+  descs.forEach(d=>{
+    const c=document.createElement('span');
+    c.className='chip'; c.textContent=d;
+    c.addEventListener('click',()=>{Sound.pop();c.classList.toggle('active');updateChecklist()});
+    dc.appendChild(c);
+  });
+  // room clicks
+  const stage=document.getElementById('roomStage');
+  stage.addEventListener('click',e=>{
+    if(!selectedItem) return;
+    const r=stage.getBoundingClientRect();
+    const x=e.clientX-r.left-27;
+    const y=e.clientY-r.top-27;
+    placeItem(selectedItem.e, x, y);
+    Sound.pop();
+    updateChecklist();
+  });
+  document.getElementById('clearRoom').addEventListener('click',()=>{
+    Sound.click();
+    document.getElementById('roomItems').innerHTML='';
+    updateChecklist();
+  });
+  document.getElementById('speakRoom').addEventListener('click',()=>{
+    Sound.pop();
+    const inputs=document.querySelectorAll('.speak-frame input');
+    const words=[];
+    inputs.forEach(i=>{if(i.value.trim()) words.push(i.value.trim())});
+    if(words.length<3){toast('Fill in more words first!'); return;}
+    const text=`Welcome to my room! My room is ${inputs[0].value||'nice'}. There is a ${inputs[1].value||'bed'} ${inputs[2].value||'next to'} ${inputs[3].value||'the window'}. I've got ${inputs[4].value||'a computer'}. My ${inputs[5].value||'room'} is ${inputs[6].value||'beautiful'}. My room is ${inputs[7].value||'big'} and ${inputs[8].value||'cool'}.`;
+    speak(text);
+  });
+  // inputs change
+  document.querySelectorAll('.speak-frame input').forEach(i=>{
+    i.addEventListener('input',updateChecklist);
+  });
+}
+function placeItem(emoji,x,y){
+  const wrap=document.getElementById('roomItems');
+  const el=document.createElement('div');
+  el.className='room-item';
+  el.textContent=emoji;
+  el.style.left=x+'px';
+  el.style.top=y+'px';
+  wrap.appendChild(el);
+  // drag
+  let drag=false,ox=0,oy=0;
+  el.addEventListener('mousedown',e=>{drag=true;ox=e.offsetX;oy=e.offsetY;el.classList.add('dragging');e.stopPropagation()});
+  document.addEventListener('mousemove',e=>{
+    if(!drag) return;
+    const r=el.parentElement.getBoundingClientRect();
+    el.style.left=(e.clientX-r.left-ox)+'px';
+    el.style.top=(e.clientY-r.top-oy)+'px';
+  });
+  document.addEventListener('mouseup',()=>{drag=false;el.classList.remove('dragging')});
+  // touch
+  el.addEventListener('touchstart',e=>{drag=true;const t=e.touches[0];ox=t.clientX-el.getBoundingClientRect().left;oy=t.clientY-el.getBoundingClientRect().top;el.classList.add('dragging');e.stopPropagation()},{passive:true});
+  el.addEventListener('touchmove',e=>{
+    if(!drag) return;
+    const t=e.touches[0];const r=el.parentElement.getBoundingClientRect();
+    el.style.left=(t.clientX-r.left-ox)+'px';
+    el.style.top=(t.clientY-r.top-oy)+'px';
+  },{passive:true});
+  el.addEventListener('touchend',()=>{drag=false;el.classList.remove('dragging')});
+}
+function updateChecklist(){
+  const inputs=[...document.querySelectorAll('.speak-frame input')].map(i=>i.value.trim().toLowerCase());
+  const filled=inputs.filter(x=>x);
+  const vocabWords=['bed','computer','tv','guitar','bookshelf','desk','plant','headphones'];
+  const vocabCount=filled.filter(w=>vocabWords.some(v=>w.includes(v))).length;
+  const activePhrases=[...document.querySelectorAll('#phraseChips .chip.active')].length;
+  const activeDescs=[...document.querySelectorAll('#descChips .chip.active')].length;
+  const itemsPlaced=document.querySelectorAll('.room-item').length;
+  const totalVocab=Math.min(5, vocabCount + Math.floor(itemsPlaced/1));
+  const checks=document.querySelectorAll('.check');
+  checks[0].classList.toggle('done', totalVocab>=5);
+  checks[0].textContent=(totalVocab>=5?'✅':'☐')+' 5 vocabulary words ('+totalVocab+')';
+  checks[1].classList.toggle('done', activePhrases>=2);
+  checks[1].textContent=(activePhrases>=2?'✅':'☐')+' 2 location phrases ('+activePhrases+')';
+  checks[2].classList.toggle('done', activeDescs>=2);
+  checks[2].textContent=(activeDescs>=2?'✅':'☐')+' 2 descriptive words ('+activeDescs+')';
+  const ready=totalVocab>=5 && activePhrases>=2 && activeDescs>=2;
+  document.getElementById('missionReady').classList.toggle('show', ready);
+}
+/* ranges final */
+['rfVocab','rfDesc','rfSpeak'].forEach(id=>{
+  const el=document.getElementById(id);
+  const vId='f'+id.slice(2);
+  el.addEventListener('input',()=>{document.getElementById(vId).textContent=el.value});
+});
+document.getElementById('saveFinal').addEventListener('click',e=>{
+  const v=+document.getElementById('rfVocab').value;
+  const d=+document.getElementById('rfDesc').value;
+  const s=+document.getElementById('rfSpeak').value;
+  state.scores.f=v+d+s;
+  updateTotal();
+  Sound.win();
+  toast(`Final Mission saved: ${state.scores.f}/6`);
+  confetti();
+  saveState();
+});
+
+/* =========================================================
+   TEXT-TO-SPEECH
+   ========================================================= */
+function speak(text){
+  if(!('speechSynthesis' in window)){toast('Speech not supported');return}
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US'; u.rate=.95; u.pitch=1.05;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* =========================================================
+   TEACHER PANEL
+   ========================================================= */
+document.getElementById('teacherBtn').addEventListener('click',()=>{
+  Sound.click();
+  document.getElementById('teacherPanel').classList.toggle('show');
+});
+document.getElementById('showAnswers').addEventListener('click',()=>{
+  Sound.pop();
+  // M1
+  document.querySelectorAll('#scanner .word-card').forEach((c,i)=>{
+    c.querySelectorAll('.opt').forEach(o=>{
+      o.disabled=true;
+      if(+o.dataset.j===vocab[i].answer) o.classList.add('correct');
+    });
+    const fb=c.querySelector(`[data-fb="${i}"]`);
+    fb.classList.add('show','ok');
+    fb.innerHTML=`<div><b>✅ Answer:</b> ${String.fromCharCode(65+vocab[i].answer)}. ${vocab[i].options[vocab[i].answer]}</div><div class="small muted" style="margin-top:6px">💡 ${vocab[i].explain}</div>`;
+  });
+  // M2
+  document.querySelectorAll('#tfList .tf-item').forEach((it,i)=>{
+    it.querySelectorAll('[data-tf]').forEach(b=>b.disabled=true);
+    const ev=it.querySelector(`[data-ev="${i}"]`); ev.style.display='inline-flex';
+    const box=it.querySelector(`[data-evbox="${i}"]`);
+    box.classList.add('show');
+    box.innerHTML=`<div><b>Answer:</b> ${tf[i].ans?'TRUE':'FALSE'}</div><div class="small muted" style="margin-top:6px">📖 ${tf[i].evidence}</div>`;
+  });
+  toast('All answers revealed');
+});
+document.getElementById('showDescriptors').addEventListener('click',()=>{
+  Sound.pop();
+  alert('DESCRIPTORS\n\n• 5.4.4.1 — A learner deduces the meaning of unfamiliar words from context and visual clues.\n• 5.5.4.1 — A learner uses high-frequency vocabulary and descriptive words to describe a room and personal belongings.\n• Speaking — A learner uses familiar vocabulary and expressions to participate in a short dialogue.');
+});
+document.getElementById('showKey').addEventListener('click',()=>{
+  Sound.pop();
+  const k=document.getElementById('answerKey');
+  k.classList.toggle('show');
+  k.innerHTML=`
+    <b>Mission 1:</b><br>
+    ${vocab.map((v,i)=>`${i+1}. ${v.word} → ${String.fromCharCode(65+v.answer)}. ${v.options[v.answer]}`).join('<br>')}
+    <hr class="sep">
+    <b>Mission 2:</b><br>
+    ${tf.map((t,i)=>`${i+1}. ${t.stmt} → ${t.ans?'TRUE':'FALSE'}`).join('<br>')}
+  `;
+});
+document.getElementById('resetLesson').addEventListener('click',()=>{
+  if(confirm('Reset the whole lesson?')) resetAll();
+});
+
+function resetAll(){
+  state.scores={m1:0,m2:0,m3:0,f:0};
+  state.m1Done=0; state.m2Done=0;
+  localStorage.removeItem('ard_state');
+  updateTotal();
+  buildMission1();
+  buildMission2();
+  buildMission3();
+  document.getElementById('toM2').disabled=true;
+  document.getElementById('toM3').disabled=true;
+  document.getElementById('roomItems').innerHTML='';
+  document.querySelectorAll('.speak-frame input').forEach(i=>i.value='');
+  document.querySelectorAll('#phraseChips .chip, #descChips .chip').forEach(c=>c.classList.remove('active'));
+  updateChecklist();
+  go('start');
+  toast('Lesson reset');
+}
+
+/* =========================================================
+   START
+   ========================================================= */
+document.getElementById('startBtn').addEventListener('click',()=>{
+  Sound.win();
+  go('m1');
+});
+
+/* =========================================================
+   INIT
+   ========================================================= */
+buildMission1();
+buildMission2();
+buildMission3();
+buildFinal();
+updateTotal();
+// restore progress
+if(state.current && state.current!=='start') go(state.current);
+if(state.m1Done>=vocab.length) document.getElementById('toM2').disabled=false;
+if(state.m2Done>=tf.length) document.getElementById('toM3').disabled=false;
+
+// unlock audio on first interaction
+document.addEventListener('click',()=>{try{Sound.click()}catch(e){}},{once:true});
+</script>
+</body>
+</html>
