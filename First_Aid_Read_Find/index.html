@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Aid — Read &amp; Find | Grade 9</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:#f7f8fa;color:#1f2937;min-height:100vh;
+  -webkit-text-size-adjust:100%;line-height:1.6;
+}
+body{
+  background:radial-gradient(circle at 10% 10%,#fff1f2 0%,transparent 40%),
+  radial-gradient(circle at 90% 90%,#fef2f2 0%,transparent 40%),#f7f8fa;
+  padding:20px 16px 40px;display:flex;flex-direction:column;align-items:center;
+}
+.container{width:100%;max-width:800px;display:flex;flex-direction:column;gap:16px}
+
+/* TOPBAR */
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;background:#fff;border-radius:14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#b91c1c;font-size:15px}
+.brand .cross{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;background:#dc2626;color:#fff;
+  border-radius:8px;font-weight:900;font-size:20px;
+  box-shadow:0 3px 8px rgba(220,38,38,.35);
+}
+.sound-toggle{
+  background:#f3f4f6;border:none;padding:8px 14px;border-radius:10px;
+  font-size:14px;font-weight:600;cursor:pointer;color:#374151;
+  transition:all .2s ease;min-height:40px;
+}
+.sound-toggle:hover{background:#e5e7eb}
+.sound-toggle.off{color:#9ca3af}
+
+/* CARDS */
+.card{
+  background:#fff;border-radius:20px;padding:26px 22px;
+  box-shadow:0 6px 24px rgba(17,24,39,.06);border:1px solid #f1f2f4;
+  animation:fadeIn .45s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADERS */
+.screen-header{text-align:center;margin-bottom:16px}
+.screen-header .icons{font-size:30px;letter-spacing:6px;margin-bottom:6px}
+.screen-header .tag{
+  display:inline-block;background:#fef2f2;color:#b91c1c;
+  padding:5px 12px;border-radius:999px;font-size:12px;
+  font-weight:600;margin-bottom:10px;border:1px solid #fecaca;
+}
+.screen-header h1{font-size:clamp(24px,5vw,34px);color:#b91c1c;font-weight:800;letter-spacing:-.5px}
+.screen-header h2{font-size:clamp(16px,3vw,20px);color:#374151;font-weight:600;margin-top:2px}
+.screen-header p{color:#6b7280;font-size:14px;margin-top:6px}
+
+/* READING PANEL */
+.reading-panel{
+  background:linear-gradient(135deg,#fffefb,#fff);
+  border:2px solid #fde68a;border-radius:16px;
+  padding:22px 20px;margin-bottom:16px;
+  font-size:clamp(15px,2.4vw,17px);line-height:1.75;color:#1f2937;
+  position:relative;
+}
+.reading-panel h3{
+  font-size:clamp(18px,3vw,22px);color:#b91c1c;font-weight:800;
+  margin-bottom:12px;text-align:center;letter-spacing:1px;
+}
+.reading-panel p{margin-bottom:10px}
+.reading-panel p:last-child{margin-bottom:0}
+.vocab-hl{
+  background:linear-gradient(180deg,transparent 55%,#fecaca 55%);
+  font-weight:700;color:#991b1b;padding:0 2px;border-radius:2px;
+  transition:background .3s ease;
+}
+.vocab-hl.flash{
+  background:#fde047;color:#713f12;
+  box-shadow:0 0 8px rgba(253,224,71,.6);
+}
+.sentence-hl{
+  background:#fef9c3;border-radius:4px;padding:1px 3px;
+  box-shadow:0 0 0 2px #facc15;
+  transition:all .4s ease;
+}
+.reading-actions{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;
+}
+.reading-btn{
+  background:#fff;border:2px solid #e5e7eb;padding:10px 18px;
+  border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;
+  color:#374151;transition:all .2s ease;display:inline-flex;
+  align-items:center;gap:6px;min-height:44px;
+}
+.reading-btn:hover{border-color:#dc2626;color:#b91c1c;background:#fef2f2}
+.reading-btn:active{transform:scale(.97)}
+.reading-btn.primary{
+  background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;
+  border-color:#dc2626;box-shadow:0 4px 12px rgba(220,38,38,.3);
+}
+.reading-btn.primary:hover{background:linear-gradient(135deg,#b91c1c,#991b1b);color:#fff}
+
+/* PROGRESS */
+.progress-wrap{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;font-size:13px;color:#6b7280;font-weight:600;
+}
+.progress-wrap strong{color:#b91c1c;font-size:15px}
+.progress-bar{
+  width:100%;height:7px;background:#f3f4f6;border-radius:999px;
+  overflow:hidden;margin-bottom:16px;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,#dc2626,#ef4444);
+  border-radius:999px;transition:width .4s ease;
+}
+
+/* TEXT TOGGLE */
+.text-toggle{
+  background:#fef2f2;border:2px solid #fecaca;padding:10px 16px;
+  border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;
+  color:#b91c1c;width:100%;text-align:left;transition:all .2s ease;
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;min-height:48px;
+}
+.text-toggle:hover{background:#fee2e2}
+.text-toggle .arrow{transition:transform .3s ease;display:inline-block}
+.text-toggle.open .arrow{transform:rotate(90deg)}
+.collapsible-text{
+  max-height:0;overflow:hidden;transition:max-height .5s ease;
+  border-radius:12px;
+}
+.collapsible-text.open{max-height:800px}
+.collapsible-text .reading-panel{margin-bottom:0;border-color:#fecaca}
+
+/* QUESTION */
+.question-text{
+  font-size:clamp(16px,2.8vw,19px);font-weight:700;color:#111827;
+  margin-bottom:16px;line-height:1.45;
+}
+.options{display:flex;flex-direction:column;gap:10px}
+.option-btn{
+  background:#fff;border:2px solid #e5e7eb;padding:14px 16px;
+  border-radius:12px;font-size:clamp(14px,2.3vw,16px);font-weight:500;
+  text-align:left;cursor:pointer;color:#1f2937;transition:all .2s ease;
+  display:flex;align-items:center;gap:12px;min-height:52px;
+}
+.option-btn:hover:not(:disabled){
+  border-color:#dc2626;background:#fef2f2;transform:translateX(4px);
+}
+.option-btn:disabled{cursor:not-allowed;opacity:.85}
+.option-btn .letter{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;background:#f3f4f6;color:#374151;
+  border-radius:8px;font-weight:700;font-size:14px;flex-shrink:0;
+}
+.option-btn.correct{border-color:#16a34a;background:#f0fdf4;color:#166534}
+.option-btn.correct .letter{background:#16a34a;color:#fff}
+.option-btn.wrong{border-color:#dc2626;background:#fef2f2;color:#991b1b;animation:shake .4s ease}
+.option-btn.wrong .letter{background:#dc2626;color:#fff}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.feedback{
+  margin-top:14px;padding:12px 16px;border-radius:10px;
+  font-weight:600;font-size:15px;text-align:center;animation:fadeIn .3s ease;
+}
+.feedback.correct{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.feedback.wrong{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+
+.find-btn{
+  margin-top:12px;background:#fffbeb;border:2px solid #fbbf24;
+  padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;
+  cursor:pointer;color:#92400e;transition:all .2s ease;
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;
+}
+.find-btn:hover{background:#fef3c7;border-color:#f59e0b}
+.find-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.next-btn{
+  margin-top:14px;width:100%;background:#1f2937;color:#fff;border:none;
+  padding:13px;border-radius:10px;font-size:15px;font-weight:600;
+  cursor:pointer;transition:background .2s ease;min-height:48px;
+}
+.next-btn:hover{background:#111827}
+
+/* SCORE PILL */
+.score-pill{
+  background:#fef2f2;color:#b91c1c;padding:6px 14px;
+  border-radius:999px;font-size:14px;font-weight:700;border:1px solid #fecaca;
+}
+
+/* RESULTS */
+.results{text-align:center;padding:10px 0}
+.results .trophy{font-size:56px;margin-bottom:10px;animation:bounce 1s ease}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.results h2{font-size:22px;color:#374151;margin-bottom:10px}
+.score-display{
+  font-size:clamp(48px,10vw,72px);font-weight:900;color:#b91c1c;
+  margin:10px 0 6px;line-height:1;
+}
+.score-display span{color:#9ca3af;font-size:.6em}
+.performance-msg{font-size:20px;font-weight:700;margin:14px 0 22px;color:#1f2937}
+.results-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+
+/* EXTRA PRACTICE */
+.extra-badge{
+  display:inline-block;background:linear-gradient(135deg,#fbbf24,#f59e0b);
+  color:#78350f;padding:6px 14px;border-radius:999px;font-size:13px;
+  font-weight:700;margin-bottom:10px;
+}
+.vocab-item{
+  background:#f9fafb;border:2px solid #e5e7eb;border-radius:14px;
+  padding:16px;margin-bottom:12px;transition:all .3s ease;
+}
+.vocab-item.answered-correct{border-color:#16a34a;background:#f0fdf4}
+.vocab-item.answered-wrong{border-color:#dc2626;background:#fef2f2}
+.vocab-def{
+  font-size:clamp(14px,2.3vw,16px);color:#374151;font-weight:500;
+  margin-bottom:10px;font-style:italic;
+}
+.vocab-def::before{content:'"'}
+.vocab-def::after{content:'"'}
+.vocab-options{display:flex;gap:8px;flex-wrap:wrap}
+.vocab-opt{
+  background:#fff;border:2px solid #e5e7eb;padding:8px 16px;
+  border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;
+  color:#374151;transition:all .2s ease;min-height:44px;
+  display:inline-flex;align-items:center;
+}
+.vocab-opt:hover:not(:disabled){border-color:#dc2626;background:#fef2f2;color:#b91c1c}
+.vocab-opt:disabled{cursor:not-allowed}
+.vocab-opt.correct{border-color:#16a34a;background:#f0fdf4;color:#166534}
+.vocab-opt.wrong{border-color:#dc2626;background:#fef2f2;color:#991b1b;animation:shake .4s ease}
+.vocab-feedback{
+  margin-top:8px;font-size:13px;font-weight:600;
+}
+
+.hidden{display:none!important}
+
+footer{text-align:center;color:#9ca3af;font-size:12px;margin-top:20px;line-height:1.6}
+footer strong{color:#6b7280}
+
+#confetti-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:9999;
+}
+
+@media(max-width:480px){
+  body{padding:12px 10px 30px}
+  .card{padding:18px 14px;border-radius:16px}
+  .reading-panel{padding:16px 14px}
+  .option-btn{padding:12px 12px}
+  .option-btn .letter{width:28px;height:28px;font-size:13px}
+  .vocab-options{flex-direction:column}
+  .vocab-opt{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand"><span class="cross">✚</span><span>First Aid • Grade 9</span></div>
+    <button class="sound-toggle" id="soundToggle" aria-label="Toggle sound">🔊 Sound ON</button>
+  </div>
+
+  <!-- SCREEN 1: READING -->
+  <div class="card" id="screen-reading">
+    <div class="screen-header">
+      <div class="icons">🚑 ❤️ ✚</div>
+      <div class="tag">Reading • Across the Curriculum</div>
+      <h1>FIRST AID</h1>
+      <h2>Read &amp; Find</h2>
+      <p>Read the text carefully. Find specific information.</p>
+    </div>
+
+    <div class="reading-panel" id="mainReadingPanel">
+      <h3>✚ FIRST AID ✚</h3>
+      <p id="s1"><span class="sentence" data-q="q1">First aid is immediate simple <span class="vocab-hl" data-v="medical care">medical care</span> given to a <span class="vocab-hl" data-v="victim">victim</span> of an accident or an illness before professional medical treatment can be given.</span> <span class="sentence" data-q="q1b">First aid can save lives.</span></p>
+      <p id="s2"><span class="sentence" data-q="q2">It is based on the principle of the three Ps: <span class="vocab-hl" data-v="prevent">prevent</span> further injury, preserve life, and promote recovery.</span></p>
+      <p id="s3"><span class="sentence" data-q="q3">When someone is lying <span class="vocab-hl" data-v="unconscious">unconscious</span> at the scene of an accident, you should call for emergency services</span> <span class="sentence" data-q="q4">and make sure the area is safe.</span></p>
+      <p id="s4"><span class="sentence" data-q="q4b">Then, check the <span class="vocab-hl" data-v="casualty">casualty</span>.</span> <span class="sentence" data-q="q5">If they are breathing, try to put them in the <span class="vocab-hl" data-v="recovery position">recovery position</span>.</span> <span class="sentence" data-q="q5b">Do not adjust the position of their head and neck.</span></p>
+      <p id="s5"><span class="sentence" data-q="q5c">The <span class="vocab-hl" data-v="recovery position">recovery position</span> keeps the victim's <span class="vocab-hl" data-v="airway">airway</span>s open and <span class="vocab-hl" data-v="prevent">prevent</span>s <span class="vocab-hl" data-v="choke">chok</span>ing while waiting for medical help.</span></p>
+    </div>
+
+    <div class="reading-actions">
+      <button class="reading-btn" id="readAloudBtn">🔊 Read Aloud</button>
+      <button class="reading-btn primary" id="goToQuizBtn">🔍 Start Questions →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: QUIZ -->
+  <div class="card hidden" id="screen-quiz">
+    <div class="screen-header">
+      <div class="tag">🔍 Read &amp; Find</div>
+      <h2>Comprehension Questions</h2>
+      <p>Use the text to find the correct answers.</p>
+    </div>
+
+    <button class="text-toggle" id="textToggle">
+      <span class="arrow">▶</span> 📖 Show / Hide Reading Text
+    </button>
+    <div class="collapsible-text" id="collapsibleText">
+      <div class="reading-panel" id="quizReadingPanel">
+        <p><span class="sentence c-s" data-q="q1">First aid is immediate simple <span class="vocab-hl">medical care</span> given to a <span class="vocab-hl">victim</span> of an accident or an illness before professional medical treatment can be given.</span> <span class="sentence c-s" data-q="q1b">First aid can save lives.</span></p>
+        <p><span class="sentence c-s" data-q="q2">It is based on the principle of the three Ps: <span class="vocab-hl">prevent</span> further injury, preserve life, and promote recovery.</span></p>
+        <p><span class="sentence c-s" data-q="q3">When someone is lying <span class="vocab-hl">unconscious</span> at the scene of an accident, you should call for emergency services</span> <span class="sentence c-s" data-q="q4">and make sure the area is safe.</span></p>
+        <p><span class="sentence c-s" data-q="q4b">Then, check the <span class="vocab-hl">casualty</span>.</span> <span class="sentence c-s" data-q="q5">If they are breathing, try to put them in the <span class="vocab-hl">recovery position</span>.</span> <span class="sentence c-s" data-q="q5b">Do not adjust the position of their head and neck.</span></p>
+        <p><span class="sentence c-s" data-q="q5c">The <span class="vocab-hl">recovery position</span> keeps the victim's <span class="vocab-hl">airway</span>s open and <span class="vocab-hl">prevent</span>s <span class="vocab-hl">chok</span>ing while waiting for medical help.</span></p>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div>Question <strong id="qNum">1</strong> of <strong>5</strong></div>
+      <div class="score-pill">Score: <span id="liveScore">0</span>/5</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsWrap"></div>
+    <div id="feedbackWrap"></div>
+    <button class="find-btn hidden" id="findBtn">🔎 Find in Text</button>
+    <button class="next-btn hidden" id="nextBtn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- SCREEN 3: EXTRA PRACTICE -->
+  <div class="card hidden" id="screen-extra">
+    <div class="screen-header">
+      <div class="extra-badge">⭐ EXTRA PRACTICE</div>
+      <h2>Find the Word</h2>
+      <p>Match each definition to the correct First Aid word.</p>
+    </div>
+    <div id="vocabItems"></div>
+    <button class="next-btn hidden" id="finishExtraBtn" style="margin-top:16px">SEE FINAL RESULTS →</button>
+  </div>
+
+  <!-- SCREEN 4: RESULTS -->
+  <div class="card hidden" id="screen-results">
+    <div class="results">
+      <div class="trophy" id="trophyIcon">🏆</div>
+      <h2>READING SCORE</h2>
+      <div class="score-display"><span id="finalScore">0</span><span>/5</span></div>
+      <div class="performance-msg" id="performanceMsg">—</div>
+      <div id="extraResult" style="color:#6b7280;font-size:14px;margin-bottom:16px"></div>
+      <div class="results-actions">
+        <button class="reading-btn primary" id="retryBtn" style="min-width:200px">🔄 TRY AGAIN</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div>First Aid | Grade 9</div>
+  <div><strong>Kamshat_Ayankyzy</strong></div>
+</footer>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+/* ===== DATA ===== */
+const QUESTIONS = [
+  {
+    q: "What is first aid?",
+    opts: ["Immediate simple medical care","Professional hospital treatment","A type of exercise","Long-term medical care"],
+    correct: 0,
+    findQ: ["q1","q1b"]
+  },
+  {
+    q: "What principle is first aid based on?",
+    opts: ["The three Ps","The three Cs","The three Rs","The three As"],
+    correct: 0,
+    findQ: ["q2"]
+  },
+  {
+    q: "What should you do first when you find someone unconscious at the scene of an accident?",
+    opts: ["Give them water","Call for emergency services","Move them immediately","Give them food"],
+    correct: 1,
+    findQ: ["q3"]
+  },
+  {
+    q: "What should you check before helping the casualty?",
+    opts: ["The weather","The person's clothes","That the area is safe","The person's age"],
+    correct: 2,
+    findQ: ["q4"]
+  },
+  {
+    q: "How does the recovery position help a victim?",
+    opts: ["It helps them walk.","It keeps the airways open and prevents choking.","It replaces medical treatment.","It makes the person conscious."],
+    correct: 1,
+    findQ: ["q5c"]
+  }
+];
+
+const EXTRA_VOCAB = [
+  { def: "a person who has been hurt in an accident", answer: "victim", opts: ["casualty","victim","airway","unconscious"] },
+  { def: "not awake; not aware of what is happening", answer: "unconscious", opts: ["unconscious","victim","prevent","choke"] },
+  { def: "a person injured at the scene of an accident", answer: "casualty", opts: ["victim","airway","casualty","upright"] },
+  { def: "the passage through which air enters the lungs", answer: "airway", opts: ["choke","prevent","airway","casualty"] },
+  { def: "to stop something from happening", answer: "prevent", opts: ["choke","adjust","prevent","administer"] }
+];
+
+/* ===== STATE ===== */
+let currentQ = 0, score = 0, answered = false, soundOn = true, audioCtx = null;
+let extraScore = 0, extraAnswered = 0;
+let currentHighlight = [];
+
+/* ===== DOM ===== */
+const $ = id => document.getElementById(id);
+const screenReading = $('screen-reading'), screenQuiz = $('screen-quiz');
+const screenExtra = $('screen-extra'), screenResults = $('screen-results');
+const readAloudBtn = $('readAloudBtn'), goToQuizBtn = $('goToQuizBtn');
+const textToggle = $('textToggle'), collapsibleText = $('collapsibleText');
+const qNum = $('qNum'), liveScore = $('liveScore'), progressFill = $('progressFill');
+const questionText = $('questionText'), optionsWrap = $('optionsWrap');
+const feedbackWrap = $('feedbackWrap'), findBtn = $('findBtn'), nextBtn = $('nextBtn');
+const vocabItems = $('vocabItems'), finishExtraBtn = $('finishExtraBtn');
+const finalScore = $('finalScore'), performanceMsg = $('performanceMsg');
+const trophyIcon = $('trophyIcon'), extraResult = $('extraResult'), retryBtn = $('retryBtn');
+const soundToggle = $('soundToggle');
+
+/* ===== SOUND ===== */
+function ensureAudio(){
+  if(!audioCtx) try{ audioCtx=new(window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+}
+function tone(f,d,t='sine',v=.15){
+  if(!soundOn)return; ensureAudio(); if(!audioCtx)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=t;o.frequency.value=f;
+  g.gain.setValueAtTime(0,audioCtx.currentTime);
+  g.gain.linearRampToValueAtTime(v,audioCtx.currentTime+.01);
+  g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);
+  o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);
+}
+function clickSnd(){tone(600,.06,'square',.08)}
+function correctSnd(){if(!soundOn)return;ensureAudio();if(!audioCtx)return;[523.25,659.25,783.99].forEach((f,i)=>setTimeout(()=>tone(f,.18,'sine',.15),i*90))}
+function wrongSnd(){if(!soundOn)return;ensureAudio();if(!audioCtx)return;tone(220,.18,'sine',.12);setTimeout(()=>tone(180,.22,'sine',.12),120)}
+function flipSnd(){tone(440,.08,'sine',.1);setTimeout(()=>tone(660,.08,'sine',.1),60)}
+
+soundToggle.addEventListener('click',()=>{
+  soundOn=!soundOn;
+  soundToggle.textContent=soundOn?'🔊 Sound ON':'🔇 Sound OFF';
+  soundToggle.classList.toggle('off',!soundOn);
+  if(soundOn)clickSnd();
+});
+
+/* ===== NAV ===== */
+function showScreen(s){
+  [screenReading,screenQuiz,screenExtra,screenResults].forEach(x=>x.classList.add('hidden'));
+  s.classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== READ ALOUD ===== */
+readAloudBtn.addEventListener('click',()=>{
+  clickSnd();
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const txt="First aid is immediate simple medical care given to a victim of an accident or an illness before professional medical treatment can be given. First aid can save lives. It is based on the principle of the three Ps: prevent further injury, preserve life, and promote recovery. When someone is lying unconscious at the scene of an accident, you should call for emergency services and make sure the area is safe. Then, check the casualty. If they are breathing, try to put them in the recovery position. Do not adjust the position of their head and neck. The recovery position keeps the victim's airways open and prevents choking while waiting for medical help.";
+  const u=new SpeechSynthesisUtterance(txt);
+  u.rate=.92;u.pitch=1;u.volume=1;
+  const voices=speechSynthesis.getVoices();
+  const p=voices.find(v=>/en-GB/i.test(v.lang))||voices.find(v=>/en/i.test(v.lang));
+  if(p)u.voice=p;
+  speechSynthesis.speak(u);
+});
+if('speechSynthesis' in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+
+/* ===== GO TO QUIZ ===== */
+goToQuizBtn.addEventListener('click',()=>{
+  clickSnd();
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  currentQ=0;score=0;liveScore.textContent='0';
+  renderQuestion();
+  showScreen(screenQuiz);
+});
+
+/* ===== TEXT TOGGLE ===== */
+textToggle.addEventListener('click',()=>{
+  clickSnd();
+  textToggle.classList.toggle('open');
+  collapsibleText.classList.toggle('open');
+});
+
+/* ===== CLEAR HIGHLIGHTS ===== */
+function clearHighlights(){
+  document.querySelectorAll('.sentence-hl').forEach(el=>el.classList.remove('sentence-hl'));
+  currentHighlight=[];
+}
+
+/* ===== RENDER QUESTION ===== */
+function renderQuestion(){
+  const q=QUESTIONS[currentQ];
+  qNum.textContent=currentQ+1;
+  progressFill.style.width=(currentQ/5*100)+'%';
+  questionText.textContent=q.q;
+  optionsWrap.innerHTML='';
+  feedbackWrap.innerHTML='';
+  findBtn.classList.add('hidden');
+  findBtn.disabled=false;
+  nextBtn.classList.add('hidden');
+  answered=false;
+  clearHighlights();
+
+  const letters=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click',()=>handleAnswer(btn,i));
+    optionsWrap.appendChild(btn);
+  });
+}
+
+/* ===== HANDLE ANSWER ===== */
+function handleAnswer(btn,idx){
+  if(answered)return;
+  clickSnd();
+  const q=QUESTIONS[currentQ];
+
+  if(idx===q.correct){
+    answered=true;
+    btn.classList.add('correct');
+    score++;liveScore.textContent=score;
+    correctSnd();
+    feedbackWrap.innerHTML='<div class="feedback correct">✅ Correct! Well done!</div>';
+    [...optionsWrap.children].forEach(b=>b.disabled=true);
+    findBtn.classList.add('hidden');
+    nextBtn.textContent=currentQ===4?'CONTINUE TO EXTRA PRACTICE →':'NEXT QUESTION →';
+    nextBtn.classList.remove('hidden');
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled=true;
+    wrongSnd();
+    feedbackWrap.innerHTML='<div class="feedback wrong">❌ Look back at the text and try again.</div>';
+    findBtn.classList.remove('hidden');
+    setTimeout(()=>{
+      const fb=feedbackWrap.firstChild;
+      if(fb&&fb.textContent.includes('Look back'))feedbackWrap.innerHTML='';
+    },2500);
+  }
+}
+
+/* ===== FIND IN TEXT ===== */
+findBtn.addEventListener('click',()=>{
+  clickSnd();
+  clearHighlights();
+  const q=QUESTIONS[currentQ];
+  // Open the text
+  if(!collapsibleText.classList.contains('open')){
+    textToggle.classList.add('open');
+    collapsibleText.classList.add('open');
+  }
+  // Highlight sentences
+  setTimeout(()=>{
+    q.findQ.forEach(qKey=>{
+      document.querySelectorAll(`.c-s[data-q="${qKey}"]`).forEach(el=>{
+        el.classList.add('sentence-hl');
+        currentHighlight.push(el);
+      });
+    });
+    // Scroll to first highlight
+    const first=document.querySelector('.sentence-hl');
+    if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+    findBtn.disabled=true;
+  },350);
+});
+
+/* ===== NEXT ===== */
+nextBtn.addEventListener('click',()=>{
+  clickSnd();
+  clearHighlights();
+  currentQ++;
+  if(currentQ>=5){
+    showExtra();
+  } else {
+    renderQuestion();
+  }
+});
+
+/* ===== EXTRA PRACTICE ===== */
+function showExtra(){
+  extraScore=0;extraAnswered=0;
+  vocabItems.innerHTML='';
+  finishExtraBtn.classList.add('hidden');
+
+  EXTRA_VOCAB.forEach((v,i)=>{
+    const div=document.createElement('div');
+    div.className='vocab-item';
+    div.id='vi-'+i;
+    const defP=document.createElement('div');
+    defP.className='vocab-def';
+    defP.textContent=v.def;
+    div.appendChild(defP);
+
+    const optsDiv=document.createElement('div');
+    optsDiv.className='vocab-options';
+    // Shuffle options
+    const shuffled=[...v.opts].sort(()=>Math.random()-.5);
+    shuffled.forEach(opt=>{
+      const btn=document.createElement('button');
+      btn.className='vocab-opt';
+      btn.textContent=opt;
+      btn.addEventListener('click',()=>handleVocab(btn,opt,v.answer,div,i));
+      optsDiv.appendChild(btn);
+    });
+    div.appendChild(optsDiv);
+
+    const fb=document.createElement('div');
+    fb.className='vocab-feedback';
+    fb.id='vfb-'+i;
+    div.appendChild(fb);
+
+    vocabItems.appendChild(div);
+  });
+
+  showScreen(screenExtra);
+}
+
+function handleVocab(btn,selected,answer,div,idx){
+  if(div.dataset.done)return;
+  clickSnd();
+  if(selected===answer){
+    div.dataset.done='1';
+    btn.classList.add('correct');
+    div.classList.add('answered-correct');
+    correctSnd();
+    extraScore++;
+    $('vfb-'+idx).innerHTML='<span style="color:#166534">✅ Correct!</span>';
+    [...div.querySelectorAll('.vocab-opt')].forEach(b=>b.disabled=true);
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled=true;
+    wrongSnd();
+    $('vfb-'+idx).innerHTML='<span style="color:#991b1b">❌ Try again.</span>';
+    setTimeout(()=>{
+      const fb=$('vfb-'+idx);
+      if(fb.textContent.includes('Try again'))fb.innerHTML='';
+    },1800);
+  }
+  extraAnswered++;
+  checkExtraDone();
+}
+
+function checkExtraDone(){
+  const allDone=document.querySelectorAll('.vocab-item[data-done="1"]').length;
+  const allAttempted=EXTRA_VOCAB.every((_,i)=>{
+    const d=document.getElementById('vi-'+i);
+    return d.dataset.done==='1'||[...d.querySelectorAll('.vocab-opt')].every(b=>b.disabled);
+  });
+  if(allDone===EXTRA_VOCAB.length||allAttempted){
+    finishExtraBtn.classList.remove('hidden');
+    finishExtraBtn.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+
+finishExtraBtn.addEventListener('click',()=>{
+  clickSnd();
+  showResults();
+});
+
+/* ===== RESULTS ===== */
+function showResults(){
+  finalScore.textContent=score;
+  let msg='',trophy='🏆';
+  if(score===5){msg='Excellent reading! 🎉';trophy='🏆';}
+  else if(score===4){msg='Very good! 👏';trophy='🥈';}
+  else if(score===3){msg='Good effort! 👍';trophy='🥉';}
+  else{msg='Read the text again and try once more. 💪';trophy='📚';}
+  performanceMsg.textContent=msg;
+  trophyIcon.textContent=trophy;
+  extraResult.textContent=`⭐ Extra Practice: ${extraScore}/${EXTRA_VOCAB.length} words matched`;
+  showScreen(screenResults);
+  if(score===5) startConfetti();
+}
+
+/* ===== RETRY ===== */
+retryBtn.addEventListener('click',()=>{
+  clickSnd();
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  currentQ=0;score=0;extraScore=0;extraAnswered=0;
+  liveScore.textContent='0';progressFill.style.width='0%';
+  clearHighlights();
+  textToggle.classList.remove('open');
+  collapsibleText.classList.remove('open');
+  showScreen(screenReading);
+});
+
+/* ===== CONFETTI ===== */
+const confettiCanvas=$('confetti-canvas');
+const ctx=confettiCanvas.getContext('2d');
+let confettiPieces=[],confettiAnim=null;
+function resizeCanvas(){confettiCanvas.width=window.innerWidth;confettiCanvas.height=window.innerHeight;}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+
+function startConfetti(){
+  confettiPieces=[];
+  const colors=['#dc2626','#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#fbbf24'];
+  for(let i=0;i<160;i++){
+    confettiPieces.push({
+      x:Math.random()*confettiCanvas.width,
+      y:-20-Math.random()*confettiCanvas.height*.5,
+      w:5+Math.random()*7,h:8+Math.random()*10,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      vx:-2+Math.random()*4,vy:2+Math.random()*4,
+      rot:Math.random()*Math.PI*2,vr:-.2+Math.random()*.4
+    });
+  }
+  const start=Date.now();
+  function loop(){
+    ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    const elapsed=Date.now()-start;
+    confettiPieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.05;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    if(elapsed<5000) confettiAnim=requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  }
+  if(confettiAnim)cancelAnimationFrame(confettiAnim);
+  loop();
+}
+
+window.addEventListener('beforeunload',()=>{if('speechSynthesis' in window)speechSynthesis.cancel();});
+</script>
+
+</body>
+</html>

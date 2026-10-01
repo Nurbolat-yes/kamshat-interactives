@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Aid — Vocabulary Flip Cards | Grade 9</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f7f8fa;
+    color: #1f2937;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    line-height: 1.5;
+  }
+  body {
+    background:
+      radial-gradient(circle at 10% 10%, #fff1f2 0%, transparent 40%),
+      radial-gradient(circle at 90% 90%, #fef2f2 0%, transparent 40%),
+      #f7f8fa;
+    padding: 20px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container {
+    width: 100%;
+    max-width: 780px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: #b91c1c;
+    font-size: 15px;
+  }
+  .brand .cross {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: #dc2626;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 20px;
+    box-shadow: 0 3px 8px rgba(220,38,38,0.35);
+  }
+  .sound-toggle {
+    background: #f3f4f6;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all .2s ease;
+    min-height: 40px;
+  }
+  .sound-toggle:hover { background: #e5e7eb; }
+  .sound-toggle.off { color: #9ca3af; }
+
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 6px 24px rgba(17,24,39,0.06);
+    border: 1px solid #f1f2f4;
+    animation: fadeIn .4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* HEADER */
+  .screen-header {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .screen-header .icons {
+    font-size: 32px;
+    letter-spacing: 6px;
+    margin-bottom: 6px;
+  }
+  .screen-header .tag {
+    display: inline-block;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    border: 1px solid #fecaca;
+  }
+  .screen-header h1 {
+    font-size: clamp(22px, 4.5vw, 30px);
+    color: #b91c1c;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .screen-header h2 {
+    font-size: clamp(15px, 2.8vw, 18px);
+    color: #374151;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .screen-header p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-top: 6px;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 600;
+  }
+  .progress-wrap .count { color: #b91c1c; font-size: 14px; }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #f3f4f6;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+    border-radius: 999px;
+    transition: width .4s ease;
+  }
+
+  /* FLIP CARD */
+  .flip-stage {
+    perspective: 1400px;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto 18px;
+    aspect-ratio: 4 / 3;
+    max-height: 340px;
+  }
+  .flip-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .7s cubic-bezier(0.4, 0.0, 0.2, 1);
+    cursor: pointer;
+  }
+  .flip-card.flipped { transform: rotateY(180deg); }
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 18px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(17,24,39,0.08);
+    border: 1px solid #f1f2f4;
+    overflow: hidden;
+  }
+  .flip-front {
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%);
+    border: 2px solid #fecaca;
+  }
+  .flip-front .corner-icon {
+    position: absolute;
+    top: 14px; left: 14px;
+    font-size: 22px;
+    opacity: 0.8;
+  }
+  .flip-front .pronounce-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s ease;
+  }
+  .flip-front .pronounce-btn:hover {
+    border-color: #dc2626;
+    background: #fef2f2;
+    transform: scale(1.05);
+  }
+  .flip-front .pronounce-btn:active { transform: scale(0.95); }
+  .flip-front .word {
+    font-size: clamp(28px, 7vw, 44px);
+    font-weight: 800;
+    color: #b91c1c;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    word-break: break-word;
+  }
+  .flip-front .hint {
+    color: #6b7280;
+    font-size: 13px;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .flip-front .hint .tap-icon {
+    display: inline-block;
+    animation: tapHint 1.8s ease-in-out infinite;
+  }
+  @keyframes tapHint {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .flip-back {
+    background: linear-gradient(135deg, #fff 0%, #f9fafb 100%);
+    border: 2px solid #e5e7eb;
+    transform: rotateY(180deg);
+    justify-content: flex-start;
+    padding-top: 26px;
+  }
+  .flip-back .back-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .flip-back .meaning {
+    font-size: clamp(15px, 2.6vw, 17px);
+    color: #1f2937;
+    font-weight: 500;
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+  .flip-back .example {
+    background: #fef2f2;
+    border-left: 3px solid #dc2626;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: clamp(13px, 2.3vw, 15px);
+    color: #7f1d1d;
+    font-style: italic;
+    width: 100%;
+    line-height: 1.45;
+  }
+  .flip-back .example::before {
+    content: "📖 ";
+    font-style: normal;
+  }
+
+  /* NAVIGATION */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .nav-btn {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all .2s ease;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
+  .nav-btn:hover:not(:disabled) {
+    border-color: #dc2626;
+    color: #b91c1c;
+    background: #fef2f2;
+  }
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .nav-btn.primary {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    border-color: #dc2626;
+    box-shadow: 0 4px 12px rgba(220,38,38,0.3);
+  }
+  .nav-btn.primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .start-challenge-wrap {
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  /* CHALLENGE */
+  .challenge-header {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .challenge-header .badge {
+    display: inline-block;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid #fecaca;
+    margin-bottom: 8px;
+  }
+  .challenge-header h2 {
+    font-size: clamp(20px, 3.6vw, 26px);
+    color: #1f2937;
+    font-weight: 800;
+  }
+  .challenge-header p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .challenge-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 600;
+  }
+  .challenge-meta strong { color: #b91c1c; font-size: 15px; }
+  .score-pill {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid #fecaca;
+  }
+  .question-sentence {
+    font-size: clamp(16px, 2.8vw, 19px);
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 18px;
+    line-height: 1.45;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border-left: 4px solid #dc2626;
+  }
+  .question-sentence .blank {
+    display: inline-block;
+    min-width: 80px;
+    border-bottom: 2px dashed #dc2626;
+    margin: 0 4px;
+    color: #b91c1c;
+    font-weight: 700;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-btn {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    padding: 14px 12px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    color: #1f2937;
+    transition: all .2s ease;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: #dc2626;
+    background: #fef2f2;
+    transform: translateY(-2px);
+  }
+  .option-btn:disabled { cursor: not-allowed; }
+  .option-btn.correct {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #166534;
+    animation: popCorrect .4s ease;
+  }
+  .option-btn.wrong {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #991b1b;
+    animation: shake .4s ease;
+  }
+  @keyframes popCorrect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    animation: fadeIn .3s ease;
+  }
+  .feedback.correct {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+  .feedback.wrong {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+  .next-btn {
+    margin-top: 14px;
+    width: 100%;
+    background: #1f2937;
+    color: #fff;
+    border: none;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+    min-height: 48px;
+  }
+  .next-btn:hover { background: #111827; }
+
+  /* RESULTS */
+  .results { text-align: center; padding: 10px 0; }
+  .results .trophy { font-size: 56px; margin-bottom: 10px; animation: bounce 1s ease; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .results h2 {
+    font-size: 22px;
+    color: #374151;
+    margin-bottom: 10px;
+  }
+  .score-display {
+    font-size: clamp(48px, 10vw, 72px);
+    font-weight: 900;
+    color: #b91c1c;
+    margin: 10px 0 6px;
+    line-height: 1;
+  }
+  .score-display span { color: #9ca3af; font-size: 0.6em; }
+  .performance-msg {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 14px 0 22px;
+    color: #1f2937;
+  }
+  .results-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .hidden { display: none !important; }
+
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 20px;
+    line-height: 1.6;
+  }
+  footer strong { color: #6b7280; }
+
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 12px 10px 30px; }
+    .card { padding: 18px 14px; border-radius: 16px; }
+    .nav-btn { padding: 11px 10px; font-size: 14px; }
+    .options { grid-template-columns: 1fr; }
+    .flip-stage { aspect-ratio: 4 / 3.2; }
+    .flip-front .word { font-size: clamp(26px, 8vw, 38px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <span class="cross">✚</span>
+      <span>First Aid • Grade 9</span>
+    </div>
+    <button class="sound-toggle" id="soundToggle" aria-label="Toggle sound">🔊 Sound ON</button>
+  </div>
+
+  <!-- SCREEN 1: FLIP CARDS -->
+  <div class="card" id="screen-cards">
+    <div class="screen-header">
+      <div class="icons">🚑 ❤️ ✚</div>
+      <div class="tag">Vocabulary • Flip Cards</div>
+      <h1>FIRST AID</h1>
+      <h2>Vocabulary Flip Cards</h2>
+      <p>Tap the card to see the meaning and an example.</p>
+    </div>
+
+    <div class="progress-wrap">
+      <div>CARD <span class="count" id="cardNum">1</span> / <span id="cardTotal">10</span></div>
+      <div id="reviewedCount" style="color:#6b7280;">Reviewed: 0/10</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+
+    <div class="flip-stage">
+      <div class="flip-card" id="flipCard" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-face flip-front">
+          <div class="corner-icon">✚</div>
+          <button class="pronounce-btn" id="pronounceBtn" aria-label="Pronounce word" title="Pronounce">🔊</button>
+          <div class="word" id="wordText">VICTIM</div>
+          <div class="hint"><span class="tap-icon">👆</span> Tap to flip</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="back-label">Meaning</div>
+          <div class="meaning" id="meaningText">—</div>
+          <div class="example" id="exampleText">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" id="prevBtn" disabled>← Previous</button>
+      <button class="nav-btn primary" id="nextBtn">Next →</button>
+    </div>
+
+    <div class="start-challenge-wrap hidden" id="challengeWrap">
+      <button class="nav-btn primary" id="startChallengeBtn" style="width:100%; max-width:360px;">
+        🎯 START VOCABULARY CHALLENGE →
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: CHALLENGE -->
+  <div class="card hidden" id="screen-challenge">
+    <div class="challenge-header">
+      <div class="badge">🎯 VOCABULARY CHALLENGE</div>
+      <h2>Complete the sentence</h2>
+      <p>Choose the correct First Aid word.</p>
+    </div>
+
+    <div class="challenge-meta">
+      <div>Question <strong id="qNum">1</strong> of <strong>5</strong></div>
+      <div class="score-pill">Score: <span id="liveScore">0</span>/5</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="challengeProgress" style="width:0%"></div></div>
+
+    <div class="question-sentence" id="questionSentence"></div>
+    <div class="options" id="optionsWrap"></div>
+    <div id="feedbackWrap"></div>
+    <button class="next-btn hidden" id="nextQBtn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- SCREEN 3: RESULTS -->
+  <div class="card hidden" id="screen-results">
+    <div class="results">
+      <div class="trophy" id="trophyIcon">🏆</div>
+      <h2>YOUR SCORE</h2>
+      <div class="score-display"><span id="finalScore">0</span><span>/5</span></div>
+      <div class="performance-msg" id="performanceMsg">—</div>
+      <div class="results-actions">
+        <button class="nav-btn primary" id="retryBtn">🔄 REVIEW AGAIN</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div>First Aid | Grade 9</div>
+  <div><strong>Kamshat_Ayankyzy</strong></div>
+</footer>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+/* =========================================================
+   VOCABULARY DATA (textbook-based)
+   ========================================================= */
+const VOCAB = [
+  {
+    word: "victim",
+    meaning: "A person who has been hurt in an accident or an illness.",
+    example: "First aid is given to a victim of an accident."
+  },
+  {
+    word: "casualty",
+    meaning: "A person who is injured at the scene of an accident.",
+    example: "You must check the casualty before helping."
+  },
+  {
+    word: "administer",
+    meaning: "To give or provide medical care to someone.",
+    example: "First aid is simple medical care administered before professional help arrives."
+  },
+  {
+    word: "unconscious",
+    meaning: "Not awake; not aware of what is happening.",
+    example: "An unconscious person may need the recovery position."
+  },
+  {
+    word: "recovery position",
+    meaning: "A safe position for an unconscious person who is breathing.",
+    example: "The recovery position keeps the victim's airways open."
+  },
+  {
+    word: "airway",
+    meaning: "The passage through which air goes into the lungs.",
+    example: "The recovery position keeps the victim's airways open."
+  },
+  {
+    word: "prevent",
+    meaning: "To stop something from happening.",
+    example: "First aid helps prevent further injury."
+  },
+  {
+    word: "choke",
+    meaning: "To be unable to breathe because something blocks the throat.",
+    example: "The recovery position prevents choking while waiting for help."
+  },
+  {
+    word: "adjust",
+    meaning: "To change or move the position of something slightly.",
+    example: "Do not adjust the position of the victim's head and neck."
+  },
+  {
+    word: "upright",
+    meaning: "In a vertical position; standing or sitting up straight.",
+    example: "In the recovery position, the victim is not upright — they lie on their side."
+  }
+];
+
+/* =========================================================
+   CHALLENGE QUESTIONS
+   ========================================================= */
+const CHALLENGE = [
+  {
+    sentence: "The person who has been hurt in an accident is called the ______.",
+    options: ["victim", "airway", "upright", "adjust"],
+    correct: 0
+  },
+  {
+    sentence: "A person who is not awake and not aware is ______.",
+    options: ["upright", "unconscious", "choking", "prevented"],
+    correct: 1
+  },
+  {
+    sentence: "The recovery position keeps the victim's ______ open.",
+    options: ["victim", "casualty", "airways", "accident"],
+    correct: 2
+  },
+  {
+    sentence: "First aid helps to ______ further injury.",
+    options: ["adjust", "choke", "administer", "prevent"],
+    correct: 3
+  },
+  {
+    sentence: "The recovery position stops the victim from ______ while waiting for help.",
+    options: ["choking", "walking", "sleeping", "running"],
+    correct: 0
+  }
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let currentCard = 0;
+let reviewedSet = new Set();
+let currentQ = 0;
+let score = 0;
+let answered = false;
+let soundOn = true;
+let audioCtx = null;
+
+/* =========================================================
+   DOM
+   ========================================================= */
+const screenCards = document.getElementById('screen-cards');
+const screenChallenge = document.getElementById('screen-challenge');
+const screenResults = document.getElementById('screen-results');
+
+const cardNum = document.getElementById('cardNum');
+const cardTotal = document.getElementById('cardTotal');
+const reviewedCount = document.getElementById('reviewedCount');
+const progressFill = document.getElementById('progressFill');
+
+const flipCard = document.getElementById('flipCard');
+const wordText = document.getElementById('wordText');
+const meaningText = document.getElementById('meaningText');
+const exampleText = document.getElementById('exampleText');
+const pronounceBtn = document.getElementById('pronounceBtn');
+
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const challengeWrap = document.getElementById('challengeWrap');
+const startChallengeBtn = document.getElementById('startChallengeBtn');
+
+const qNum = document.getElementById('qNum');
+const liveScore = document.getElementById('liveScore');
+const challengeProgress = document.getElementById('challengeProgress');
+const questionSentence = document.getElementById('questionSentence');
+const optionsWrap = document.getElementById('optionsWrap');
+const feedbackWrap = document.getElementById('feedbackWrap');
+const nextQBtn = document.getElementById('nextQBtn');
+
+const finalScore = document.getElementById('finalScore');
+const performanceMsg = document.getElementById('performanceMsg');
+const trophyIcon = document.getElementById('trophyIcon');
+const retryBtn = document.getElementById('retryBtn');
+
+const soundToggle = document.getElementById('soundToggle');
+
+cardTotal.textContent = VOCAB.length;
+
+/* =========================================================
+   SOUND EFFECTS (Web Audio API)
+   ========================================================= */
+function ensureAudioCtx() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) { audioCtx = null; }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(()=>{});
+  }
+}
+function playTone(freq, duration, type='sine', volume=0.15) {
+  if (!soundOn) return;
+  ensureAudioCtx();
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+function clickSound() { playTone(600, 0.06, 'square', 0.08); }
+function flipSound() {
+  if (!soundOn) return;
+  ensureAudioCtx(); if (!audioCtx) return;
+  playTone(440, 0.08, 'sine', 0.1);
+  setTimeout(() => playTone(660, 0.08, 'sine', 0.1), 60);
+}
+function correctSound() {
+  if (!soundOn) return;
+  ensureAudioCtx(); if (!audioCtx) return;
+  [523.25, 659.25, 783.99].forEach((f, i) => {
+    setTimeout(() => playTone(f, 0.18, 'sine', 0.15), i * 90);
+  });
+}
+function wrongSound() {
+  if (!soundOn) return;
+  ensureAudioCtx(); if (!audioCtx) return;
+  playTone(220, 0.18, 'sine', 0.12);
+  setTimeout(() => playTone(180, 0.22, 'sine', 0.12), 120);
+}
+
+/* =========================================================
+   SOUND TOGGLE
+   ========================================================= */
+soundToggle.addEventListener('click', () => {
+  soundOn = !soundOn;
+  soundToggle.textContent = soundOn ? '🔊 Sound ON' : '🔇 Sound OFF';
+  soundToggle.classList.toggle('off', !soundOn);
+  if (soundOn) clickSound();
+});
+
+/* =========================================================
+   SCREEN NAV
+   ========================================================= */
+function showScreen(screen) {
+  [screenCards, screenChallenge, screenResults].forEach(s => s.classList.add('hidden'));
+  screen.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* =========================================================
+   SPEECH SYNTHESIS
+   ========================================================= */
+function speakWord(word) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.rate = 0.9;
+  u.pitch = 1;
+  u.volume = 1;
+  const voices = speechSynthesis.getVoices();
+  const preferred = voices.find(v => /en-GB/i.test(v.lang))
+                 || voices.find(v => /en-US/i.test(v.lang))
+                 || voices.find(v => /en/i.test(v.lang));
+  if (preferred) u.voice = preferred;
+  speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   RENDER CARD
+   ========================================================= */
+function renderCard() {
+  const v = VOCAB[currentCard];
+  wordText.textContent = v.word.toUpperCase();
+  meaningText.textContent = v.meaning;
+  exampleText.textContent = v.example;
+  flipCard.classList.remove('flipped');
+  cardNum.textContent = currentCard + 1;
+  progressFill.style.width = ((currentCard + 1) / VOCAB.length * 100) + '%';
+  prevBtn.disabled = currentCard === 0;
+  updateNextBtn();
+}
+function updateNextBtn() {
+  if (currentCard === VOCAB.length - 1) {
+    nextBtn.textContent = 'Finish reviewing ✓';
+  } else {
+    nextBtn.textContent = 'Next →';
+  }
+}
+function updateReviewed() {
+  reviewedCount.textContent = `Reviewed: ${reviewedSet.size}/10`;
+  if (reviewedSet.size === VOCAB.length) {
+    challengeWrap.classList.remove('hidden');
+  } else {
+    challengeWrap.classList.add('hidden');
+  }
+}
+
+/* =========================================================
+   CARD INTERACTIONS
+   ========================================================= */
+flipCard.addEventListener('click', (e) => {
+  if (e.target === pronounceBtn || pronounceBtn.contains(e.target)) return;
+  flipCard.classList.toggle('flipped');
+  flipSound();
+  if (flipCard.classList.contains('flipped')) {
+    reviewedSet.add(currentCard);
+    updateReviewed();
+  }
+});
+flipCard.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    flipCard.click();
+  }
+});
+
+pronounceBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  ensureAudioCtx();
+  clickSound();
+  speakWord(VOCAB[currentCard].word);
+});
+
+prevBtn.addEventListener('click', () => {
+  if (currentCard > 0) {
+    clickSound();
+    currentCard--;
+    renderCard();
+  }
+});
+nextBtn.addEventListener('click', () => {
+  clickSound();
+  if (currentCard < VOCAB.length - 1) {
+    currentCard++;
+    renderCard();
+  } else {
+    // reached end — mark as reviewed if not yet
+    reviewedSet.add(currentCard);
+    updateReviewed();
+    if (reviewedSet.size === VOCAB.length) {
+      challengeWrap.classList.remove('hidden');
+      challengeWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+});
+
+/* =========================================================
+   START CHALLENGE
+   ========================================================= */
+startChallengeBtn.addEventListener('click', () => {
+  clickSound();
+  currentQ = 0;
+  score = 0;
+  liveScore.textContent = '0';
+  renderQuestion();
+  showScreen(screenChallenge);
+});
+
+/* =========================================================
+   RENDER QUESTION
+   ========================================================= */
+function renderQuestion() {
+  const q = CHALLENGE[currentQ];
+  qNum.textContent = currentQ + 1;
+  challengeProgress.style.width = ((currentQ) / CHALLENGE.length * 100) + '%';
+  // Build sentence with blank
+  const parts = q.sentence.split('______');
+  questionSentence.innerHTML = `${escapeHtml(parts[0])}<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>${escapeHtml(parts[1] || '')}`;
+  optionsWrap.innerHTML = '';
+  feedbackWrap.innerHTML = '';
+  nextQBtn.classList.add('hidden');
+  answered = false;
+
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => handleAnswer(btn, idx));
+    optionsWrap.appendChild(btn);
+  });
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* =========================================================
+   HANDLE ANSWER
+   ========================================================= */
+function handleAnswer(btn, idx) {
+  if (answered) return;
+  const q = CHALLENGE[currentQ];
+  clickSound();
+
+  if (idx === q.correct) {
+    answered = true;
+    btn.classList.add('correct');
+    score++;
+    liveScore.textContent = score;
+    correctSound();
+    // Fill the blank with the correct word
+    const parts = q.sentence.split('______');
+    questionSentence.innerHTML = `${escapeHtml(parts[0])}<span class="blank" style="color:#166534; border-color:#16a34a;">${escapeHtml(q.options[q.correct])}</span>${escapeHtml(parts[1] || '')}`;
+    feedbackWrap.innerHTML = '<div class="feedback correct">Excellent! ✓</div>';
+    [...optionsWrap.children].forEach(b => b.disabled = true);
+    nextQBtn.textContent = currentQ === CHALLENGE.length - 1 ? 'SEE RESULTS →' : 'NEXT QUESTION →';
+    nextQBtn.classList.remove('hidden');
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    wrongSound();
+    feedbackWrap.innerHTML = '<div class="feedback wrong">Try again.</div>';
+    setTimeout(() => {
+      if (feedbackWrap.firstChild && feedbackWrap.firstChild.textContent === 'Try again.') {
+        feedbackWrap.innerHTML = '';
+      }
+    }, 1400);
+  }
+}
+
+/* =========================================================
+   NEXT QUESTION
+   ========================================================= */
+nextQBtn.addEventListener('click', () => {
+  clickSound();
+  currentQ++;
+  if (currentQ >= CHALLENGE.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+});
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+function showResults() {
+  challengeProgress.style.width = '100%';
+  finalScore.textContent = score;
+  let msg = '', trophy = '🏆';
+  if (score === 5) { msg = 'Excellent! 🎉'; trophy = '🏆'; }
+  else if (score === 4) { msg = 'Very good! 👏'; trophy = '🥈'; }
+  else if (score === 3) { msg = 'Good effort! 👍'; trophy = '🥉'; }
+  else { msg = 'Review the cards and try again. 💪'; trophy = '📚'; }
+  performanceMsg.textContent = msg;
+  trophyIcon.textContent = trophy;
+  showScreen(screenResults);
+  if (score === 5) startConfetti();
+}
+
+/* =========================================================
+   RETRY / REVIEW AGAIN
+   ========================================================= */
+retryBtn.addEventListener('click', () => {
+  clickSound();
+  currentCard = 0;
+  currentQ = 0;
+  score = 0;
+  reviewedSet.clear();
+  liveScore.textContent = '0';
+  progressFill.style.width = '10%';
+  challengeWrap.classList.add('hidden');
+  renderCard();
+  updateReviewed();
+  showScreen(screenCards);
+});
+
+/* =========================================================
+   CONFETTI
+   ========================================================= */
+const confettiCanvas = document.getElementById('confetti-canvas');
+const ctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiAnim = null;
+
+function resizeCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function startConfetti() {
+  confettiPieces = [];
+  const colors = ['#dc2626', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+  for (let i = 0; i < 150; i++) {
+    confettiPieces.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -20 - Math.random() * confettiCanvas.height * 0.5,
+      w: 6 + Math.random() * 6,
+      h: 10 + Math.random() * 8,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: -2 + Math.random() * 4,
+      vy: 2 + Math.random() * 4,
+      rot: Math.random() * Math.PI * 2,
+      vr: -0.2 + Math.random() * 0.4
+    });
+  }
+  const start = Date.now();
+  function loop() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    const elapsed = Date.now() - start;
+    confettiPieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.vy += 0.05;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (elapsed < 5000) {
+      confettiAnim = requestAnimationFrame(loop);
+    } else {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+  }
+  if (confettiAnim) cancelAnimationFrame(confettiAnim);
+  loop();
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+renderCard();
+updateReviewed();
+
+window.addEventListener('beforeunload', () => {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+});
+</script>
+
+</body>
+</html>
