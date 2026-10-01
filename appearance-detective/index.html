@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>APPEARANCE DETECTIVE 🔎</title>
+<style>
+  :root{
+    --bg1:#6C63FF;
+    --bg2:#FF6584;
+    --card:#ffffff;
+    --ink:#1f2547;
+    --muted:#5a6089;
+    --accent:#FFB400;
+    --good:#22c55e;
+    --bad:#ef4444;
+    --soft:#eef1ff;
+    --shadow:0 12px 30px rgba(20,20,60,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #b9b3ff 0%, transparent 60%),
+      radial-gradient(1000px 500px at 110% 10%, #ffb3c1 0%, transparent 60%),
+      linear-gradient(135deg,#6C63FF 0%,#8A7BFF 40%,#FF8FA3 100%);
+    overflow-x:hidden;
+  }
+  .app{
+    max-width:1280px;
+    margin:0 auto;
+    padding:18px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  /* Top bar */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:rgba(255,255,255,.18);
+    backdrop-filter: blur(10px);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:18px;
+    padding:10px 14px;
+    color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+  .brand .logo{
+    width:42px;height:42px;border-radius:12px;
+    background:linear-gradient(135deg,#fff,#ffe9a8);
+    display:grid;place-items:center;font-size:22px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .brand .title{font-size:18px}
+  .brand .sub{font-size:12px;opacity:.9;font-weight:500}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    cursor:pointer;border:none;border-radius:12px;
+    padding:10px 14px;font-weight:700;font-size:14px;
+    color:#1f2547;background:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.12);
+    transition:transform .15s ease, box-shadow .15s ease, background .2s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:translateY(0)}
+  .btn.primary{background:linear-gradient(135deg,#FFB400,#FF8A00);color:#1f2547}
+  .btn.ghost{background:rgba(255,255,255,.9)}
+  .btn.big{padding:14px 22px;font-size:18px;border-radius:16px}
+  .btn:focus-visible{outline:3px solid #FFB400;outline-offset:2px}
+
+  /* Progress + score */
+  .status{
+    display:flex;align-items:center;gap:14px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:16px;padding:10px 14px;color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .progress-wrap{flex:1;display:flex;align-items:center;gap:10px}
+  .progress-label{font-weight:700;white-space:nowrap}
+  .progress{
+    flex:1;height:14px;background:rgba(255,255,255,.35);
+    border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.4);
+  }
+  .progress > div{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,#FFD166,#FF6584);
+    transition:width .5s cubic-bezier(.2,.8,.2,1);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .score{
+    background:#fff;color:#1f2547;border-radius:12px;padding:8px 14px;font-weight:800;
+    display:flex;align-items:center;gap:8px;box-shadow:0 6px 14px rgba(0,0,0,.12);
+  }
+  .score .coin{font-size:20px}
+
+  /* Screens */
+  .screen{display:none;animation:fadeUp .5s ease}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* Start screen */
+  .hero{
+    background:var(--card);border-radius:24px;padding:28px;
+    box-shadow:var(--shadow);
+    display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;
+  }
+  .hero h1{
+    font-size:clamp(28px,4vw,44px);margin:0 0 6px;
+    background:linear-gradient(90deg,#6C63FF,#FF6584);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero h2{margin:0 0 14px;color:var(--muted);font-weight:600}
+  .hero p{color:#3a3f66;line-height:1.5;font-size:16px}
+  .hero .objective{
+    background:var(--soft);border-radius:14px;padding:12px 14px;margin-top:10px;
+    font-size:14px;color:#3a3f66;border-left:4px solid #6C63FF;
+  }
+  .hero-art{
+    background:linear-gradient(135deg,#eef1ff,#ffe9ec);
+    border-radius:20px;padding:16px;display:grid;place-items:center;min-height:260px;
+  }
+  .hero-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+  /* Question card */
+  .qcard{
+    background:var(--card);border-radius:24px;padding:22px;box-shadow:var(--shadow);
+    display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch;
+    animation:cardIn .45s ease;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .qleft{display:flex;flex-direction:column;gap:12px}
+  .qtype{
+    display:inline-block;background:var(--soft);color:#4b5184;
+    padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.4px;
+    align-self:flex-start;
+  }
+  .qtext{font-size:clamp(20px,2.2vw,26px);font-weight:800;line-height:1.3}
+  .qhint{color:var(--muted);font-size:14px}
+  .listen{
+    align-self:flex-start;background:#fff;border:2px solid #6C63FF;color:#6C63FF;
+    border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  }
+  .listen:hover{background:#6C63FF;color:#fff}
+
+  .choices{display:flex;flex-direction:column;gap:10px}
+  .choice{
+    cursor:pointer;border:2px solid #e3e6f5;background:#fff;border-radius:16px;
+    padding:14px 16px;font-size:17px;font-weight:700;text-align:left;
+    display:flex;align-items:center;gap:12px;
+    transition:transform .15s ease, border-color .2s, background .2s, box-shadow .2s;
+  }
+  .choice:hover{transform:translateY(-2px);border-color:#6C63FF;box-shadow:0 8px 18px rgba(108,99,255,.18)}
+  .choice .letter{
+    width:36px;height:36px;border-radius:10px;background:var(--soft);
+    display:grid;place-items:center;font-weight:800;color:#4b5184;
+  }
+  .choice.correct{background:#e9fff0;border-color:var(--good);color:#0b6b2f;animation:bounce .5s ease}
+  .choice.correct .letter{background:var(--good);color:#fff}
+  .choice.wrong{background:#ffecec;border-color:var(--bad);color:#7a1212;animation:shake .4s ease}
+  .choice.wrong .letter{background:var(--bad);color:#fff}
+  .choice.disabled{pointer-events:none;opacity:.85}
+
+  @keyframes bounce{
+    0%{transform:scale(1)}40%{transform:scale(1.04)}70%{transform:scale(.98)}100%{transform:scale(1)}
+  }
+  @keyframes shake{
+    0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}
+  }
+
+  /* Character panel */
+  .char-panel{
+    background:linear-gradient(135deg,#eef1ff,#ffe9ec);
+    border-radius:20px;padding:14px;display:grid;place-items:center;min-height:280px;
+    position:relative;overflow:hidden;
+  }
+  .char-panel svg{max-width:240px;width:100%;height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.12))}
+  .char-label{
+    position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+    background:#fff;color:#1f2547;padding:6px 12px;border-radius:999px;font-weight:700;font-size:13px;
+    box-shadow:0 4px 10px rgba(0,0,0,.12);
+  }
+
+  /* Feedback banner */
+  .feedback{
+    margin-top:10px;padding:12px 14px;border-radius:14px;font-weight:700;
+    display:none;align-items:center;gap:10px;
+  }
+  .feedback.show{display:flex;animation:fadeUp .3s ease}
+  .feedback.good{background:#e9fff0;color:#0b6b2f;border:1px solid #b6f0c8}
+  .feedback.bad{background:#ffecec;color:#7a1212;border:1px solid #f5bcbc}
+  .feedback .icon{font-size:20px}
+
+  /* Match grid */
+  .match-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .match-card{
+    background:#fff;border:2px solid #e3e6f5;border-radius:16px;padding:10px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+    transition:transform .15s, border-color .2s, box-shadow .2s;
+  }
+  .match-card:hover{transform:translateY(-2px);border-color:#6C63FF;box-shadow:0 8px 18px rgba(108,99,255,.18)}
+  .match-card svg{width:100%;height:auto;max-width:140px}
+  .match-card .name{font-weight:800;font-size:14px}
+  .match-card.correct{background:#e9fff0;border-color:var(--good)}
+  .match-card.wrong{background:#ffecec;border-color:var(--bad)}
+
+  /* End screen */
+  .endcard{
+    background:var(--card);border-radius:24px;padding:30px;text-align:center;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .endcard h1{
+    font-size:clamp(28px,4vw,42px);margin:0 0 8px;
+    background:linear-gradient(90deg,#6C63FF,#FF6584);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .score-big{
+    font-size:clamp(40px,6vw,72px);font-weight:900;margin:10px 0;
+    background:linear-gradient(90deg,#FFB400,#FF6584);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .badge{
+    display:inline-block;padding:10px 18px;border-radius:999px;font-weight:800;
+    background:linear-gradient(135deg,#FFB400,#FF8A00);color:#1f2547;font-size:18px;
+    box-shadow:0 8px 18px rgba(255,138,0,.35);
+  }
+  .end-actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+
+  /* Confetti */
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti span{
+    position:absolute;top:-20px;width:10px;height:14px;opacity:.9;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) rotate(720deg)}
+  }
+
+  /* Responsive */
+  @media (max-width: 900px){
+    .hero{grid-template-columns:1fr}
+    .qcard{grid-template-columns:1fr}
+    .match-grid{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (max-width: 520px){
+    .brand .sub{display:none}
+    .match-grid{grid-template-columns:1fr 1fr 1fr}
+    .choice{font-size:15px}
+  }
+
+  /* Utility */
+  .hidden{display:none !important}
+  .sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Appearance Detective game">
+
+  <!-- TOP BAR -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🔎</div>
+      <div>
+        <div class="title">APPEARANCE DETECTIVE</div>
+        <div class="sub">Look carefully. Choose the correct description!</div>
+      </div>
+    </div>
+    <div class="controls" aria-label="Game controls">
+      <button class="btn ghost" id="btnHome" title="Home / Restart">🏠 Home</button>
+      <button class="btn ghost" id="btnSound" title="Sound on/off">🔈 Sound</button>
+      <button class="btn ghost" id="btnVoice" title="Voice on/off">🗣️ Voice</button>
+    </div>
+  </header>
+
+  <!-- STATUS -->
+  <section class="status" id="statusBar" aria-live="polite">
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressLabel">QUESTION 1 / 12</div>
+      <div class="progress" aria-hidden="true"><div id="progressFill"></div></div>
+    </div>
+    <div class="score" aria-live="polite">
+      <span class="coin">⭐</span>
+      <span>Score: <span id="scoreVal">0</span> / 12</span>
+    </div>
+  </section>
+
+  <!-- START SCREEN -->
+  <section class="screen active" id="screenStart">
+    <div class="hero">
+      <div>
+        <h1>APPEARANCE DETECTIVE 🔎</h1>
+        <h2>Look carefully. Choose the correct description!</h2>
+        <p>Hello, young detective! 👋 Today you will look at people and describe how they look. You will practise words like <b>long hair</b>, <b>short hair</b>, <b>dark hair</b>, <b>fair hair</b>, <b>brown eyes</b>, <b>blue eyes</b>, <b>green eyes</b> and sentences with <b>has / has got</b>.</p>
+        <div class="objective"><b>Learning objective 5.3.7.1:</b> Use appropriate subject-specific vocabulary and syntax to talk about a limited range of general topics.</div>
+        <div class="hero-actions">
+          <button class="btn primary big" id="btnStart">▶ START MISSION</button>
+          <button class="btn ghost big" id="btnHow">ℹ️ How to play</button>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true" id="heroArt"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screenGame">
+    <div class="qcard" id="qcard">
+      <div class="qleft">
+        <span class="qtype" id="qType">MULTIPLE CHOICE</span>
+        <div class="qtext" id="qText">Loading…</div>
+        <div class="qhint" id="qHint">Choose the correct answer.</div>
+        <button class="listen" id="btnListen" title="Listen again">🔊 Listen</button>
+        <div class="feedback" id="feedback" role="status" aria-live="polite">
+          <span class="icon" id="fbIcon">✓</span>
+          <span id="fbText">Correct!</span>
+        </div>
+      </div>
+      <div id="qRight" class="qright"></div>
+    </div>
+  </section>
+
+  <!-- END SCREEN -->
+  <section class="screen" id="screenEnd">
+    <div class="endcard">
+      <h1>MISSION COMPLETE 🔎</h1>
+      <div class="score-big" id="finalScore">0 / 12</div>
+      <div class="badge" id="finalBadge">🌟 Amazing Detective!</div>
+      <p id="finalMsg" style="margin:14px auto 0;max-width:640px;color:#3a3f66;font-size:17px">Great work! You are a true Appearance Detective.</p>
+      <div class="end-actions">
+        <button class="btn primary big" id="btnPlayAgain">🔁 PLAY AGAIN</button>
+        <button class="btn ghost big" id="btnBackStart">🏠 BACK TO START</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script>
+/* =========================================================
+   APPEARANCE DETECTIVE — Grade 5 English
+   Pure HTML/CSS/JS. No external dependencies.
+   ========================================================= */
+
+/* ---------- SVG Character Factory ---------- */
+/* Build cartoon people with configurable hair length, hair color, eye color, gender. */
+function svgPerson({hairLen="long", hairCol="#3b2a1a", eyeCol="#6b4226", skin="#f4c9a3", shirt="#6C63FF", name=""}={}){
+  // hairLen: "long" | "short"
+  // hairCol: hex
+  // eyeCol: hex
+  const hairBack = hairLen==="long"
+    ? `<path d="M40 70 Q30 140 60 170 L140 170 Q170 140 160 70 Q160 40 100 35 Q40 40 40 70 Z" fill="${hairCol}"/>`
+    : `<path d="M48 80 Q45 50 100 40 Q155 50 152 80 Q150 95 140 95 Q130 70 100 68 Q70 70 60 95 Q50 95 48 80 Z" fill="${hairCol}"/>`;
+  const bangs = `<path d="M55 78 Q80 55 100 58 Q120 55 145 78 Q130 68 100 70 Q70 68 55 78 Z" fill="${hairCol}" opacity=".9"/>`;
+  const fringe = hairLen==="short"
+    ? `<path d="M55 78 Q80 58 100 60 Q120 58 145 78 Q130 70 100 72 Q70 70 55 78 Z" fill="${hairCol}"/>`
+    : "";
+  return `
+  <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cartoon person">
+    <defs>
+      <linearGradient id="bg_${Math.random().toString(36).slice(2,7)}" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity=".4"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <!-- body/shirt -->
+    <path d="M40 220 Q40 170 100 165 Q160 170 160 220 Z" fill="${shirt}"/>
+    <!-- neck -->
+    <rect x="88" y="150" width="24" height="22" rx="6" fill="${skin}"/>
+    <!-- head -->
+    <ellipse cx="100" cy="110" rx="52" ry="58" fill="${skin}"/>
+    <!-- hair back -->
+    ${hairBack}
+    <!-- face -->
+    <ellipse cx="100" cy="118" rx="44" ry="48" fill="${skin}"/>
+    <!-- hair front / bangs -->
+    ${bangs}${fringe}
+    <!-- eyes -->
+    <ellipse cx="82" cy="118" rx="7" ry="8" fill="#fff"/>
+    <ellipse cx="118" cy="118" rx="7" ry="8" fill="#fff"/>
+    <circle cx="82" cy="119" r="4.5" fill="${eyeCol}"/>
+    <circle cx="118" cy="119" r="4.5" fill="${eyeCol}"/>
+    <circle cx="83" cy="117" r="1.5" fill="#fff"/>
+    <circle cx="119" cy="117" r="1.5" fill="#fff"/>
+    <!-- brows -->
+    <path d="M72 106 Q82 102 92 106" stroke="#2b2040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M108 106 Q118 102 128 106" stroke="#2b2040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <path d="M100 125 Q96 135 100 140 Q104 135 100 125" fill="#e3a985" opacity=".6"/>
+    <!-- mouth -->
+    <path d="M88 148 Q100 156 112 148" stroke="#c0556a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- cheeks -->
+    <circle cx="72" cy="135" r="5" fill="#ff9aa8" opacity=".55"/>
+    <circle cx="128" cy="135" r="5" fill="#ff9aa8" opacity=".55"/>
+  </svg>`;
+}
+
+/* ---------- Audio (Web Audio API) ---------- */
+const AudioFX = (()=>{
+  let ctx=null;
+  function ensure(){ if(!ctx){ try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return ctx; }
+  function tone({freq=440,dur=.18,type="sine",vol=.25,slide=null,delay=0}={}){
+    const c=ensure(); if(!c) return;
+    const t0=c.currentTime+delay;
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(slide,t0+dur);
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol,t0+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g).connect(c.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+  return {
+    click(){ tone({freq:620,dur:.05,type:"square",vol:.08}); },
+    correct(){ tone({freq:660,dur:.14,type:"triangle",vol:.22}); tone({freq:880,dur:.18,type:"triangle",vol:.22,delay:.09}); tone({freq:1320,dur:.22,type:"triangle",vol:.18,delay:.18}); },
+    wrong(){ tone({freq:220,dur:.18,type:"sawtooth",vol:.12,slide:140}); },
+    complete(){ [523,659,784,1046].forEach((f,i)=>tone({freq:f,dur:.22,type:"triangle",vol:.2,delay:i*.12})); },
+    celebrate(){ for(let i=0;i<10;i++) tone({freq:800+Math.random()*800,dur:.08,type:"square",vol:.05,delay:i*.06}); }
+  };
+})();
+
+/* ---------- Voice (SpeechSynthesis) ---------- */
+const Voice = (()=>{
+  let enabled=true;
+  function speak(text){
+    if(!enabled) return;
+    if(!("speechSynthesis" in window)) return;
+    try{
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang="en-GB";
+      u.rate=0.92;
+      u.pitch=1.05;
+      const voices=window.speechSynthesis.getVoices();
+      const v=voices.find(v=>/en-?GB/i.test(v.lang) && /female|zira|susan|hazel/i.test(v.name))
+           || voices.find(v=>/en/i.test(v.lang));
+      if(v) u.voice=v;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  return {
+    speak,
+    toggle(){ enabled=!enabled; return enabled; },
+    isEnabled(){ return enabled; }
+  };
+})();
+// warm up voices
+if("speechSynthesis" in window){ window.speechSynthesis.onvoiceschanged=()=>{}; window.speechSynthesis.getVoices(); }
+
+/* ---------- Sound toggle ---------- */
+let soundOn=true;
+function sfx(name){ if(!soundOn) return; try{ AudioFX[name] && AudioFX[name](); }catch(e){} }
+
+/* ---------- Questions ---------- */
+/* Each question: type, text, hint, choices (3), correctIndex, renderRight (optional), speakText */
+const QUESTIONS = [
+  {
+    type:"MULTIPLE CHOICE",
+    text:"What colour are her eyes?",
+    hint:"Look at the picture and choose the correct colour.",
+    person:{hairLen:"long", hairCol:"#3b2a1a", eyeCol:"#6b4226", shirt:"#FF6584"},
+    choices:["Brown","Green","Blue"],
+    correct:0,
+    speak:"What colour are her eyes?"
+  },
+  {
+    type:"CHOOSE THE CORRECT SENTENCE",
+    text:"Which sentence is correct?",
+    hint:"Think about hair length and colour.",
+    person:{hairLen:"long", hairCol:"#e6b84a", eyeCol:"#3a78c2", shirt:"#22c55e"},
+    choices:[
+      "She has got short, dark hair.",
+      "She has got long, fair hair.",
+      "She has got long, green hair."
+    ],
+    correct:1,
+    speak:"Which sentence is correct?"
+  },
+  {
+    type:"MATCH DESCRIPTION TO PERSON",
+    text:"Who has got short, dark hair and brown eyes?",
+    hint:"Click the correct person.",
+    match:[
+      {person:{hairLen:"short", hairCol:"#3b2a1a", eyeCol:"#6b4226", shirt:"#6C63FF"}, name:"Ali"},
+      {person:{hairLen:"long",  hairCol:"#e6b84a", eyeCol:"#3a78c2", shirt:"#FF6584"}, name:"Lina"},
+      {person:{hairLen:"short", hairCol:"#c98a3c", eyeCol:"#3f8a3f", shirt:"#FFB400"}, name:"Tom"}
+    ],
+    correct:0,
+    speak:"Who has got short, dark hair and brown eyes?"
+  },
+  {
+    type:"HAIR COLOUR",
+    text:"What colour is his hair?",
+    hint:"Look carefully at the boy's hair.",
+    person:{hairLen:"short", hairCol:"#e6b84a", eyeCol:"#3a78c2", shirt:"#6C63FF"},
+    choices:["Dark","Fair","Red"],
+    correct:1,
+    speak:"What colour is his hair?"
+  },
+  {
+    type:"CHOOSE THE CORRECT SENTENCE",
+    text:"Choose the correct sentence about him.",
+    hint:"Use 'has got' and the correct colours.",
+    person:{hairLen:"short", hairCol:"#3b2a1a", eyeCol:"#3f8a3f", shirt:"#22c55e"},
+    choices:[
+      "He has got long, fair hair and blue eyes.",
+      "He has got short, dark hair and green eyes.",
+      "He has got short, fair hair and brown eyes."
+    ],
+    correct:1,
+    speak:"Choose the correct sentence about him."
+  },
+  {
+    type:"EYE COLOUR",
+    text:"What colour are his eyes?",
+    hint:"Look at the colour of his eyes.",
+    person:{hairLen:"short", hairCol:"#c98a3c", eyeCol:"#3a78c2", shirt:"#FF6584"},
+    choices:["Brown","Green","Blue"],
+    correct:2,
+    speak:"What colour are his eyes?"
+  },
+  {
+    type:"MATCH DESCRIPTION TO PERSON",
+    text:"Who has got long, fair hair and blue eyes?",
+    hint:"Click the correct person.",
+    match:[
+      {person:{hairLen:"long",  hairCol:"#3b2a1a", eyeCol:"#6b4226", shirt:"#22c55e"}, name:"Sara"},
+      {person:{hairLen:"short", hairCol:"#c98a3c", eyeCol:"#3f8a3f", shirt:"#FFB400"}, name:"Ben"},
+      {person:{hairLen:"long",  hairCol:"#e6b84a", eyeCol:"#3a78c2", shirt:"#8A7BFF"}, name:"Mia"}
+    ],
+    correct:2,
+    speak:"Who has got long, fair hair and blue eyes?"
+  },
+  {
+    type:"COMPLETE THE SENTENCE",
+    text:"She _____ got long, dark hair.",
+    hint:"Choose the correct word.",
+    person:{hairLen:"long", hairCol:"#3b2a1a", eyeCol:"#3f8a3f", shirt:"#FF6584"},
+    choices:["have","has","is"],
+    correct:1,
+    speak:"She has got long, dark hair. Choose the correct word: she underscore got long, dark hair."
+  },
+  {
+    type:"CHOOSE THE CORRECT SENTENCE",
+    text:"Which sentence describes her appearance?",
+    hint:"Use 'looks nice' and the correct description.",
+    person:{hairLen:"long", hairCol:"#c98a3c", eyeCol:"#6b4226", shirt:"#6C63FF"},
+    choices:[
+      "She has got short, fair hair. She looks nice.",
+      "She has got long, dark hair. She looks nice.",
+      "She has got long, green eyes. She looks nice."
+    ],
+    correct:1,
+    speak:"Which sentence describes her appearance?"
+  },
+  {
+    type:"EYE COLOUR",
+    text:"What colour are her eyes?",
+    hint:"Look at the girl's eyes.",
+    person:{hairLen:"long", hairCol:"#3b2a1a", eyeCol:"#3f8a3f", shirt:"#22c55e"},
+    choices:["Brown","Green","Blue"],
+    correct:1,
+    speak:"What colour are her eyes?"
+  },
+  {
+    type:"MATCH DESCRIPTION TO PERSON",
+    text:"Who has got short, fair hair and green eyes?",
+    hint:"Click the correct person.",
+    match:[
+      {person:{hairLen:"long",  hairCol:"#e6b84a", eyeCol:"#3a78c2", shirt:"#FF6584"}, name:"Emma"},
+      {person:{hairLen:"short", hairCol:"#e6b84a", eyeCol:"#3f8a3f", shirt:"#FFB400"}, name:"Leo"},
+      {person:{hairLen:"short", hairCol:"#3b2a1a", eyeCol:"#6b4226", shirt:"#6C63FF"}, name:"Omar"}
+    ],
+    correct:1,
+    speak:"Who has got short, fair hair and green eyes?"
+  },
+  {
+    type:"FINAL CHALLENGE",
+    text:"Choose the best description of his appearance.",
+    hint:"Use everything you have practised!",
+    person:{hairLen:"short", hairCol:"#3b2a1a", eyeCol:"#3a78c2", shirt:"#8A7BFF"},
+    choices:[
+      "He has got long, fair hair and brown eyes. He looks nice.",
+      "He has got short, dark hair and blue eyes. He looks nice.",
+      "He has got short, dark hair and green eyes. He looks nice."
+    ],
+    correct:1,
+    speak:"Choose the best description of his appearance."
+  }
+];
+
+/* ---------- Game State ---------- */
+const state = {
+  qIndex:0,
+  score:0,
+  locked:false
+};
+
+/* ---------- DOM ---------- */
+const $ = id=>document.getElementById(id);
+const screenStart=$("screenStart"), screenGame=$("screenGame"), screenEnd=$("screenEnd");
+const progressLabel=$("progressLabel"), progressFill=$("progressFill"), scoreVal=$("scoreVal");
+const qType=$("qType"), qText=$("qText"), qHint=$("qHint"), qRight=$("qRight"), feedback=$("feedback"), fbIcon=$("fbIcon"), fbText=$("fbText");
+const btnListen=$("btnListen");
+
+function showScreen(el){
+  [screenStart,screenGame,screenEnd].forEach(s=>s.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function updateProgress(){
+  progressLabel.textContent = `QUESTION ${state.qIndex+1} / 12`;
+  progressFill.style.width = `${((state.qIndex)/12)*100}%`;
+  scoreVal.textContent = state.score;
+}
+
+/* ---------- Render Question ---------- */
+function renderQuestion(){
+  state.locked=false;
+  feedback.classList.remove("show","good","bad");
+  const q = QUESTIONS[state.qIndex];
+  qType.textContent = q.type;
+  qText.textContent = q.text;
+  qHint.textContent = q.hint;
+
+  // Right side
+  qRight.innerHTML="";
+  if(q.match){
+    // Match grid
+    const grid=document.createElement("div");
+    grid.className="match-grid";
+    q.match.forEach((m,i)=>{
+      const card=document.createElement("button");
+      card.className="match-card choice";
+      card.setAttribute("aria-label",`Person ${m.name}`);
+      card.innerHTML = `
+        <div>${svgPerson(m.person)}</div>
+        <div class="name">${m.name}</div>
+      `;
+      card.addEventListener("click",()=>handleChoice(i,card));
+      grid.appendChild(card);
+    });
+    qRight.appendChild(grid);
+  } else {
+    // Character + choices
+    const panel=document.createElement("div");
+    panel.className="char-panel";
+    panel.innerHTML = svgPerson(q.person);
+    qRight.appendChild(panel);
+
+    const choices=document.createElement("div");
+    choices.className="choices";
+    const letters=["A","B","C"];
+    q.choices.forEach((c,i)=>{
+      const b=document.createElement("button");
+      b.className="choice";
+      b.innerHTML = `<span class="letter">${letters[i]}</span><span>${c}</span>`;
+      b.addEventListener("click",()=>handleChoice(i,b));
+      choices.appendChild(b);
+    });
+    qRight.appendChild(choices);
+  }
+
+  updateProgress();
+  // Speak the question
+  setTimeout(()=>Voice.speak(q.speak||q.text), 250);
+}
+
+function handleChoice(i, btnEl){
+  if(state.locked) return;
+  sfx("click");
+  const q = QUESTIONS[state.qIndex];
+  const correct = (i===q.correct);
+
+  if(correct){
+    state.locked=true;
+    btnEl.classList.add("correct");
+    // disable others
+    document.querySelectorAll(".choice").forEach(el=>el.classList.add("disabled"));
+    sfx("correct");
+    feedback.className="feedback show good";
+    fbIcon.textContent="✓";
+    fbText.textContent="Correct! Well done!";
+    state.score++;
+    scoreVal.textContent=state.score;
+    Voice.speak("Correct!");
+    // progress fill to current
+    progressFill.style.width = `${((state.qIndex+1)/12)*100}%`;
+    setTimeout(nextQuestion, 1400);
+  } else {
+    btnEl.classList.add("wrong");
+    sfx("wrong");
+    feedback.className="feedback show bad";
+    fbIcon.textContent="✗";
+    fbText.textContent="Try again. You can do it!";
+    Voice.speak("Try again.");
+    setTimeout(()=>{
+      btnEl.classList.remove("wrong");
+    }, 650);
+    // do NOT advance; allow retry
+  }
+}
+
+function nextQuestion(){
+  state.qIndex++;
+  if(state.qIndex>=QUESTIONS.length){
+    endGame();
+  } else {
+    // re-animate card
+    const card=$("qcard");
+    card.style.animation="none"; void card.offsetWidth; card.style.animation="";
+    renderQuestion();
+  }
+}
+
+/* ---------- End Game ---------- */
+function endGame(){
+  sfx("complete");
+  progressFill.style.width="100%";
+  progressLabel.textContent="COMPLETE!";
+  showScreen(screenEnd);
+  $("finalScore").textContent = `${state.score} / 12`;
+  let msg="", badge="";
+  if(state.score>=10){ msg="🌟 Amazing Detective! You have excellent eyes!"; badge="🌟 Amazing Detective!"; sfx("celebrate"); confettiBurst(); }
+  else if(state.score>=7){ msg="👏 Great job! You are a very good detective."; badge="👏 Great job!"; }
+  else if(state.score>=4){ msg="💪 Keep practising! You're getting better every time."; badge="💪 Keep practising!"; }
+  else { msg="🔎 Let's try again! Every detective starts somewhere."; badge="🔎 Let's try again!"; }
+  $("finalBadge").textContent=badge;
+  $("finalMsg").textContent=msg;
+  Voice.speak(`Mission complete. Your score is ${state.score} out of 12. ${msg.replace(/[^\w\s!]/g,"")}`);
+}
+
+function confettiBurst(){
+  const c=$("confetti"); c.innerHTML="";
+  const colors=["#6C63FF","#FF6584","#FFB400","#22c55e","#3a78c2","#e6b84a"];
+  for(let i=0;i<90;i++){
+    const s=document.createElement("span");
+    s.style.left=(Math.random()*100)+"vw";
+    s.style.background=colors[i%colors.length];
+    s.style.animationDuration=(2.2+Math.random()*2.5)+"s";
+    s.style.animationDelay=(Math.random()*0.8)+"s";
+    s.style.transform=`rotate(${Math.random()*360}deg)`;
+    s.style.borderRadius=(Math.random()<.5?"2px":"50%");
+    s.style.width=(6+Math.random()*8)+"px";
+    s.style.height=(10+Math.random()*10)+"px";
+    c.appendChild(s);
+  }
+  setTimeout(()=>c.innerHTML="",6000);
+}
+
+function resetGame(){
+  state.qIndex=0; state.score=0; state.locked=false;
+  scoreVal.textContent=0;
+  progressFill.style.width="0%";
+  showScreen(screenStart);
+}
+
+function startGame(){
+  state.qIndex=0; state.score=0; state.locked=false;
+  scoreVal.textContent=0;
+  progressFill.style.width="0%";
+  showScreen(screenGame);
+  renderQuestion();
+}
+
+/* ---------- Buttons ---------- */
+$("btnStart").addEventListener("click",()=>{ sfx("click"); startGame(); });
+$("btnHow").addEventListener("click",()=>{
+  sfx("click");
+  Voice.speak("Look at the picture. Listen to the question. Choose the correct answer. If you are wrong, try again. Good luck!");
+});
+$("btnHome").addEventListener("click",()=>{ sfx("click"); if(confirm("Return to the start screen?")) resetGame(); });
+$("btnSound").addEventListener("click",(e)=>{
+  soundOn=!soundOn;
+  e.currentTarget.textContent = soundOn ? "🔈 Sound" : "🔇 Sound";
+  if(soundOn) sfx("click");
+});
+$("btnVoice").addEventListener("click",(e)=>{
+  const on = Voice.toggle();
+  e.currentTarget.textContent = on ? "🗣️ Voice" : "🔇 Voice";
+  if(on) Voice.speak("Voice on.");
+});
+btnListen.addEventListener("click",()=>{
+  sfx("click");
+  const q=QUESTIONS[state.qIndex];
+  if(q) Voice.speak(q.speak||q.text);
+});
+$("btnPlayAgain").addEventListener("click",()=>{ sfx("click"); startGame(); });
+$("btnBackStart").addEventListener("click",()=>{ sfx("click"); resetGame(); });
+
+/* ---------- Hero art ---------- */
+$("heroArt").innerHTML = `
+  <div style="display:flex;gap:10px;align-items:flex-end;justify-content:center;flex-wrap:wrap">
+    ${svgPerson({hairLen:"long", hairCol:"#3b2a1a", eyeCol:"#6b4226", shirt:"#FF6584"})}
+    ${svgPerson({hairLen:"short", hairCol:"#e6b84a", eyeCol:"#3a78c2", shirt:"#6C63FF"})}
+    ${svgPerson({hairLen:"long", hairCol:"#c98a3c", eyeCol:"#3f8a3f", shirt:"#22c55e"})}
+  </div>
+`;
+
+/* ---------- Keyboard: 1/2/3 to choose ---------- */
+document.addEventListener("keydown",(e)=>{
+  if(!screenGame.classList.contains("active")) return;
+  if(state.locked) return;
+  const map={"1":0,"2":1,"3":2};
+  if(map[e.key]!==undefined){
+    const choices=document.querySelectorAll("#qRight .choice");
+    if(choices[map[e.key]]) choices[map[e.key]].click();
+  }
+});
+
+/* ---------- Init ---------- */
+updateProgress();
+</script>
+</body>
+</html>

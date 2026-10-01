@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GUESS WHO? 🕵️</title>
+<style>
+  :root{
+    --bg1:#6C63FF;
+    --bg2:#FF6584;
+    --card:#ffffff;
+    --ink:#1f2547;
+    --muted:#5a6089;
+    --accent:#FFB400;
+    --good:#22c55e;
+    --bad:#ef4444;
+    --soft:#eef1ff;
+    --shadow:0 12px 30px rgba(20,20,60,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #b9b3ff 0%, transparent 60%),
+      radial-gradient(1000px 500px at 110% 10%, #ffb3c1 0%, transparent 60%),
+      linear-gradient(135deg,#6C63FF 0%,#8A7BFF 40%,#FF8FA3 100%);
+    overflow-x:hidden;
+  }
+  .app{
+    max-width:1280px;margin:0 auto;padding:18px;
+    min-height:100vh;display:flex;flex-direction:column;gap:14px;
+  }
+
+  /* Top bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:rgba(255,255,255,.18);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.35);border-radius:18px;padding:10px 14px;color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+  .brand .logo{
+    width:42px;height:42px;border-radius:12px;
+    background:linear-gradient(135deg,#fff,#ffe9a8);
+    display:grid;place-items:center;font-size:22px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .brand .title{font-size:18px}
+  .brand .sub{font-size:12px;opacity:.9;font-weight:500}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    cursor:pointer;border:none;border-radius:12px;
+    padding:10px 14px;font-weight:700;font-size:14px;
+    color:#1f2547;background:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.12);
+    transition:transform .15s ease, box-shadow .15s ease, background .2s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:translateY(0)}
+  .btn.primary{background:linear-gradient(135deg,#FFB400,#FF8A00);color:#1f2547}
+  .btn.ghost{background:rgba(255,255,255,.9)}
+  .btn.big{padding:14px 22px;font-size:18px;border-radius:16px}
+  .btn:focus-visible{outline:3px solid #FFB400;outline-offset:2px}
+
+  /* Status */
+  .status{
+    display:flex;align-items:center;gap:14px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:16px;padding:10px 14px;color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .progress-wrap{flex:1;display:flex;align-items:center;gap:10px}
+  .progress-label{font-weight:700;white-space:nowrap}
+  .progress{
+    flex:1;height:14px;background:rgba(255,255,255,.35);
+    border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.4);
+  }
+  .progress > div{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,#FFD166,#FF6584);
+    transition:width .5s cubic-bezier(.2,.8,.2,1);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .score{
+    background:#fff;color:#1f2547;border-radius:12px;padding:8px 14px;font-weight:800;
+    display:flex;align-items:center;gap:8px;box-shadow:0 6px 14px rgba(0,0,0,.12);
+  }
+  .score .coin{font-size:20px}
+
+  /* Screens */
+  .screen{display:none;animation:fadeUp .5s ease}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* Start screen */
+  .hero{
+    background:var(--card);border-radius:24px;padding:28px;
+    box-shadow:var(--shadow);
+    display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;
+  }
+  .hero h1{
+    font-size:clamp(28px,4vw,44px);margin:0 0 6px;
+    background:linear-gradient(90deg,#6C63FF,#FF6584);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero h2{margin:0 0 14px;color:var(--muted);font-weight:600}
+  .hero p{color:#3a3f66;line-height:1.5;font-size:16px}
+  .hero .objective{
+    background:var(--soft);border-radius:14px;padding:12px 14px;margin-top:10px;
+    font-size:14px;color:#3a3f66;border-left:4px solid #6C63FF;
+  }
+  .hero-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .hero-art{
+    background:linear-gradient(135deg,#eef1ff,#ffe9ec);
+    border-radius:20px;padding:16px;display:grid;place-items:center;min-height:280px;
+  }
+  .hero-art .four{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}
+  .hero-art .four svg{width:100%;height:auto}
+
+  /* Mystery card */
+  .mystery-wrap{
+    perspective:1200px;
+    margin:0 auto 18px;
+    max-width:720px;
+  }
+  .mystery-card{
+    position:relative;
+    background:linear-gradient(135deg,#2b2040,#4b3a7a);
+    color:#fff;
+    border-radius:24px;
+    padding:26px;
+    box-shadow:var(--shadow), 0 0 0 3px rgba(255,180,0,.4);
+    transform-style:preserve-3d;
+    animation:flipIn .7s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes flipIn{
+    0%{transform:rotateY(180deg);opacity:0}
+    60%{opacity:1}
+    100%{transform:rotateY(0deg);opacity:1}
+  }
+  .mystery-label{
+    display:inline-block;
+    background:linear-gradient(135deg,#FFB400,#FF8A00);
+    color:#1f2547;
+    padding:8px 16px;border-radius:999px;
+    font-weight:900;letter-spacing:.6px;font-size:14px;
+    margin-bottom:14px;
+    box-shadow:0 6px 14px rgba(255,138,0,.35);
+  }
+  .mystery-text{
+    font-size:clamp(22px,2.6vw,32px);
+    font-weight:700;line-height:1.4;
+    margin:0 0 14px;
+  }
+  .mystery-text .quote{
+    font-style:italic;color:#ffe9a8;
+  }
+  .mystery-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .listen{
+    background:#fff;border:none;color:#4b3a7a;
+    border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;font-size:14px;
+    transition:transform .15s ease, background .2s;
+  }
+  .listen:hover{transform:translateY(-2px);background:#ffe9a8}
+
+  /* Character cards */
+  .cards-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .char-card{
+    position:relative;
+    background:var(--card);
+    border-radius:20px;
+    padding:14px;
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s;
+    border:3px solid transparent;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    animation:float 3.2s ease-in-out infinite;
+  }
+  .char-card:nth-child(1){animation-delay:0s}
+  .char-card:nth-child(2){animation-delay:.4s}
+  .char-card:nth-child(3){animation-delay:.8s}
+  .char-card:nth-child(4){animation-delay:1.2s}
+  @keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+  .char-card:hover{
+    transform:translateY(-8px) scale(1.03);
+    box-shadow:0 18px 36px rgba(108,99,255,.28);
+    border-color:#6C63FF;
+  }
+  .char-card svg{width:100%;height:auto;max-width:180px}
+  .char-card .name{
+    font-weight:800;font-size:18px;color:var(--ink);
+    background:var(--soft);padding:6px 14px;border-radius:999px;
+  }
+  .char-card .mark{
+    position:absolute;top:10px;right:10px;
+    width:34px;height:34px;border-radius:50%;
+    display:grid;place-items:center;font-size:18px;font-weight:900;color:#fff;
+    opacity:0;transform:scale(0);
+    transition:opacity .3s, transform .3s;
+  }
+  .char-card.correct{
+    border-color:var(--good);
+    background:#e9fff0;
+    animation:flipCard .7s ease, glowGreen 1.2s ease;
+  }
+  .char-card.correct .mark{
+    opacity:1;transform:scale(1);background:var(--good);
+  }
+  .char-card.wrong{
+    animation:shake .45s ease;
+    border-color:var(--bad);
+  }
+  .char-card.wrong .mark{
+    opacity:1;transform:scale(1);background:var(--bad);
+  }
+  .char-card.disabled{pointer-events:none;opacity:.9}
+
+  @keyframes flipCard{
+    0%{transform:rotateY(0)}
+    50%{transform:rotateY(180deg)}
+    100%{transform:rotateY(360deg)}
+  }
+  @keyframes glowGreen{
+    0%,100%{box-shadow:var(--shadow)}
+    50%{box-shadow:0 0 0 6px rgba(34,197,94,.35), 0 18px 36px rgba(34,197,94,.4)}
+  }
+  @keyframes shake{
+    0%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+    100%{transform:translateX(0)}
+  }
+
+  /* Feedback banner */
+  .feedback{
+    margin:14px auto 0;padding:12px 16px;border-radius:14px;font-weight:700;
+    display:none;align-items:center;gap:10px;max-width:720px;
+    font-size:16px;
+  }
+  .feedback.show{display:flex;animation:fadeUp .3s ease}
+  .feedback.good{background:#e9fff0;color:#0b6b2f;border:1px solid #b6f0c8}
+  .feedback.bad{background:#ffecec;color:#7a1212;border:1px solid #f5bcbc}
+  .feedback .icon{font-size:22px}
+
+  /* End screen */
+  .endcard{
+    background:var(--card);border-radius:24px;padding:30px;text-align:center;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .endcard h1{
+    font-size:clamp(28px,4vw,42px);margin:0 0 8px;
+    background:linear-gradient(90deg,#6C63FF,#FF6584);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .score-big{
+    font-size:clamp(40px,6vw,72px);font-weight:900;margin:10px 0;
+    background:linear-gradient(90deg,#FFB400,#FF6584);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .badge{
+    display:inline-block;padding:10px 18px;border-radius:999px;font-weight:800;
+    background:linear-gradient(135deg,#FFB400,#FF8A00);color:#1f2547;font-size:18px;
+    box-shadow:0 8px 18px rgba(255,138,0,.35);
+  }
+  .end-actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+
+  /* Confetti */
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti span{
+    position:absolute;top:-20px;width:10px;height:14px;opacity:.9;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+  /* Responsive */
+  @media (max-width: 900px){
+    .hero{grid-template-columns:1fr}
+    .cards-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width: 520px){
+    .brand .sub{display:none}
+    .cards-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .char-card .name{font-size:15px}
+  }
+
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Guess Who game">
+
+  <!-- TOP BAR -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🕵️</div>
+      <div>
+        <div class="title">GUESS WHO?</div>
+        <div class="sub">Read the clue. Find the mystery person!</div>
+      </div>
+    </div>
+    <div class="controls" aria-label="Game controls">
+      <button class="btn ghost" id="btnHome" title="Home / Restart">🏠 Home</button>
+      <button class="btn ghost" id="btnSound" title="Sound on/off">🔈 Sound</button>
+      <button class="btn ghost" id="btnVoice" title="Voice on/off">🗣️ Voice</button>
+    </div>
+  </header>
+
+  <!-- STATUS -->
+  <section class="status" id="statusBar" aria-live="polite">
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressLabel">MYSTERY 1 / 12</div>
+      <div class="progress" aria-hidden="true"><div id="progressFill"></div></div>
+    </div>
+    <div class="score" aria-live="polite">
+      <span class="coin">⭐</span>
+      <span>Score: <span id="scoreVal">0</span> / 12</span>
+    </div>
+  </section>
+
+  <!-- START SCREEN -->
+  <section class="screen active" id="screenStart">
+    <div class="hero">
+      <div>
+        <h1>GUESS WHO? 🕵️</h1>
+        <h2>Read the clue. Find the mystery person!</h2>
+        <p>Hello, detective! 🔍 Today you will read short descriptions of people. Then you must choose the correct person from four suspects: <b>Max</b>, <b>Millie</b>, <b>Hassan</b> and <b>Ruth</b>. Look carefully at their hair and eyes!</p>
+        <div class="objective"><b>Get ready for speaking:</b> After this game, you will describe a person and let your partner guess who it is!</div>
+        <div class="hero-actions">
+          <button class="btn primary big" id="btnStart">▶ START MISSION</button>
+          <button class="btn ghost big" id="btnHow">ℹ️ How to play</button>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true" id="heroArt"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screenGame">
+    <div class="mystery-wrap">
+      <div class="mystery-card" id="mysteryCard">
+        <span class="mystery-label" id="mysteryLabel">MYSTERY PERSON #1</span>
+        <p class="mystery-text"><span class="quote" id="mysteryText">“…”</span></p>
+        <div class="mystery-actions">
+          <button class="listen" id="btnListen" title="Listen again">🔊 Listen again</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <div class="feedback" id="feedback" role="status" aria-live="polite">
+      <span class="icon" id="fbIcon">✓</span>
+      <span id="fbText">Correct!</span>
+    </div>
+  </section>
+
+  <!-- END SCREEN -->
+  <section class="screen" id="screenEnd">
+    <div class="endcard">
+      <h1>YOU SOLVED THE MYSTERY! 🕵️</h1>
+      <div class="score-big" id="finalScore">0 / 12</div>
+      <div class="badge" id="finalBadge">🌟 Super Detective!</div>
+      <p id="finalMsg" style="margin:14px auto 0;max-width:640px;color:#3a3f66;font-size:17px">Great work!</p>
+      <div class="end-actions">
+        <button class="btn primary big" id="btnPlayAgain">🔄 PLAY AGAIN</button>
+        <button class="btn ghost big" id="btnBackStart">🏠 BACK TO START</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script>
+/* =========================================================
+   GUESS WHO? — Grade 5 English
+   Pure HTML/CSS/JS. No external dependencies.
+   ========================================================= */
+
+/* ---------- Character Factory ----------
+   Four fixed characters with consistent visuals:
+   - Max:    male,   short dark hair,  brown eyes, blue T-shirt, smiling
+   - Millie: female, long  dark hair,  brown eyes, pink T-shirt, friendly
+   - Hassan: male,   short dark hair,  green eyes, green T-shirt, neutral smile
+   - Ruth:   female, long  fair hair,  blue eyes,  purple T-shirt, friendly
+*/
+function svgCharacter(name){
+  const cfg = {
+    Max:    {gender:"m", hairLen:"short", hairCol:"#3b2a1a", eyeCol:"#6b4226", skin:"#f4c9a3", shirt:"#3a78c2", mouth:"smile"},
+    Millie: {gender:"f", hairLen:"long",  hairCol:"#3b2a1a", eyeCol:"#6b4226", skin:"#f7d2b0", shirt:"#FF6584", mouth:"smile"},
+    Hassan: {gender:"m", hairLen:"short", hairCol:"#3b2a1a", eyeCol:"#3f8a3f", skin:"#e8b48a", shirt:"#22c55e", mouth:"smile"},
+    Ruth:   {gender:"f", hairLen:"long",  hairCol:"#e6b84a", eyeCol:"#3a78c2", skin:"#f7d2b0", shirt:"#8A7BFF", mouth:"smile"}
+  }[name];
+
+  const hairBack = cfg.hairLen==="long"
+    ? `<path d="M40 70 Q30 140 60 170 L140 170 Q170 140 160 70 Q160 40 100 35 Q40 40 40 70 Z" fill="${cfg.hairCol}"/>`
+    : `<path d="M48 80 Q45 50 100 40 Q155 50 152 80 Q150 95 140 95 Q130 70 100 68 Q70 70 60 95 Q50 95 48 80 Z" fill="${cfg.hairCol}"/>`;
+  const bangs = `<path d="M55 78 Q80 55 100 58 Q120 55 145 78 Q130 68 100 70 Q70 68 55 78 Z" fill="${cfg.hairCol}" opacity=".9"/>`;
+  const fringe = cfg.hairLen==="short"
+    ? `<path d="M55 78 Q80 58 100 60 Q120 58 145 78 Q130 70 100 72 Q70 70 55 78 Z" fill="${cfg.hairCol}"/>`
+    : "";
+  // Mouth: smile
+  const mouth = `<path d="M88 148 Q100 158 112 148" stroke="#c0556a" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+
+  return `
+  <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${name}">
+    <!-- body/shirt -->
+    <path d="M40 220 Q40 170 100 165 Q160 170 160 220 Z" fill="${cfg.shirt}"/>
+    <!-- neck -->
+    <rect x="88" y="150" width="24" height="22" rx="6" fill="${cfg.skin}"/>
+    <!-- head -->
+    <ellipse cx="100" cy="110" rx="52" ry="58" fill="${cfg.skin}"/>
+    <!-- hair back -->
+    ${hairBack}
+    <!-- face -->
+    <ellipse cx="100" cy="118" rx="44" ry="48" fill="${cfg.skin}"/>
+    <!-- hair front / bangs -->
+    ${bangs}${fringe}
+    <!-- eyes -->
+    <ellipse cx="82" cy="118" rx="7" ry="8" fill="#fff"/>
+    <ellipse cx="118" cy="118" rx="7" ry="8" fill="#fff"/>
+    <circle cx="82" cy="119" r="4.5" fill="${cfg.eyeCol}"/>
+    <circle cx="118" cy="119" r="4.5" fill="${cfg.eyeCol}"/>
+    <circle cx="83" cy="117" r="1.5" fill="#fff"/>
+    <circle cx="119" cy="117" r="1.5" fill="#fff"/>
+    <!-- brows -->
+    <path d="M72 106 Q82 102 92 106" stroke="#2b2040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M108 106 Q118 102 128 106" stroke="#2b2040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <path d="M100 125 Q96 135 100 140 Q104 135 100 125" fill="#d89a75" opacity=".6"/>
+    <!-- mouth -->
+    ${mouth}
+    <!-- cheeks -->
+    <circle cx="72" cy="135" r="5" fill="#ff9aa8" opacity=".55"/>
+    <circle cx="128" cy="135" r="5" fill="#ff9aa8" opacity=".55"/>
+  </svg>`;
+}
+
+const CHARACTERS = ["Max","Millie","Hassan","Ruth"];
+
+/* ---------- Questions ---------- */
+const QUESTIONS = [
+  {text:"She has long, dark hair and brown eyes.", correct:"Millie"},
+  {text:"He has short, dark hair and brown eyes.", correct:"Max"},
+  {text:"She has long, fair hair and blue eyes.", correct:"Ruth"},
+  {text:"He has short, dark hair and green eyes.", correct:"Hassan"},
+  {text:"She has dark hair and brown eyes. She looks friendly.", correct:"Millie"},
+  {text:"He has short hair and brown eyes. He looks happy.", correct:"Max"},
+  {text:"She has long hair and blue eyes.", correct:"Ruth"},
+  {text:"He has dark hair and green eyes.", correct:"Hassan"},
+  {text:"She has long, dark hair. She has brown eyes. She looks nice.", correct:"Millie"},
+  {text:"He has short, dark hair and brown eyes. He is smiling.", correct:"Max"},
+  {text:"She has fair hair and blue eyes. She looks friendly.", correct:"Ruth"},
+  {text:"He has dark hair and brown eyes. He is wearing a blue T-shirt.", correct:"Max"}
+];
+
+/* ---------- Audio FX (Web Audio API) ---------- */
+const AudioFX = (()=>{
+  let ctx=null;
+  function ensure(){ if(!ctx){ try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return ctx; }
+  function tone({freq=440,dur=.18,type="sine",vol=.25,slide=null,delay=0}={}){
+    const c=ensure(); if(!c) return;
+    const t0=c.currentTime+delay;
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(slide,t0+dur);
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol,t0+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g).connect(c.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+  return {
+    click(){ tone({freq:620,dur:.05,type:"square",vol:.08}); },
+    flip(){ tone({freq:300,dur:.15,type:"sine",vol:.15,slide:600}); },
+    correct(){ tone({freq:660,dur:.14,type:"triangle",vol:.22}); tone({freq:880,dur:.18,type:"triangle",vol:.22,delay:.09}); tone({freq:1320,dur:.22,type:"triangle",vol:.18,delay:.18}); },
+    wrong(){ tone({freq:220,dur:.18,type:"sawtooth",vol:.12,slide:140}); },
+    complete(){ [523,659,784,1046].forEach((f,i)=>tone({freq:f,dur:.22,type:"triangle",vol:.2,delay:i*.12})); },
+    celebrate(){ for(let i=0;i<10;i++) tone({freq:800+Math.random()*800,dur:.08,type:"square",vol:.05,delay:i*.06}); }
+  };
+})();
+
+/* ---------- Voice (SpeechSynthesis) ---------- */
+const Voice = (()=>{
+  let enabled=true;
+  let defaultVoice=null;
+  function cacheVoices(){
+    if(!("speechSynthesis" in window)) return;
+    const voices=window.speechSynthesis.getVoices();
+    defaultVoice = voices.find(v=>/en-?GB/i.test(v.lang) && /female|zira|susan|hazel/i.test(v.name))
+                || voices.find(v=>/en-?GB/i.test(v.lang))
+                || voices.find(v=>/en/i.test(v.lang))
+                || voices[0];
+  }
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = cacheVoices;
+    cacheVoices();
+  }
+  function speak(text, onend=null){
+    if(!enabled){ if(onend) onend(); return; }
+    if(!("speechSynthesis" in window)){ if(onend) onend(); return; }
+    try{
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang="en-GB";
+      u.rate=0.88;
+      u.pitch=1.05;
+      if(defaultVoice) u.voice=defaultVoice;
+      if(onend) u.onend=onend;
+      window.speechSynthesis.speak(u);
+    }catch(e){ if(onend) onend(); }
+  }
+  return {
+    speak,
+    toggle(){ enabled=!enabled; if(!enabled && "speechSynthesis" in window) window.speechSynthesis.cancel(); return enabled; },
+    isEnabled(){ return enabled; }
+  };
+})();
+
+/* ---------- Sound toggle ---------- */
+let soundOn=true;
+function sfx(name){ if(!soundOn) return; try{ AudioFX[name] && AudioFX[name](); }catch(e){} }
+
+/* ---------- Game State ---------- */
+const state = {
+  qIndex:0,
+  score:0,
+  locked:false
+};
+
+/* ---------- DOM ---------- */
+const $ = id=>document.getElementById(id);
+const screenStart=$("screenStart"), screenGame=$("screenGame"), screenEnd=$("screenEnd");
+const progressLabel=$("progressLabel"), progressFill=$("progressFill"), scoreVal=$("scoreVal");
+const mysteryLabel=$("mysteryLabel"), mysteryText=$("mysteryText"), mysteryCard=$("mysteryCard");
+const cardsGrid=$("cardsGrid");
+const feedback=$("feedback"), fbIcon=$("fbIcon"), fbText=$("fbText");
+const btnListen=$("btnListen");
+
+function showScreen(el){
+  [screenStart,screenGame,screenEnd].forEach(s=>s.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function updateProgress(){
+  progressLabel.textContent = `MYSTERY ${state.qIndex+1} / 12`;
+  progressFill.style.width = `${((state.qIndex)/12)*100}%`;
+  scoreVal.textContent = state.score;
+}
+
+/* ---------- Render Question ---------- */
+function renderQuestion(){
+  state.locked=false;
+  feedback.classList.remove("show","good","bad");
+  const q = QUESTIONS[state.qIndex];
+  mysteryLabel.textContent = `MYSTERY PERSON #${state.qIndex+1}`;
+  mysteryText.textContent = `“${q.text}”`;
+
+  // Re-trigger flip animation
+  mysteryCard.style.animation="none"; void mysteryCard.offsetWidth;
+  mysteryCard.style.animation="flipIn .7s cubic-bezier(.2,.8,.2,1)";
+
+  // Build 4 character cards
+  cardsGrid.innerHTML="";
+  CHARACTERS.forEach(name=>{
+    const card=document.createElement("button");
+    card.className="char-card";
+    card.setAttribute("aria-label",`Choose ${name}`);
+    card.innerHTML = `
+      ${svgCharacter(name)}
+      <div class="name">${name}</div>
+      <div class="mark" aria-hidden="true"></div>
+    `;
+    card.addEventListener("click",()=>handleChoice(name,card));
+    cardsGrid.appendChild(card);
+  });
+
+  updateProgress();
+  sfx("flip");
+  // Voice reads description
+  setTimeout(()=>Voice.speak(q.text), 400);
+}
+
+function handleChoice(name, cardEl){
+  if(state.locked) return;
+  sfx("click");
+  const q = QUESTIONS[state.qIndex];
+  const correct = (name===q.correct);
+  const mark = cardEl.querySelector(".mark");
+
+  if(correct){
+    state.locked=true;
+    cardEl.classList.add("correct");
+    mark.textContent="✓";
+    document.querySelectorAll(".char-card").forEach(el=>el.classList.add("disabled"));
+    sfx("correct");
+    feedback.className="feedback show good";
+    fbIcon.textContent="✓";
+    fbText.textContent=`Correct! It's ${q.correct}.`;
+    state.score++;
+    scoreVal.textContent=state.score;
+    Voice.speak(`Correct! It's ${q.correct}.`);
+    progressFill.style.width = `${((state.qIndex+1)/12)*100}%`;
+    setTimeout(nextQuestion, 1800);
+  } else {
+    cardEl.classList.add("wrong");
+    mark.textContent="✗";
+    sfx("wrong");
+    feedback.className="feedback show bad";
+    fbIcon.textContent="✗";
+    fbText.textContent="Try again. Read the clues carefully.";
+    Voice.speak("Try again.");
+    setTimeout(()=>{
+      cardEl.classList.remove("wrong");
+      mark.textContent="";
+    }, 900);
+    // do NOT advance; allow retry
+  }
+}
+
+function nextQuestion(){
+  state.qIndex++;
+  if(state.qIndex>=QUESTIONS.length){
+    endGame();
+  } else {
+    renderQuestion();
+  }
+}
+
+/* ---------- End Game ---------- */
+function endGame(){
+  sfx("complete");
+  progressFill.style.width="100%";
+  progressLabel.textContent="COMPLETE!";
+  showScreen(screenEnd);
+  $("finalScore").textContent = `${state.score} / 12`;
+  let msg="", badge="";
+  if(state.score>=10){ msg="Super Detective! You solved every mystery!"; badge="🕵️ Super Detective!"; sfx("celebrate"); confettiBurst(); }
+  else if(state.score>=7){ msg="Great detective work! You found most of the mystery people."; badge="👏 Great detective work!"; }
+  else if(state.score>=4){ msg="Keep practising descriptions! You're getting better."; badge="💪 Keep practising!"; }
+  else { msg="Try the mystery again! Every detective learns from each clue."; badge="🔍 Try again!"; }
+  $("finalBadge").textContent=badge;
+  $("finalMsg").textContent=msg;
+  Voice.speak(`You solved the mystery. Your score is ${state.score} out of 12. ${msg}`);
+}
+
+function confettiBurst(){
+  const c=$("confetti"); c.innerHTML="";
+  const colors=["#6C63FF","#FF6584","#FFB400","#22c55e","#3a78c2","#e6b84a"];
+  for(let i=0;i<90;i++){
+    const s=document.createElement("span");
+    s.style.left=(Math.random()*100)+"vw";
+    s.style.background=colors[i%colors.length];
+    s.style.animationDuration=(2.2+Math.random()*2.5)+"s";
+    s.style.animationDelay=(Math.random()*0.8)+"s";
+    s.style.transform=`rotate(${Math.random()*360}deg)`;
+    s.style.borderRadius=(Math.random()<.5?"2px":"50%");
+    s.style.width=(6+Math.random()*8)+"px";
+    s.style.height=(10+Math.random()*10)+"px";
+    c.appendChild(s);
+  }
+  setTimeout(()=>c.innerHTML="",6000);
+}
+
+function resetGame(){
+  state.qIndex=0; state.score=0; state.locked=false;
+  scoreVal.textContent=0;
+  progressFill.style.width="0%";
+  progressLabel.textContent="MYSTERY 1 / 12";
+  showScreen(screenStart);
+}
+
+function startGame(){
+  state.qIndex=0; state.score=0; state.locked=false;
+  scoreVal.textContent=0;
+  progressFill.style.width="0%";
+  showScreen(screenGame);
+  renderQuestion();
+}
+
+/* ---------- Buttons ---------- */
+$("btnStart").addEventListener("click",()=>{ sfx("click"); startGame(); });
+$("btnHow").addEventListener("click",()=>{
+  sfx("click");
+  Voice.speak("Read the clue about the mystery person. Then choose the correct character from Max, Millie, Hassan and Ruth. If you are wrong, try again. Good luck, detective!");
+});
+$("btnHome").addEventListener("click",()=>{ sfx("click"); if(confirm("Return to the start screen?")) resetGame(); });
+$("btnSound").addEventListener("click",(e)=>{
+  soundOn=!soundOn;
+  e.currentTarget.textContent = soundOn ? "🔈 Sound" : "🔇 Sound";
+  if(soundOn) sfx("click");
+});
+$("btnVoice").addEventListener("click",(e)=>{
+  const on = Voice.toggle();
+  e.currentTarget.textContent = on ? "🗣️ Voice" : "🔇 Voice";
+  if(on) Voice.speak("Voice on.");
+});
+btnListen.addEventListener("click",()=>{
+  sfx("click");
+  const q=QUESTIONS[state.qIndex];
+  if(q) Voice.speak(q.text);
+});
+$("btnPlayAgain").addEventListener("click",()=>{ sfx("click"); startGame(); });
+$("btnBackStart").addEventListener("click",()=>{ sfx("click"); resetGame(); });
+
+/* ---------- Hero art: show all 4 characters ---------- */
+$("heroArt").innerHTML = `
+  <div class="four">
+    ${CHARACTERS.map(n=>svgCharacter(n)).join("")}
+  </div>
+`;
+
+/* ---------- Keyboard: 1/2/3/4 to choose ---------- */
+document.addEventListener("keydown",(e)=>{
+  if(!screenGame.classList.contains("active")) return;
+  if(state.locked) return;
+  const map={"1":0,"2":1,"3":2,"4":3};
+  if(map[e.key]!==undefined){
+    const cards=document.querySelectorAll("#cardsGrid .char-card");
+    if(cards[map[e.key]]) cards[map[e.key]].click();
+  }
+});
+
+/* ---------- Init ---------- */
+updateProgress();
+</script>
+</body>
+</html>
