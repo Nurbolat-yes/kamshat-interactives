@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>📱 ONLINE LIFE VOCABULARY</title>
+<style>
+  /* =========================================================
+     THEME VARIABLES
+     ========================================================= */
+  :root{
+    --cyan:#00e5ff;
+    --electric-blue:#2979ff;
+    --purple:#7c4dff;
+    --yellow:#ffd60a;
+    --coral:#ff6b6b;
+    --turquoise:#1de9b6;
+    --pink:#ff4fa3;
+    --bg1:#0b1026;
+    --bg2:#1a0b3d;
+    --bg3:#0a2540;
+    --text:#ffffff;
+    --text-soft:#e6ecff;
+    --card-bg:rgba(255,255,255,0.12);
+    --card-border:rgba(255,255,255,0.25);
+    --success:#22c55e;
+    --error:#ef4444;
+    --shadow-glow:0 0 40px rgba(124,77,255,.45), 0 0 80px rgba(0,229,255,.25);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow-x:hidden}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 800px at 10% 10%, rgba(124,77,255,.35), transparent 60%),
+      radial-gradient(1000px 700px at 90% 20%, rgba(0,229,255,.28), transparent 60%),
+      radial-gradient(900px 700px at 50% 100%, rgba(255,107,107,.22), transparent 60%),
+      linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+    min-height:100vh;
+    position:relative;
+    perspective:1200px;
+  }
+
+  /* =========================================================
+     FLOATING 3D BACKGROUND
+     ========================================================= */
+  .bg-scene{
+    position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .floater{
+    position:absolute;
+    font-size:42px;
+    opacity:.45;
+    filter: blur(.3px) drop-shadow(0 0 10px rgba(255,255,255,.25));
+    animation: floatY 18s ease-in-out infinite;
+    transform-style:preserve-3d;
+    will-change:transform,opacity;
+  }
+  @keyframes floatY{
+    0%,100%{ transform: translate3d(0,0,0) rotate(0deg) }
+    50%   { transform: translate3d(0,-40px,40px) rotate(180deg) }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .floater{ animation:none !important; }
+    .card-inner{ transition:none !important; }
+    .card{ animation:none !important; }
+    .feedback{ animation:none !important; }
+    .progress-fill{ transition:none !important; }
+  }
+
+  /* =========================================================
+     LAYOUT
+     ========================================================= */
+  .app{
+    position:relative; z-index:2;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    padding:20px;
+  }
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:16px; flex-wrap:wrap;
+    padding:14px 18px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--shadow-glow);
+  }
+  .topbar .brand{
+    font-weight:800; letter-spacing:.5px;
+    font-size:18px;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .topbar .controls{ display:flex; gap:10px; flex-wrap:wrap }
+  .icon-btn{
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    color:#fff; padding:8px 12px;
+    border-radius:12px; cursor:pointer;
+    font-size:15px; font-weight:600;
+    transition: transform .15s ease, background .2s ease;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.18); transform: translateY(-1px) }
+  .icon-btn:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+  .icon-btn.active{ background:linear-gradient(135deg,var(--cyan),var(--electric-blue)); color:#0b1026; border-color:transparent }
+
+  .progress-wrap{
+    margin-top:14px;
+    padding:12px 16px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    backdrop-filter: blur(10px);
+  }
+  .progress-info{
+    display:flex; justify-content:space-between; align-items:center;
+    font-weight:700; font-size:16px; margin-bottom:8px;
+  }
+  .progress-bar{
+    height:12px; border-radius:999px;
+    background:rgba(255,255,255,.1);
+    overflow:hidden;
+    border:1px solid var(--card-border);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),var(--coral));
+    width:0%;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 0 12px rgba(0,229,255,.6);
+  }
+
+  /* =========================================================
+     SCREENS
+     ========================================================= */
+  .screen{
+    flex:1; display:none;
+    margin-top:18px;
+    animation: fadeUp .5s ease both;
+  }
+  .screen.active{ display:flex; flex-direction:column; align-items:center; }
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translate3d(0,20px,0) }
+    to  { opacity:1; transform: translate3d(0,0,0) }
+  }
+
+  .card-outer{
+    width:100%; max-width:900px;
+    padding:20px;
+  }
+
+  /* =========================================================
+     START SCREEN
+     ========================================================= */
+  .hero{
+    text-align:center; padding:20px 10px;
+  }
+  .badge{
+    width:140px; height:140px; margin:0 auto 12px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%),
+      conic-gradient(from 0deg, var(--cyan), var(--purple), var(--coral), var(--yellow), var(--turquoise), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-size:72px;
+    box-shadow: 0 0 40px rgba(0,229,255,.5), inset 0 0 30px rgba(255,255,255,.25);
+    animation: badgeGlow 3s ease-in-out infinite;
+  }
+  @keyframes badgeGlow{
+    0%,100%{ transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px rgba(0,229,255,.6)) }
+    50%   { transform: scale(1.05) rotate(8deg); filter: drop-shadow(0 0 28px rgba(124,77,255,.9)) }
+  }
+  .title{
+    font-size: clamp(28px, 4.2vw, 52px);
+    font-weight:900; letter-spacing:1px;
+    background: linear-gradient(90deg, var(--cyan), #fff, var(--yellow), var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 4px 30px rgba(0,229,255,.35);
+    margin:6px 0 4px;
+  }
+  .subtitle{
+    font-size: clamp(16px, 1.8vw, 22px);
+    color:var(--text-soft);
+    font-style:italic;
+    margin-bottom:18px;
+  }
+
+  /* =========================================================
+     BUTTONS
+     ========================================================= */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:16px 28px; border-radius:16px; border:none;
+    font-size:20px; font-weight:800; cursor:pointer;
+    color:#0b1026;
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    box-shadow:0 10px 30px rgba(255,107,107,.4), inset 0 -3px 0 rgba(0,0,0,.15);
+    transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+    letter-spacing:.3px;
+  }
+  .btn:hover{ transform: translateY(-2px); filter: brightness(1.05) }
+  .btn:active{ transform: translateY(0) }
+  .btn:focus-visible{ outline:3px solid #fff; outline-offset:3px }
+  .btn.secondary{
+    background:linear-gradient(135deg,var(--cyan),var(--electric-blue));
+    color:#001024;
+    box-shadow:0 10px 30px rgba(0,229,255,.35), inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .btn.ghost{
+    background:rgba(255,255,255,.1); color:#fff;
+    border:1px solid var(--card-border);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{ background:rgba(255,255,255,.2) }
+  .btn.listen{
+    background:linear-gradient(135deg,var(--turquoise),var(--cyan));
+    color:#002b22;
+    box-shadow:0 10px 30px rgba(29,233,182,.4), inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .btn.flip{
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    color:#fff;
+    box-shadow:0 10px 30px rgba(124,77,255,.4), inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .btn[disabled]{ opacity:.45; cursor:not-allowed; filter:grayscale(.3) }
+
+  .actions{
+    display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; justify-content:center;
+  }
+
+  /* =========================================================
+     VOCABULARY CARD (flip card)
+     ========================================================= */
+  .flip-card{
+    width:100%;
+    min-height:460px;
+    perspective:1500px;
+    margin:10px 0;
+  }
+  .card-inner{
+    position:relative;
+    width:100%;
+    min-height:460px;
+    transition: transform .8s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flip-card.flipped .card-inner{
+    transform: rotateY(180deg);
+  }
+  .card-face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:32px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+  }
+  .card-back{
+    transform: rotateY(180deg);
+  }
+
+  .card-icon{
+    font-size: clamp(80px, 14vw, 140px);
+    line-height:1;
+    filter: drop-shadow(0 0 20px rgba(0,229,255,.5));
+    margin-bottom:10px;
+    animation: iconFloat 3s ease-in-out infinite;
+  }
+  @keyframes iconFloat{
+    0%,100%{ transform: translateY(0) }
+    50%   { transform: translateY(-10px) }
+  }
+  .card-word{
+    font-size: clamp(32px, 5vw, 60px);
+    font-weight:900;
+    background: linear-gradient(90deg, var(--cyan), var(--yellow), var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    letter-spacing:1px;
+    text-transform:lowercase;
+    margin:6px 0;
+  }
+  .card-hint{
+    font-size:18px; color:var(--text-soft); font-style:italic;
+    margin-top:8px;
+  }
+  .card-def{
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight:700;
+    line-height:1.4;
+    color:var(--text);
+    max-width:720px;
+    margin:10px 0;
+  }
+  .card-example{
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight:700;
+    line-height:1.4;
+    color:var(--text);
+    max-width:720px;
+    margin:10px 0;
+    padding:16px 22px;
+    background:linear-gradient(135deg, rgba(0,229,255,.12), rgba(124,77,255,.12));
+    border:1px dashed var(--card-border);
+    border-radius:16px;
+  }
+  .card-example .hl{
+    background:linear-gradient(90deg,var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    font-weight:900;
+  }
+
+  /* =========================================================
+     QUICK CHECK
+     ========================================================= */
+  .check-card{
+    width:100%;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:28px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    text-align:center;
+    animation: fadeUp .5s ease both;
+  }
+  .check-label{
+    font-size:16px; font-weight:800; letter-spacing:2px;
+    color:var(--cyan); text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .check-question{
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight:800;
+    margin:10px 0 20px;
+    line-height:1.3;
+  }
+  .options{
+    display:grid; gap:12px;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    max-width:900px; margin:0 auto;
+  }
+  .option{
+    padding:18px 20px; border-radius:16px;
+    background:rgba(255,255,255,.08);
+    border:2px solid var(--card-border);
+    font-size: clamp(17px, 1.8vw, 22px);
+    font-weight:700; color:#fff;
+    cursor:pointer; text-align:left;
+    transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    display:flex; align-items:center; gap:14px;
+  }
+  .option .letter{
+    display:inline-flex; width:40px; height:40px; border-radius:50%;
+    align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--electric-blue),var(--purple));
+    font-weight:900; color:#fff; flex-shrink:0;
+    font-size:18px;
+  }
+  .option:hover{ background:rgba(255,255,255,.16); transform: translateY(-2px) }
+  .option:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+  .option.correct{
+    background:linear-gradient(135deg, rgba(34,197,94,.35), rgba(29,233,182,.25));
+    border-color:var(--success);
+    box-shadow:0 0 24px rgba(34,197,94,.5);
+    animation: popCorrect .5s ease;
+  }
+  .option.correct .letter{ background:linear-gradient(135deg,var(--success),var(--turquoise)) }
+  .option.wrong{
+    background:linear-gradient(135deg, rgba(239,68,68,.25), rgba(255,107,107,.15));
+    border-color:var(--error);
+    animation: shake .4s ease;
+  }
+  .option.wrong .letter{ background:linear-gradient(135deg,var(--error),var(--coral)) }
+  .option[disabled]{ cursor:not-allowed; opacity:.85 }
+  @keyframes popCorrect{
+    0%{ transform: scale(1) }
+    50%{ transform: scale(1.03) }
+    100%{ transform: scale(1) }
+  }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0) }
+    25%{ transform: translateX(-6px) }
+    75%{ transform: translateX(6px) }
+  }
+
+  .feedback{
+    margin-top:14px;
+    padding:12px 16px; border-radius:12px;
+    font-size:18px; font-weight:700;
+    display:none;
+  }
+  .feedback.show{ display:block; animation: fadeUp .3s ease both }
+  .feedback.good{ background:rgba(34,197,94,.2); border:1px solid var(--success); color:#d1fae5 }
+  .feedback.bad{ background:rgba(239,68,68,.15); border:1px solid var(--error); color:#fecaca }
+
+  /* =========================================================
+     REVIEW SCREEN
+     ========================================================= */
+  .review-grid{
+    display:grid; gap:12px;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    width:100%; max-width:1000px;
+  }
+  .review-tile{
+    padding:16px; border-radius:16px;
+    background:linear-gradient(135deg, rgba(0,229,255,.15), rgba(124,77,255,.15));
+    border:1px solid var(--card-border);
+    font-weight:800; font-size:18px;
+    cursor:pointer;
+    transition: transform .15s ease, background .2s ease;
+    text-align:center;
+  }
+  .review-tile:hover{ transform: translateY(-2px); background:linear-gradient(135deg, rgba(0,229,255,.25), rgba(124,77,255,.25)) }
+  .review-tile:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+
+  .review-detail{
+    width:100%; max-width:900px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:28px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    text-align:center;
+    margin-top:16px;
+    animation: fadeUp .4s ease both;
+  }
+  .review-detail .card-icon{ font-size:90px; margin-bottom:6px }
+  .review-detail .card-word{ font-size: clamp(28px, 4vw, 48px) }
+
+  /* =========================================================
+     FINAL SCORE
+     ========================================================= */
+  .final-card{
+    width:100%; max-width:900px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:32px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    text-align:center;
+  }
+  .result-score{
+    font-size: clamp(56px, 10vw, 120px);
+    font-weight:900;
+    background:linear-gradient(135deg,var(--yellow),var(--coral),var(--purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin:10px 0;
+  }
+  .result-msg{ font-size:22px; font-weight:700; color:var(--text-soft) }
+
+  /* =========================================================
+     CONFETTI
+     ========================================================= */
+  #confetti{
+    position:fixed; inset:0; z-index:5; pointer-events:none;
+  }
+
+  /* =========================================================
+     UTILITIES
+     ========================================================= */
+  .center{ text-align:center }
+  .mt-10{ margin-top:10px } .mt-16{ margin-top:16px } .mt-20{ margin-top:20px }
+  .hidden{ display:none !important }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+  @media (max-width: 640px){
+    .card-face{ padding:22px }
+    .btn{ font-size:18px; padding:14px 20px }
+    .flip-card, .card-inner{ min-height:420px }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     FLOATING BACKGROUND
+     ========================================================= -->
+<div class="bg-scene" id="bgScene" aria-hidden="true"></div>
+
+<!-- =========================================================
+     CONFETTI CANVAS
+     ========================================================= -->
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<!-- =========================================================
+     APP
+     ========================================================= -->
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">📱 ONLINE LIFE VOCABULARY</div>
+    <div class="controls">
+      <button class="icon-btn" id="btnMusic" aria-label="Toggle background music" title="Background music">🎵 Music OFF</button>
+      <button class="icon-btn active" id="btnSound" aria-label="Toggle sound effects" title="Sound effects">🔊 Sound ON</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-info">
+      <span id="progressLabel">WORD 0 / 8</span>
+      <span id="progressPhase">Ready to start</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- ===================== START SCREEN ===================== -->
+  <section class="screen active" id="screen-start">
+    <div class="card-outer">
+      <div class="hero">
+        <div class="badge" aria-hidden="true">📱</div>
+        <h1 class="title">ONLINE LIFE VOCABULARY</h1>
+        <p class="subtitle">“Let's learn the words we need to talk about life online.”</p>
+        <div class="actions mt-20">
+          <button class="btn" id="btnStart">▶ START</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TEACHING SCREEN ===================== -->
+  <section class="screen" id="screen-teach">
+    <div class="card-outer">
+      <div class="flip-card" id="flipCard">
+        <div class="card-inner" id="cardInner">
+          <!-- FRONT -->
+          <div class="card-face card-front" id="cardFront">
+            <div class="card-icon" id="frontIcon">📱</div>
+            <div class="card-word" id="frontWord">smartphone</div>
+            <div class="card-hint" id="frontHint">Tap FLIP to discover the meaning.</div>
+            <div class="actions">
+              <button class="btn listen" id="btnListenFront">🔊 LISTEN</button>
+              <button class="btn flip" id="btnFlip">↻ FLIP</button>
+            </div>
+          </div>
+          <!-- BACK (definition + example) -->
+          <div class="card-face card-back" id="cardBack">
+            <div class="card-icon" id="backIcon">📱</div>
+            <div class="card-word" id="backWord">smartphone</div>
+            <div class="card-def" id="backDef">"A mobile phone that can use the Internet and apps."</div>
+            <div class="card-example" id="backExample">
+              "I use my <span class="hl">smartphone</span> every day."
+            </div>
+            <div class="actions">
+              <button class="btn listen" id="btnListenDef">🔊 LISTEN</button>
+              <button class="btn listen" id="btnListenExample">🔊 LISTEN TO EXAMPLE</button>
+              <button class="btn secondary" id="btnNextFromBack">NEXT ▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK CHECK -->
+      <div class="check-card hidden" id="checkCard">
+        <div class="check-label">QUICK CHECK</div>
+        <div class="check-question" id="checkQuestion">Which sentence is correct?</div>
+        <div class="options" id="optionsBox"></div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="actions">
+          <button class="btn secondary hidden" id="btnNextFromCheck">NEXT WORD ▶</button>
+        </div>
+      </div>
+
+      <!-- NAVIGATION -->
+      <div class="actions" id="teachNav">
+        <button class="btn ghost" id="btnPrev">◀ PREVIOUS</button>
+        <button class="btn ghost" id="btnReplay">🔊 REPLAY</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== REVIEW SCREEN ===================== -->
+  <section class="screen" id="screen-review">
+    <div class="card-outer center">
+      <div style="font-size:72px">🎉</div>
+      <h2 class="title" style="font-size:clamp(26px,3.6vw,44px)">VOCABULARY COMPLETE!</h2>
+      <p class="subtitle">You are ready for ONLINE LIFE!</p>
+      <h3 style="font-size:22px; margin:16px 0 10px; color:var(--yellow)">VOCABULARY REVIEW</h3>
+      <p style="color:var(--text-soft); margin-bottom:14px">Click a word to review it.</p>
+      <div class="review-grid" id="reviewGrid"></div>
+      <div class="review-detail hidden" id="reviewDetail"></div>
+      <div class="actions mt-20">
+        <button class="btn" id="btnStartQuiz">🎯 START QUIZ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUIZ SCREEN ===================== -->
+  <section class="screen" id="screen-quiz">
+    <div class="card-outer">
+      <div class="check-card">
+        <div class="check-label" id="quizLabel">QUESTION 1 / 8</div>
+        <div class="check-question" id="quizQuestion"></div>
+        <div class="options" id="quizOptions"></div>
+        <div class="feedback" id="quizFeedback" aria-live="polite"></div>
+        <div class="actions">
+          <button class="btn secondary hidden" id="btnNextQuiz">NEXT ▶</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL SCREEN ===================== -->
+  <section class="screen" id="screen-final">
+    <div class="final-card">
+      <div style="font-size:80px">🏆</div>
+      <h2 class="title" style="font-size:clamp(26px,3.6vw,44px)">VOCABULARY SCORE</h2>
+      <div class="result-score" id="finalScore">0 / 8</div>
+      <div class="result-msg" id="finalMsg">Excellent! You are ready for the listening task.</div>
+      <div class="actions mt-20">
+        <button class="btn" id="btnGoListening">🎧 GO TO LISTENING</button>
+        <button class="btn ghost" id="btnRestart">🔄 RESTART</button>
+      </div>
+      <div id="nextStage" class="hidden mt-20" style="font-size:22px; font-weight:800; color:var(--yellow)">
+        🎯 Next: CATCH THE DETAILS
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =================================================================
+   📱 ONLINE LIFE VOCABULARY
+   Pre-teaching activity. Single-file, vanilla JS.
+   ================================================================= */
+
+/* ---------- 1. VOCABULARY DATA ---------- */
+const VOCAB = [
+  {
+    word: "smartphone",
+    icon: "📱",
+    definition: "A mobile phone that can use the Internet and apps.",
+    example: "I use my smartphone every day.",
+    highlight: "smartphone",
+    check: {
+      question: "Which sentence is correct?",
+      options: [
+        "I use my smartphone to call my friends.",
+        "I use my smartphone to eat dinner.",
+        "I use my smartphone to play football outside."
+      ],
+      correct: 0
+    }
+  },
+  {
+    word: "chat with friends",
+    icon: "💬",
+    definition: "To talk to your friends online by sending messages.",
+    example: "I use WhatsApp to chat with my friends.",
+    highlight: "chat with my friends",
+    check: {
+      question: 'What does "chat with friends" mean?',
+      options: [
+        "Talk to friends online",
+        "Play football with friends",
+        "Read a book with friends"
+      ],
+      correct: 0
+    }
+  },
+  {
+    word: "watch videos",
+    icon: "▶️",
+    definition: "To look at and listen to videos online.",
+    example: "I watch English videos on YouTube.",
+    highlight: "watch English videos",
+    check: {
+      question: "What can you do on YouTube?",
+      options: ["Watch videos", "Cook dinner", "Ride a bicycle"],
+      correct: 0
+    }
+  },
+  {
+    word: "online games",
+    icon: "🎮",
+    definition: "Games that you play using the Internet.",
+    example: "My brother likes playing online games.",
+    highlight: "online games",
+    check: {
+      question: "Which activity is an online game?",
+      options: [
+        "Playing a game on the Internet",
+        "Reading a paper book",
+        "Walking in the park"
+      ],
+      correct: 0
+    }
+  },
+  {
+    word: "screen time",
+    icon: "⏱️",
+    definition: "The amount of time you spend looking at a phone, computer or other screen.",
+    example: "I try to limit my screen time.",
+    highlight: "screen time",
+    check: {
+      question: "What is screen time?",
+      options: [
+        "Time spent using a screen",
+        "Time spent sleeping",
+        "Time spent playing football"
+      ],
+      correct: 0
+    }
+  },
+  {
+    word: "useful",
+    icon: "✨",
+    definition: "Helpful or good for a particular purpose.",
+    example: "My dictionary app is useful for learning English.",
+    highlight: "useful",
+    check: {
+      question: "If something is useful, it is:",
+      options: ["helpful", "dangerous", "impossible"],
+      correct: 0
+    }
+  },
+  {
+    word: "spend time online",
+    icon: "🌐",
+    definition: "To use the Internet for a period of time.",
+    example: "I spend time online after I finish my homework.",
+    highlight: "spend time online",
+    check: {
+      question: "Which sentence is correct?",
+      options: [
+        "I spend time online after school.",
+        "I spend time online inside my sandwich.",
+        "I spend time online in my football shoes."
+      ],
+      correct: 0
+    }
+  },
+  {
+    word: "use something wisely",
+    icon: "🧠",
+    definition: "To use something in a sensible and responsible way.",
+    example: "We should use our smartphones wisely.",
+    highlight: "use our smartphones wisely",
+    check: {
+      question: 'What does "use something wisely" mean?',
+      options: [
+        "Use it in a sensible way.",
+        "Use it all the time.",
+        "Never use it."
+      ],
+      correct: 0
+    }
+  }
+];
+
+/* ---------- 2. STATE ---------- */
+const PHASE = { START:'start', TEACH:'teach', REVIEW:'review', QUIZ:'quiz', FINAL:'final' };
+const CARD_STATE = { FRONT:'front', BACK:'back', CHECK:'check' };
+
+const state = {
+  phase: PHASE.START,
+  wordIndex: 0,
+  cardState: CARD_STATE.FRONT,
+  checkPassed: false,
+  quizIndex: 0,
+  quizScore: 0,
+  reviewWord: -1
+};
+
+/* ---------- 3. AUDIO ---------- */
+let audioCtx = null;
+let soundOn = true;
+let musicOn = false;
+let musicStarted = false;
+let musicGain = null;
+let musicNodes = [];
+
+function ensureAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e){ console.warn('Web Audio not supported', e); }
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function sfx(type){
+  if(!soundOn) return;
+  const ctx = ensureAudioCtx(); if(!ctx) return;
+  const t = ctx.currentTime;
+  const blip = (freq=600, dur=0.08, typeOsc='sine', vol=0.15)=>{
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = typeOsc; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  };
+  if(type === 'click'){ blip(800, 0.05, 'square', 0.08); }
+  else if(type === 'flip'){
+    [400, 600].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      const st = t + i*0.05;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.12, st+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.15);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.2);
+    });
+  }
+  else if(type === 'correct'){
+    [659.25, 783.99, 1046.50].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      const st = t + i*0.08;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.22, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.35);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.4);
+    });
+  }
+  else if(type === 'wrong'){
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(280, t);
+    o.frequency.linearRampToValueAtTime(200, t+0.25);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.15, t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.3);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+0.35);
+  }
+  else if(type === 'complete'){
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    notes.forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.07;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.2, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.5);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.55);
+    });
+  }
+  else if(type === 'start'){
+    [523.25, 659.25, 783.99, 1046.50].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.09;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.18, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.25);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.3);
+    });
+  }
+}
+
+/* ---------- 4. BACKGROUND MUSIC ---------- */
+function startBackgroundMusic(){
+  if(!musicOn || musicStarted) return;
+  const ctx = ensureAudioCtx(); if(!ctx) return;
+  musicStarted = true;
+  musicGain = ctx.createGain();
+  musicGain.gain.value = 0.0;
+  musicGain.connect(ctx.destination);
+  musicGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 1.5);
+
+  const padFreqs = [130.81, 164.81, 196.00, 246.94];
+  padFreqs.forEach(f=>{
+    const osc = ctx.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = f;
+    const g = ctx.createGain(); g.gain.value = 0.04;
+    const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
+    osc.connect(lp); lp.connect(g); g.connect(musicGain);
+    osc.start(); musicNodes.push(osc);
+  });
+
+  const arpNotes = [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25];
+  let step = 0;
+  const arpTimer = setInterval(()=>{
+    if(!musicOn) return;
+    const ctxNow = audioCtx; if(!ctxNow) return;
+    const osc = ctxNow.createOscillator();
+    osc.type = 'triangle'; osc.frequency.value = arpNotes[step % arpNotes.length];
+    const g = ctxNow.createGain();
+    const t = ctxNow.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.04, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    const lp = ctxNow.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2200;
+    osc.connect(lp); lp.connect(g); g.connect(musicGain);
+    osc.start(t); osc.stop(t + 0.5);
+    step++;
+  }, 500);
+  musicNodes._arpTimer = arpTimer;
+}
+
+function stopBackgroundMusic(){
+  if(!musicStarted) return;
+  try{
+    if(musicNodes._arpTimer) clearInterval(musicNodes._arpTimer);
+    musicNodes.forEach(n=>{ try{ n.stop(); }catch(e){} });
+    musicNodes = [];
+    if(musicGain){ musicGain.gain.cancelScheduledValues(audioCtx.currentTime); musicGain.gain.value = 0; }
+  }catch(e){}
+  musicStarted = false;
+}
+
+function duckMusic(){
+  if(!musicGain || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  musicGain.gain.cancelScheduledValues(t);
+  musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+  musicGain.gain.linearRampToValueAtTime(0.01, t + 0.3);
+}
+function restoreMusic(){
+  if(!musicGain || !audioCtx || !musicOn) return;
+  const t = audioCtx.currentTime;
+  musicGain.gain.cancelScheduledValues(t);
+  musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+  musicGain.gain.linearRampToValueAtTime(0.06, t + 0.8);
+}
+
+/* ---------- 5. SPEECH SYNTHESIS ---------- */
+let britishVoice = null;
+
+function pickBritishVoice(){
+  if(!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices();
+  let v = voices.find(x => /en-GB/i.test(x.lang) && /female|zira|libby|sonia|maisie/i.test(x.name));
+  if(!v) v = voices.find(x => /en-GB/i.test(x.lang));
+  if(!v) v = voices.find(x => /^en/i.test(x.lang));
+  return v || null;
+}
+function initVoices(){
+  if(!('speechSynthesis' in window)) return;
+  britishVoice = pickBritishVoice();
+  if(!britishVoice){
+    speechSynthesis.onvoiceschanged = ()=>{ britishVoice = pickBritishVoice(); };
+  }
+}
+if('speechSynthesis' in window) initVoices();
+
+function speak(text, onEnd){
+  if(!('speechSynthesis' in window)){ if(onEnd) onEnd(); return; }
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if(!britishVoice) britishVoice = pickBritishVoice();
+    if(britishVoice){ u.voice = britishVoice; u.lang = britishVoice.lang || 'en-GB'; }
+    else { u.lang = 'en-GB'; }
+    u.rate = 0.88;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    duckMusic();
+    u.onend = ()=>{ restoreMusic(); if(onEnd) onEnd(); };
+    u.onerror = ()=>{ restoreMusic(); if(onEnd) onEnd(); };
+    speechSynthesis.speak(u);
+  }catch(e){
+    restoreMusic();
+    if(onEnd) onEnd();
+  }
+}
+function stopSpeech(){
+  if('speechSynthesis' in window){
+    try{ speechSynthesis.cancel(); }catch(e){}
+  }
+  restoreMusic();
+}
+
+/* ---------- 6. BACKGROUND FLOATERS ---------- */
+function buildFloaters(){
+  const scene = document.getElementById('bgScene');
+  const icons = ['📱','💬','🌐','🎧','💻','📲','🔊','⭐','⚡','🔎','☁️','🎮','▶️','✨','🧠','⏱️'];
+  const count = 22;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = icons[i % icons.length];
+    const size = 28 + Math.random()*40;
+    el.style.fontSize = size + 'px';
+    el.style.left = (Math.random()*100) + '%';
+    el.style.top  = (Math.random()*100) + '%';
+    el.style.opacity = (0.2 + Math.random()*0.4).toFixed(2);
+    el.style.animationDuration = (14 + Math.random()*18) + 's';
+    el.style.animationDelay = (-Math.random()*20) + 's';
+    scene.appendChild(el);
+  }
+}
+buildFloaters();
+
+/* ---------- 7. CONFETTI ---------- */
+const confettiCanvas = document.getElementById('confetti');
+const cctx = confettiCanvas.getContext('2d');
+let confettiParts = [];
+let confettiRunning = false;
+function resizeCanvas(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfetti(count=160){
+  const colors = ['#00e5ff','#7c4dff','#ffd60a','#ff6b6b','#1de9b6','#ff4fa3','#2979ff'];
+  for(let i=0;i<count;i++){
+    confettiParts.push({
+      x: Math.random()*confettiCanvas.width,
+      y: -20 - Math.random()*confettiCanvas.height*0.3,
+      w: 6 + Math.random()*8, h: 10 + Math.random()*8,
+      c: colors[Math.floor(Math.random()*colors.length)],
+      vx: -2 + Math.random()*4, vy: 2 + Math.random()*4,
+      a: Math.random()*Math.PI, va: -0.2 + Math.random()*0.4, life: 0
+    });
+  }
+  if(!confettiRunning){ confettiRunning = true; tickConfetti(); }
+}
+function tickConfetti(){
+  cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  confettiParts = confettiParts.filter(p=>p.y < confettiCanvas.height + 40 && p.life < 600);
+  confettiParts.forEach(p=>{
+    p.x += p.vx; p.y += p.vy; p.a += p.va; p.vy += 0.05; p.life++;
+    cctx.save();
+    cctx.translate(p.x, p.y); cctx.rotate(p.a);
+    cctx.fillStyle = p.c;
+    cctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    cctx.restore();
+  });
+  if(confettiParts.length > 0) requestAnimationFrame(tickConfetti);
+  else { confettiRunning = false; cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+}
+
+/* ---------- 8. SCREENS ---------- */
+const screens = {
+  start: document.getElementById('screen-start'),
+  teach: document.getElementById('screen-teach'),
+  review: document.getElementById('screen-review'),
+  quiz: document.getElementById('screen-quiz'),
+  final: document.getElementById('screen-final')
+};
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+  const el = screens[name];
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+}
+
+/* ---------- 9. PROGRESS BAR ---------- */
+function updateProgress(){
+  const label = document.getElementById('progressLabel');
+  const phase = document.getElementById('progressPhase');
+  const fill = document.getElementById('progressFill');
+
+  if(state.phase === PHASE.START){
+    label.textContent = 'WORD 0 / 8';
+    phase.textContent = 'Ready to start';
+    fill.style.width = '0%';
+  }
+  else if(state.phase === PHASE.TEACH){
+    label.textContent = `WORD ${state.wordIndex+1} / 8`;
+    const subState = state.cardState === CARD_STATE.FRONT ? 'Front' :
+                     state.cardState === CARD_STATE.BACK ? 'Meaning' : 'Quick Check';
+    phase.textContent = subState;
+    // Progress: each word has 3 states (front, back, check) = 24 total steps, plus review/quiz
+    const base = state.wordIndex * 3;
+    const step = state.cardState === CARD_STATE.FRONT ? 0 : state.cardState === CARD_STATE.BACK ? 1 : 2;
+    const pct = ((base + step) / 24) * 60; // first 60% for teaching
+    fill.style.width = pct + '%';
+  }
+  else if(state.phase === PHASE.REVIEW){
+    label.textContent = 'REVIEW';
+    phase.textContent = 'Review all words';
+    fill.style.width = '65%';
+  }
+  else if(state.phase === PHASE.QUIZ){
+    label.textContent = `QUIZ ${state.quizIndex+1} / 8`;
+    phase.textContent = `Score: ${state.quizScore}`;
+    fill.style.width = (65 + ((state.quizIndex)/8)*30) + '%';
+  }
+  else if(state.phase === PHASE.FINAL){
+    label.textContent = 'COMPLETE';
+    phase.textContent = `Final score: ${state.quizScore} / 8`;
+    fill.style.width = '100%';
+  }
+}
+
+/* ---------- 10. TEACHING CARD RENDER ---------- */
+function renderTeachCard(){
+  const v = VOCAB[state.wordIndex];
+  const flipCard = document.getElementById('flipCard');
+
+  // Front
+  document.getElementById('frontIcon').textContent = v.icon;
+  document.getElementById('frontWord').textContent = v.word;
+  document.getElementById('frontHint').textContent = 'Tap FLIP to discover the meaning.';
+
+  // Back
+  document.getElementById('backIcon').textContent = v.icon;
+  document.getElementById('backWord').textContent = v.word;
+  document.getElementById('backDef').textContent = `"${v.definition}"`;
+
+  // Highlight word in example
+  const exHtml = v.example.replace(
+    new RegExp(`(${escapeRegExp(v.highlight)})`, 'i'),
+    '<span class="hl">$1</span>'
+  );
+  document.getElementById('backExample').innerHTML = `"${exHtml}"`;
+
+  // Flip state
+  if(state.cardState === CARD_STATE.FRONT){
+    flipCard.classList.remove('flipped');
+    document.getElementById('checkCard').classList.add('hidden');
+  } else {
+    flipCard.classList.add('flipped');
+    if(state.cardState === CARD_STATE.CHECK){
+      document.getElementById('checkCard').classList.remove('hidden');
+      renderCheck();
+    } else {
+      document.getElementById('checkCard').classList.add('hidden');
+    }
+  }
+
+  // Prev button visibility
+  const prevBtn = document.getElementById('btnPrev');
+  if(state.wordIndex === 0 && state.cardState === CARD_STATE.FRONT){
+    prevBtn.disabled = true;
+  } else {
+    prevBtn.disabled = false;
+  }
+
+  updateProgress();
+}
+
+function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function renderCheck(){
+  const v = VOCAB[state.wordIndex];
+  const letters = ['A','B','C'];
+  document.getElementById('checkQuestion').textContent = v.check.question;
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = v.check.options.map((opt,i)=>`
+    <button class="option" data-i="${i}" aria-label="Option ${letters[i]}: ${opt}">
+      <span class="letter">${letters[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  const feedback = document.getElementById('feedback');
+  feedback.className = 'feedback';
+  feedback.textContent = '';
+
+  document.getElementById('btnNextFromCheck').classList.add('hidden');
+
+  if(state.checkPassed){
+    // Already passed — show as complete
+    const opts = box.querySelectorAll('.option');
+    opts.forEach(o=>{
+      const i = parseInt(o.dataset.i,10);
+      if(i === v.check.correct) o.classList.add('correct');
+      o.disabled = true;
+    });
+    feedback.className = 'feedback show good';
+    feedback.innerHTML = '✓ Correct! Well done.';
+    document.getElementById('btnNextFromCheck').classList.remove('hidden');
+  }
+
+  box.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = parseInt(btn.dataset.i,10);
+      const opts = box.querySelectorAll('.option');
+      if(i === v.check.correct){
+        btn.classList.add('correct');
+        opts.forEach(o=>o.disabled = true);
+        feedback.className = 'feedback show good';
+        feedback.innerHTML = '✓ Correct! Well done.';
+        sfx('correct');
+        state.checkPassed = true;
+        document.getElementById('btnNextFromCheck').classList.remove('hidden');
+        updateProgress();
+      } else {
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        feedback.className = 'feedback show bad';
+        feedback.innerHTML = 'Try again!';
+        sfx('wrong');
+      }
+    });
+  });
+}
+
+/* ---------- 11. REVIEW ---------- */
+function renderReview(){
+  const grid = document.getElementById('reviewGrid');
+  grid.innerHTML = VOCAB.map((v,i)=>`
+    <button class="review-tile" data-i="${i}" aria-label="Review ${v.word}">
+      ${v.icon} ${v.word}
+    </button>
+  `).join('');
+  grid.querySelectorAll('.review-tile').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      sfx('click');
+      const i = parseInt(t.dataset.i,10);
+      state.reviewWord = i;
+      renderReviewDetail(i);
+    });
+  });
+  document.getElementById('reviewDetail').classList.add('hidden');
+}
+
+function renderReviewDetail(i){
+  const v = VOCAB[i];
+  const detail = document.getElementById('reviewDetail');
+  const exHtml = v.example.replace(
+    new RegExp(`(${escapeRegExp(v.highlight)})`, 'i'),
+    '<span class="hl">$1</span>'
+  );
+  detail.innerHTML = `
+    <div class="card-icon">${v.icon}</div>
+    <div class="card-word">${v.word}</div>
+    <div class="card-def">"${v.definition}"</div>
+    <div class="card-example">"${exHtml}"</div>
+    <div class="actions">
+      <button class="btn listen" id="btnReviewListen">🔊 LISTEN WORD</button>
+      <button class="btn listen" id="btnReviewListenEx">🔊 LISTEN EXAMPLE</button>
+      <button class="btn ghost" id="btnReviewClose">✕ CLOSE</button>
+    </div>
+  `;
+  detail.classList.remove('hidden');
+  document.getElementById('btnReviewListen').addEventListener('click', ()=>{
+    sfx('click'); speak(v.word);
+  });
+  document.getElementById('btnReviewListenEx').addEventListener('click', ()=>{
+    sfx('click'); speak(v.example);
+  });
+  document.getElementById('btnReviewClose').addEventListener('click', ()=>{
+    sfx('click');
+    detail.classList.add('hidden');
+    state.reviewWord = -1;
+  });
+}
+
+/* ---------- 12. QUIZ ---------- */
+function renderQuiz(){
+  const v = VOCAB[state.quizIndex];
+  const letters = ['A','B','C'];
+  document.getElementById('quizLabel').textContent = `QUESTION ${state.quizIndex+1} / 8`;
+  document.getElementById('quizQuestion').textContent = v.check.question;
+  const box = document.getElementById('quizOptions');
+  box.innerHTML = v.check.options.map((opt,i)=>`
+    <button class="option" data-i="${i}" aria-label="Option ${letters[i]}: ${opt}">
+      <span class="letter">${letters[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  const feedback = document.getElementById('quizFeedback');
+  feedback.className = 'feedback';
+  feedback.textContent = '';
+  document.getElementById('btnNextQuiz').classList.add('hidden');
+
+  box.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = parseInt(btn.dataset.i,10);
+      const opts = box.querySelectorAll('.option');
+      if(i === v.check.correct){
+        btn.classList.add('correct');
+        opts.forEach(o=>o.disabled = true);
+        feedback.className = 'feedback show good';
+        feedback.innerHTML = '✓ Correct! +1 point';
+        sfx('correct');
+        state.quizScore++;
+        document.getElementById('btnNextQuiz').classList.remove('hidden');
+        updateProgress();
+      } else {
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        feedback.className = 'feedback show bad';
+        feedback.innerHTML = 'Try again!';
+        sfx('wrong');
+      }
+    });
+  });
+  updateProgress();
+}
+
+/* ---------- 13. FINAL ---------- */
+function renderFinal(){
+  sfx('complete');
+  launchConfetti(200);
+  document.getElementById('finalScore').textContent = `${state.quizScore} / 8`;
+  let msg = '';
+  if(state.quizScore === 8) msg = 'Perfect! You are a vocabulary master! 🌟';
+  else if(state.quizScore >= 6) msg = 'Excellent! You are ready for the listening task. 👏';
+  else if(state.quizScore >= 4) msg = 'Good effort! Keep practising these words. 💪';
+  else msg = 'Keep practising. You can do it! 🎧';
+  document.getElementById('finalMsg').textContent = msg;
+  document.getElementById('nextStage').classList.add('hidden');
+}
+
+/* ---------- 14. NAVIGATION ---------- */
+function goToPhase(phase){
+  state.phase = phase;
+  if(phase === PHASE.START) showScreen('start');
+  else if(phase === PHASE.TEACH){ showScreen('teach'); renderTeachCard(); }
+  else if(phase === PHASE.REVIEW){ showScreen('review'); renderReview(); }
+  else if(phase === PHASE.QUIZ){ showScreen('quiz'); renderQuiz(); }
+  else if(phase === PHASE.FINAL){ showScreen('final'); renderFinal(); }
+  updateProgress();
+}
+
+function nextWord(){
+  if(state.wordIndex < VOCAB.length - 1){
+    state.wordIndex++;
+    state.cardState = CARD_STATE.FRONT;
+    state.checkPassed = false;
+    renderTeachCard();
+  } else {
+    goToPhase(PHASE.REVIEW);
+  }
+}
+
+function prevStep(){
+  if(state.phase !== PHASE.TEACH) return;
+  if(state.cardState === CARD_STATE.CHECK){
+    state.cardState = CARD_STATE.BACK;
+    state.checkPassed = false;
+    renderTeachCard();
+  } else if(state.cardState === CARD_STATE.BACK){
+    state.cardState = CARD_STATE.FRONT;
+    renderTeachCard();
+  } else if(state.cardState === CARD_STATE.FRONT){
+    if(state.wordIndex > 0){
+      state.wordIndex--;
+      state.cardState = CARD_STATE.CHECK;
+      state.checkPassed = true; // allow teacher to see the completed check
+      renderTeachCard();
+    }
+  }
+}
+
+/* ---------- 15. EVENT BINDINGS ---------- */
+document.getElementById('btnStart').addEventListener('click', ()=>{
+  sfx('start');
+  if(musicOn) startBackgroundMusic();
+  state.wordIndex = 0;
+  state.cardState = CARD_STATE.FRONT;
+  state.checkPassed = false;
+  goToPhase(PHASE.TEACH);
+});
+
+document.getElementById('btnFlip').addEventListener('click', ()=>{
+  sfx('flip');
+  state.cardState = CARD_STATE.BACK;
+  renderTeachCard();
+});
+
+document.getElementById('btnNextFromBack').addEventListener('click', ()=>{
+  sfx('click');
+  state.cardState = CARD_STATE.CHECK;
+  state.checkPassed = false;
+  renderTeachCard();
+});
+
+document.getElementById('btnNextFromCheck').addEventListener('click', ()=>{
+  sfx('click');
+  nextWord();
+});
+
+document.getElementById('btnPrev').addEventListener('click', ()=>{
+  sfx('click');
+  prevStep();
+});
+
+document.getElementById('btnListenFront').addEventListener('click', ()=>{
+  sfx('click');
+  speak(VOCAB[state.wordIndex].word);
+});
+document.getElementById('btnListenDef').addEventListener('click', ()=>{
+  sfx('click');
+  speak(VOCAB[state.wordIndex].definition);
+});
+document.getElementById('btnListenExample').addEventListener('click', ()=>{
+  sfx('click');
+  speak(VOCAB[state.wordIndex].example);
+});
+document.getElementById('btnReplay').addEventListener('click', ()=>{
+  sfx('click');
+  const v = VOCAB[state.wordIndex];
+  if(state.cardState === CARD_STATE.FRONT) speak(v.word);
+  else if(state.cardState === CARD_STATE.BACK) speak(v.example);
+  else speak(v.word);
+});
+
+document.getElementById('btnStartQuiz').addEventListener('click', ()=>{
+  sfx('start');
+  state.quizIndex = 0;
+  state.quizScore = 0;
+  goToPhase(PHASE.QUIZ);
+});
+
+document.getElementById('btnNextQuiz').addEventListener('click', ()=>{
+  sfx('click');
+  if(state.quizIndex < VOCAB.length - 1){
+    state.quizIndex++;
+    renderQuiz();
+  } else {
+    goToPhase(PHASE.FINAL);
+  }
+});
+
+document.getElementById('btnGoListening').addEventListener('click', ()=>{
+  sfx('click');
+  document.getElementById('nextStage').classList.remove('hidden');
+  // Disable the button to indicate stage is acknowledged
+  document.getElementById('btnGoListening').disabled = true;
+  document.getElementById('btnGoListening').textContent = '✓ Next: Catch the Details';
+});
+
+document.getElementById('btnRestart').addEventListener('click', ()=>{
+  sfx('click');
+  stopSpeech();
+  state.phase = PHASE.START;
+  state.wordIndex = 0;
+  state.cardState = CARD_STATE.FRONT;
+  state.checkPassed = false;
+  state.quizIndex = 0;
+  state.quizScore = 0;
+  state.reviewWord = -1;
+  document.getElementById('btnGoListening').disabled = false;
+  document.getElementById('btnGoListening').textContent = '🎧 GO TO LISTENING';
+  goToPhase(PHASE.START);
+});
+
+document.getElementById('btnMusic').addEventListener('click', (e)=>{
+  musicOn = !musicOn;
+  e.currentTarget.textContent = musicOn ? '🎵 Music ON' : '🎵 Music OFF';
+  e.currentTarget.classList.toggle('active', musicOn);
+  if(musicOn){
+    if(state.phase !== PHASE.START) startBackgroundMusic();
+  } else {
+    stopBackgroundMusic();
+  }
+  sfx('click');
+});
+
+document.getElementById('btnSound').addEventListener('click', (e)=>{
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? '🔊 Sound ON' : '🔇 Sound OFF';
+  e.currentTarget.classList.toggle('active', soundOn);
+  if(soundOn) sfx('click');
+});
+
+/* ---------- 16. KEYBOARD ---------- */
+document.addEventListener('keydown', (e)=>{
+  // Don't intercept when typing in an input
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if(state.phase === PHASE.TEACH){
+    if(e.key === 'ArrowRight'){
+      e.preventDefault();
+      if(state.cardState === CARD_STATE.FRONT){
+        document.getElementById('btnFlip').click();
+      } else if(state.cardState === CARD_STATE.BACK){
+        document.getElementById('btnNextFromBack').click();
+      } else if(state.cardState === CARD_STATE.CHECK && state.checkPassed){
+        document.getElementById('btnNextFromCheck').click();
+      }
+    }
+    else if(e.key === 'ArrowLeft'){
+      e.preventDefault();
+      document.getElementById('btnPrev').click();
+    }
+    else if(e.key === ' '){
+      e.preventDefault();
+      document.getElementById('btnReplay').click();
+    }
+    else if(e.key.toLowerCase() === 'f'){
+      e.preventDefault();
+      if(state.cardState === CARD_STATE.FRONT){
+        document.getElementById('btnFlip').click();
+      }
+    }
+    else if(e.key === 'Enter'){
+      // Activate focused button
+      const f = document.activeElement;
+      if(f && f.tagName === 'BUTTON') f.click();
+    }
+  }
+  else if(state.phase === PHASE.QUIZ){
+    if(e.key === 'ArrowRight' && state.checkPassed !== undefined){
+      const nb = document.getElementById('btnNextQuiz');
+      if(!nb.classList.contains('hidden')) nb.click();
+    }
+  }
+  else if(state.phase === PHASE.START && (e.key === 'Enter' || e.key === ' ')){
+    e.preventDefault();
+    document.getElementById('btnStart').click();
+  }
+});
+
+/* ---------- 17. INIT ---------- */
+updateProgress();
+showScreen('start');
+
+window.addEventListener('load', ()=>{
+  if('speechSynthesis' in window){
+    speechSynthesis.getVoices();
+    setTimeout(()=>{ britishVoice = pickBritishVoice(); }, 300);
+  }
+});
+</script>
+</body>
+</html>

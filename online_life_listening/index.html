@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎧 ONLINE LIFE — LISTENING DETECTIVE</title>
+<style>
+  /* =========================================================
+     THEME VARIABLES
+     ========================================================= */
+  :root{
+    --cyan:#00e5ff;
+    --electric-blue:#2979ff;
+    --purple:#7c4dff;
+    --yellow:#ffd60a;
+    --coral:#ff6b6b;
+    --turquoise:#1de9b6;
+    --pink:#ff4fa3;
+    --bg1:#0b1026;
+    --bg2:#1a0b3d;
+    --bg3:#0a2540;
+    --text:#ffffff;
+    --text-soft:#e6ecff;
+    --card-bg:rgba(255,255,255,0.12);
+    --card-border:rgba(255,255,255,0.25);
+    --success:#22c55e;
+    --error:#ef4444;
+    --shadow-glow:0 0 40px rgba(124,77,255,.45), 0 0 80px rgba(0,229,255,.25);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow-x:hidden}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 800px at 10% 10%, rgba(124,77,255,.35), transparent 60%),
+      radial-gradient(1000px 700px at 90% 20%, rgba(0,229,255,.28), transparent 60%),
+      radial-gradient(900px 700px at 50% 100%, rgba(255,107,107,.22), transparent 60%),
+      linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+    min-height:100vh;
+    position:relative;
+    perspective:1200px;
+  }
+
+  /* =========================================================
+     FLOATING 3D BACKGROUND
+     ========================================================= */
+  .bg-scene{
+    position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .floater{
+    position:absolute;
+    font-size:42px;
+    opacity:.55;
+    filter: blur(.3px) drop-shadow(0 0 10px rgba(255,255,255,.25));
+    animation: floatY 18s ease-in-out infinite, spinSlow 24s linear infinite;
+    transform-style:preserve-3d;
+    will-change:transform,opacity;
+  }
+  @keyframes floatY{
+    0%,100%{ transform: translate3d(0,0,0) rotateX(0deg) rotateY(0deg) }
+    50%   { transform: translate3d(0,-40px,40px) rotateX(15deg) rotateY(180deg) }
+  }
+  @keyframes spinSlow{
+    from{ transform: rotate(0deg) }
+    to  { transform: rotate(360deg) }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .floater{ animation:none !important; }
+  }
+
+  /* =========================================================
+     LAYOUT
+     ========================================================= */
+  .app{
+    position:relative; z-index:2;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    padding:20px;
+  }
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:16px; flex-wrap:wrap;
+    padding:14px 18px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--shadow-glow);
+  }
+  .topbar .brand{
+    font-weight:800; letter-spacing:.5px;
+    font-size:18px;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .topbar .controls{ display:flex; gap:10px; flex-wrap:wrap }
+  .icon-btn{
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    color:#fff; padding:8px 12px;
+    border-radius:12px; cursor:pointer;
+    font-size:15px; font-weight:600;
+    transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.18); transform: translateY(-1px) }
+  .icon-btn:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+  .icon-btn.active{ background:linear-gradient(135deg,var(--cyan),var(--electric-blue)); color:#0b1026; border-color:transparent }
+
+  .progress{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; margin-top:14px;
+    padding:12px 16px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    backdrop-filter: blur(10px);
+  }
+  .detective-track{ display:flex; gap:10px; flex-wrap:wrap }
+  .detective-chip{
+    display:flex; align-items:center; gap:6px;
+    padding:6px 12px; border-radius:999px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    font-weight:700; font-size:15px;
+    transition: all .3s ease;
+  }
+  .detective-chip.done{
+    background:linear-gradient(135deg,var(--success),var(--turquoise));
+    color:#062b14; border-color:transparent;
+    box-shadow:0 0 18px rgba(34,197,94,.5);
+  }
+  .detective-chip.current{
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    color:#3b0a0a; border-color:transparent;
+    animation: pulseChip 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseChip{
+    0%,100%{ box-shadow:0 0 0 rgba(255,214,10,0) }
+    50%   { box-shadow:0 0 24px rgba(255,214,10,.7) }
+  }
+  .score-pill{
+    font-weight:800; font-size:18px;
+    padding:8px 16px; border-radius:999px;
+    background:linear-gradient(135deg,var(--purple),var(--electric-blue));
+    border:1px solid rgba(255,255,255,.3);
+    box-shadow:0 0 20px rgba(124,77,255,.5);
+  }
+
+  /* =========================================================
+     SCREENS
+     ========================================================= */
+  .screen{
+    flex:1; display:none;
+    margin-top:18px;
+    animation: fadeUp .5s ease both;
+  }
+  .screen.active{ display:block }
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translate3d(0,20px,0) }
+    to  { opacity:1; transform: translate3d(0,0,0) }
+  }
+
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:28px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    max-width:1000px; margin:0 auto;
+  }
+  .card h1, .card h2{ line-height:1.15 }
+
+  /* =========================================================
+     START SCREEN
+     ========================================================= */
+  .hero{
+    text-align:center; padding:20px 10px 10px;
+  }
+  .badge{
+    width:140px; height:140px; margin:0 auto 12px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%),
+      conic-gradient(from 0deg, var(--cyan), var(--purple), var(--coral), var(--yellow), var(--turquoise), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-size:72px;
+    box-shadow: 0 0 40px rgba(0,229,255,.5), inset 0 0 30px rgba(255,255,255,.25);
+    animation: badgeGlow 3s ease-in-out infinite;
+  }
+  @keyframes badgeGlow{
+    0%,100%{ transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px rgba(0,229,255,.6)) }
+    50%   { transform: scale(1.05) rotate(8deg); filter: drop-shadow(0 0 28px rgba(124,77,255,.9)) }
+  }
+  .title{
+    font-size: clamp(28px, 4.2vw, 52px);
+    font-weight:900; letter-spacing:1px;
+    background: linear-gradient(90deg, var(--cyan), #fff, var(--yellow), var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 4px 30px rgba(0,229,255,.35);
+    margin:6px 0 4px;
+  }
+  .subtitle{
+    font-size: clamp(16px, 1.8vw, 22px);
+    color:var(--text-soft);
+    font-style:italic;
+    margin-bottom:18px;
+  }
+  .mission-box{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:14px; margin:18px 0;
+  }
+  .mission-item{
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:14px;
+    font-size:17px; font-weight:600;
+  }
+  .mission-item b{ color:var(--yellow) }
+  .detective-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:12px; margin:18px 0;
+  }
+  .detective-card{
+    background:linear-gradient(135deg, rgba(0,229,255,.15), rgba(124,77,255,.15));
+    border:1px solid var(--card-border);
+    border-radius:16px; padding:14px;
+    font-weight:700; font-size:17px;
+  }
+  .detective-card .num{
+    display:inline-block; width:36px; height:36px; line-height:36px;
+    border-radius:50%; text-align:center; margin-right:8px;
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    color:#2a0606; font-size:18px;
+  }
+  .max-score{
+    font-size:22px; font-weight:800;
+    padding:12px 18px; border-radius:14px;
+    background:linear-gradient(135deg,var(--turquoise),var(--cyan));
+    color:#002b22; display:inline-block;
+    box-shadow:0 0 24px rgba(29,233,182,.45);
+  }
+
+  /* =========================================================
+     BUTTONS
+     ========================================================= */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:16px 28px; border-radius:16px; border:none;
+    font-size:20px; font-weight:800; cursor:pointer;
+    color:#0b1026;
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    box-shadow:0 10px 30px rgba(255,107,107,.4), inset 0 -3px 0 rgba(0,0,0,.15);
+    transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+    letter-spacing:.3px;
+  }
+  .btn:hover{ transform: translateY(-2px); filter: brightness(1.05) }
+  .btn:active{ transform: translateY(0) }
+  .btn:focus-visible{ outline:3px solid #fff; outline-offset:3px }
+  .btn.secondary{
+    background:linear-gradient(135deg,var(--cyan),var(--electric-blue));
+    color:#001024;
+    box-shadow:0 10px 30px rgba(0,229,255,.35), inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .btn.ghost{
+    background:rgba(255,255,255,.1); color:#fff;
+    border:1px solid var(--card-border);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{ background:rgba(255,255,255,.2) }
+  .btn.skip{
+    background:linear-gradient(135deg,var(--turquoise),var(--cyan));
+    color:#002b22;
+    box-shadow:0 10px 30px rgba(29,233,182,.4), inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .btn[disabled]{ opacity:.5; cursor:not-allowed; filter:grayscale(.3) }
+
+  /* =========================================================
+     AUDIO PLAYER
+     ========================================================= */
+  .audio-panel{
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+    padding:20px; margin:14px 0;
+    border-radius:20px;
+    background:linear-gradient(135deg, rgba(124,77,255,.25), rgba(0,229,255,.2));
+    border:1px solid var(--card-border);
+  }
+  .wave-bars{
+    display:flex; gap:6px; height:60px; align-items:center;
+  }
+  .wave-bars .bar{
+    width:8px; border-radius:4px;
+    background:linear-gradient(180deg,var(--cyan),var(--purple));
+    height:20%;
+    animation: wave 1.2s ease-in-out infinite;
+  }
+  .wave-bars .bar:nth-child(1){ animation-delay:0s }
+  .wave-bars .bar:nth-child(2){ animation-delay:.15s }
+  .wave-bars .bar:nth-child(3){ animation-delay:.3s }
+  .wave-bars .bar:nth-child(4){ animation-delay:.45s }
+  .wave-bars .bar:nth-child(5){ animation-delay:.6s }
+  .wave-bars .bar:nth-child(6){ animation-delay:.75s }
+  .wave-bars .bar:nth-child(7){ animation-delay:.9s }
+  .wave-bars.paused .bar{ animation-play-state:paused; height:20% }
+  @keyframes wave{
+    0%,100%{ height:20% }
+    50%   { height:100% }
+  }
+  .audio-status{
+    font-size:18px; font-weight:700; color:var(--text-soft);
+    text-align:center;
+  }
+  .play-count{
+    font-size:16px; color:var(--yellow); font-weight:700;
+  }
+
+  /* =========================================================
+     QUESTIONS
+     ========================================================= */
+  .student-header{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .student-badge{
+    width:70px; height:70px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:34px; font-weight:900;
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    color:#2a0606;
+    box-shadow:0 0 24px rgba(255,214,10,.5);
+  }
+  .student-title{
+    font-size: clamp(22px, 2.6vw, 32px);
+    font-weight:900;
+  }
+  .student-sub{ color:var(--text-soft); font-size:18px }
+
+  .question-card{
+    margin-top:18px;
+    padding:22px;
+    border-radius:20px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    animation: slideIn .45s ease both;
+  }
+  @keyframes slideIn{
+    from{ opacity:0; transform: translate3d(-20px,0,0) }
+    to  { opacity:1; transform: translate3d(0,0,0) }
+  }
+  .q-label{
+    font-size:16px; font-weight:800; letter-spacing:1px;
+    color:var(--cyan); text-transform:uppercase;
+  }
+  .q-text{
+    font-size: clamp(20px, 2.2vw, 28px);
+    font-weight:800; margin:10px 0 18px;
+    line-height:1.3;
+  }
+  .options{
+    display:grid; gap:12px;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  }
+  .option{
+    padding:16px 18px; border-radius:14px;
+    background:rgba(255,255,255,.08);
+    border:2px solid var(--card-border);
+    font-size: clamp(17px, 1.8vw, 22px);
+    font-weight:700; color:#fff;
+    cursor:pointer; text-align:left;
+    transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    display:flex; align-items:center; gap:12px;
+  }
+  .option .letter{
+    display:inline-flex; width:36px; height:36px; border-radius:50%;
+    align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--electric-blue),var(--purple));
+    font-weight:900; color:#fff; flex-shrink:0;
+  }
+  .option:hover{ background:rgba(255,255,255,.16); transform: translateY(-2px) }
+  .option:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+  .option.correct{
+    background:linear-gradient(135deg, rgba(34,197,94,.35), rgba(29,233,182,.25));
+    border-color:var(--success);
+    box-shadow:0 0 24px rgba(34,197,94,.5);
+    animation: popCorrect .5s ease;
+  }
+  .option.correct .letter{ background:linear-gradient(135deg,var(--success),var(--turquoise)) }
+  .option.wrong{
+    background:linear-gradient(135deg, rgba(239,68,68,.25), rgba(255,107,107,.15));
+    border-color:var(--error);
+    animation: shake .4s ease;
+  }
+  .option.wrong .letter{ background:linear-gradient(135deg,var(--error),var(--coral)) }
+  .option[disabled]{ cursor:not-allowed; opacity:.85 }
+  @keyframes popCorrect{
+    0%{ transform: scale(1) }
+    50%{ transform: scale(1.03) }
+    100%{ transform: scale(1) }
+  }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0) }
+    25%{ transform: translateX(-6px) }
+    75%{ transform: translateX(6px) }
+  }
+
+  .feedback{
+    margin-top:14px;
+    padding:12px 16px; border-radius:12px;
+    font-size:18px; font-weight:700;
+    display:none;
+  }
+  .feedback.show{ display:block; animation: fadeUp .3s ease both }
+  .feedback.good{ background:rgba(34,197,94,.2); border:1px solid var(--success); color:#d1fae5 }
+  .feedback.bad{ background:rgba(239,68,68,.15); border:1px solid var(--error); color:#fecaca }
+
+  .actions{
+    display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; justify-content:center;
+  }
+
+  /* =========================================================
+     RESULT SCREENS
+     ========================================================= */
+  .result-card{
+    text-align:center;
+    padding:30px 20px;
+  }
+  .result-score{
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight:900;
+    background:linear-gradient(135deg,var(--yellow),var(--coral),var(--purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin:10px 0;
+  }
+  .result-msg{ font-size:22px; font-weight:700; color:var(--text-soft) }
+
+  /* =========================================================
+     FINAL
+     ========================================================= */
+  .final-grid{
+    display:grid; gap:12px;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    margin:20px 0;
+  }
+  .final-row{
+    padding:16px; border-radius:16px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    font-size:20px; font-weight:800;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .final-row .pts{
+    font-size:26px;
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .total-big{
+    font-size: clamp(44px, 7vw, 80px);
+    font-weight:900;
+    background:linear-gradient(135deg,var(--cyan),var(--purple),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin:10px 0;
+  }
+  .objective-tag{
+    display:inline-block; padding:8px 14px; border-radius:999px;
+    background:rgba(255,255,255,.1); border:1px solid var(--card-border);
+    font-size:15px; font-weight:700; color:var(--text-soft);
+    margin-top:10px;
+  }
+
+  /* =========================================================
+     CONFETTI CANVAS
+     ========================================================= */
+  #confetti{
+    position:fixed; inset:0; z-index:5; pointer-events:none;
+  }
+
+  /* =========================================================
+     TEACHER INFO MODAL
+     ========================================================= */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:10;
+    background:rgba(5,8,25,.7);
+    backdrop-filter: blur(8px);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-backdrop.show{ display:flex; animation: fadeUp .3s ease both }
+  .modal{
+    max-width:640px; width:100%;
+    background:linear-gradient(135deg, rgba(11,16,38,.95), rgba(26,11,61,.95));
+    border:1px solid var(--card-border);
+    border-radius:20px; padding:26px;
+    box-shadow: var(--shadow-glow);
+  }
+  .modal h3{ font-size:24px; margin-bottom:10px }
+  .modal p, .modal li{ font-size:17px; line-height:1.5; color:var(--text-soft) }
+  .modal ul{ margin:10px 0 10px 22px }
+
+  /* =========================================================
+     UTILITIES
+     ========================================================= */
+  .center{ text-align:center }
+  .mt-10{ margin-top:10px } .mt-16{ margin-top:16px } .mt-20{ margin-top:20px }
+  .hidden{ display:none !important }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+  @media (max-width: 640px){
+    .card{ padding:20px }
+    .btn{ font-size:18px; padding:14px 20px }
+    .detective-grid{ grid-template-columns:1fr }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     FLOATING 3D BACKGROUND
+     ========================================================= -->
+<div class="bg-scene" id="bgScene" aria-hidden="true"></div>
+
+<!-- =========================================================
+     CONFETTI CANVAS
+     ========================================================= -->
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<!-- =========================================================
+     APP
+     ========================================================= -->
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">🎧 ONLINE LIFE — LISTENING DETECTIVE</div>
+    <div class="controls">
+      <button class="icon-btn" id="btnMusic" aria-label="Toggle background music" title="Background music">🎵 Music ON</button>
+      <button class="icon-btn" id="btnSound" aria-label="Toggle sound effects" title="Sound effects">🔊 Sound ON</button>
+      <button class="icon-btn" id="btnTeacher" aria-label="Teacher information" title="Teacher info">ℹ️ Teacher</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress" id="progress">
+    <div class="detective-track" id="detectiveTrack">
+      <div class="detective-chip current" data-d="1">🔎 Detective 1</div>
+      <div class="detective-chip" data-d="2">🔎 Detective 2</div>
+      <div class="detective-chip" data-d="3">🔎 Detective 3</div>
+      <div class="detective-chip" data-d="4">🔎 Detective 4</div>
+    </div>
+    <div class="score-pill" id="scorePill">CLASS SCORE: 0 / 8</div>
+  </div>
+
+  <!-- ===================== START SCREEN ===================== -->
+  <section class="screen active" id="screen-start">
+    <div class="card hero">
+      <div class="badge" aria-hidden="true">🎧</div>
+      <h1 class="title">ONLINE LIFE — LISTENING DETECTIVE</h1>
+      <p class="subtitle">"Listen carefully. Find the details. Become the best Listening Detective!"</p>
+
+      <div class="mission-box">
+        <div class="mission-item">🎯 <b>MISSION:</b> Listen carefully and find specific information and details.</div>
+        <div class="mission-item">👥 <b>CLASS:</b> 4 Detectives</div>
+        <div class="mission-item">📜 <b>RULE:</b> Each detective gets 2 questions.</div>
+        <div class="mission-item">🎧 <b>LISTEN:</b> You may replay the audio ONCE.</div>
+      </div>
+
+      <div class="detective-grid">
+        <div class="detective-card"><span class="num">1</span> 👤 DETECTIVE 1 → Questions 1–2</div>
+        <div class="detective-card"><span class="num">2</span> 👤 DETECTIVE 2 → Questions 3–4</div>
+        <div class="detective-card"><span class="num">3</span> 👤 DETECTIVE 3 → Questions 5–6</div>
+        <div class="detective-card"><span class="num">4</span> 👤 DETECTIVE 4 → Questions 7–8</div>
+      </div>
+
+      <div class="max-score">🏆 CLASS MAXIMUM: 8 POINTS</div>
+
+      <div class="actions mt-20">
+        <button class="btn" id="btnStart">🚀 START MISSION</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== STUDENT SCREEN (dynamic) ===================== -->
+  <section class="screen" id="screen-student">
+    <div class="card" id="studentCard">
+      <!-- filled dynamically -->
+    </div>
+  </section>
+
+  <!-- ===================== RESULT SCREEN (dynamic) ===================== -->
+  <section class="screen" id="screen-result">
+    <div class="card result-card" id="resultCard">
+      <!-- filled dynamically -->
+    </div>
+  </section>
+
+  <!-- ===================== FINAL SCREEN ===================== -->
+  <section class="screen" id="screen-final">
+    <div class="card result-card" id="finalCard">
+      <!-- filled dynamically -->
+    </div>
+  </section>
+
+</div>
+
+<!-- ===================== TEACHER MODAL ===================== -->
+<div class="modal-backdrop" id="teacherModal" role="dialog" aria-modal="true" aria-labelledby="teacherTitle">
+  <div class="modal">
+    <h3 id="teacherTitle">ℹ️ Teacher Information</h3>
+    <p><b>Learning Objective:</b> 7.2.5.1 — understand most specific information and detail of supported, extended talk on a range of general and curricular topics.</p>
+    <p class="mt-10"><b>Descriptor:</b> A learner:</p>
+    <ul>
+      <li>identifies specific information from the extended talk — <b>1 point</b>;</li>
+      <li>identifies supporting details from the extended talk — <b>1 point</b>.</li>
+    </ul>
+    <p class="mt-10"><b>Assessment:</b> 2 points per learner. Class total: 8 points.</p>
+    <p class="mt-10"><b>Listening file:</b> <code>alex_online_life.mp3</code> (optional). If missing, the app uses the browser's British English voice.</p>
+    <div class="actions mt-20">
+      <button class="btn secondary" id="btnCloseTeacher">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =================================================================
+   🎧 ONLINE LIFE — LISTENING DETECTIVE
+   Single-file classroom activity. Vanilla JS. No external libs.
+   ================================================================= */
+
+/* ---------- 1. STATE MACHINE ---------- */
+const STATES = {
+  START: 'START',
+  S1_LISTEN: 'STUDENT_1_LISTEN', S1_Q1: 'STUDENT_1_Q1', S1_Q2: 'STUDENT_1_Q2', S1_RESULT: 'STUDENT_1_RESULT',
+  S2_LISTEN: 'STUDENT_2_LISTEN', S2_Q3: 'STUDENT_2_Q3', S2_Q4: 'STUDENT_2_Q4', S2_RESULT: 'STUDENT_2_RESULT',
+  S3_LISTEN: 'STUDENT_3_LISTEN', S3_Q5: 'STUDENT_3_Q5', S3_Q6: 'STUDENT_3_Q6', S3_RESULT: 'STUDENT_3_RESULT',
+  S4_LISTEN: 'STUDENT_4_LISTEN', S4_Q7: 'STUDENT_4_Q7', S4_Q8: 'STUDENT_4_Q8', S4_RESULT: 'STUDENT_4_RESULT',
+  FINAL: 'FINAL_RESULT'
+};
+
+const FLOW = [
+  STATES.START,
+  STATES.S1_LISTEN, STATES.S1_Q1, STATES.S1_Q2, STATES.S1_RESULT,
+  STATES.S2_LISTEN, STATES.S2_Q3, STATES.S2_Q4, STATES.S2_RESULT,
+  STATES.S3_LISTEN, STATES.S3_Q5, STATES.S3_Q6, STATES.S3_RESULT,
+  STATES.S4_LISTEN, STATES.S4_Q7, STATES.S4_Q8, STATES.S4_RESULT,
+  STATES.FINAL
+];
+
+let stateIndex = 0;
+let currentState = STATES.START;
+
+/* ---------- 2. DATA: STUDENTS & QUESTIONS (fixed allocation) ---------- */
+const LISTENING_SCRIPT =
+  "Hi! My name is Alex. I use my smartphone every day, but I try not to spend too much time online. " +
+  "I usually use WhatsApp to chat with my friends and YouTube to watch English videos. " +
+  "I also use a dictionary app when I don't understand a new word. " +
+  "At weekends, I sometimes use a travel app because I like learning about different countries. " +
+  "I don't play many online games because I prefer reading books and playing football. " +
+  "I think smartphones are useful when we use them wisely. " +
+  "However, I never use my phone when I am doing my homework.";
+
+const STUDENTS = [
+  {
+    id: 1,
+    questions: [
+      {
+        id: 1,
+        text: "What does Alex use WhatsApp for?",
+        options: [
+          "To watch English videos",
+          "To chat with his friends",
+          "To play online games",
+          "To learn about countries"
+        ],
+        correct: 1 // index
+      },
+      {
+        id: 2,
+        text: "When does Alex sometimes use a travel app?",
+        options: ["At school", "In the morning", "At weekends", "Before homework"],
+        correct: 2
+      }
+    ]
+  },
+  {
+    id: 2,
+    questions: [
+      {
+        id: 3,
+        text: "What does Alex watch on YouTube?",
+        options: ["Football matches", "English videos", "Travel programmes", "Online games"],
+        correct: 1
+      },
+      {
+        id: 4,
+        text: "Why does Alex use a dictionary app?",
+        options: ["To learn new countries", "To chat with friends", "To understand new words", "To play games"],
+        correct: 2
+      }
+    ]
+  },
+  {
+    id: 3,
+    questions: [
+      {
+        id: 5,
+        text: "Why doesn't Alex play many online games?",
+        options: [
+          "He doesn't have a smartphone.",
+          "He prefers reading books and playing football.",
+          "His parents don't allow him.",
+          "He doesn't like the Internet."
+        ],
+        correct: 1
+      },
+      {
+        id: 6,
+        text: "What does Alex think about smartphones?",
+        options: [
+          "They are always bad.",
+          "They are only useful for games.",
+          "They are useful when we use them wisely.",
+          "They are not useful for students."
+        ],
+        correct: 2
+      }
+    ]
+  },
+  {
+    id: 4,
+    questions: [
+      {
+        id: 7,
+        text: "What does Alex NOT do when he is doing his homework?",
+        options: ["Use a dictionary", "Read books", "Use his phone", "Learn English"],
+        correct: 2
+      },
+      {
+        id: 8,
+        text: "What does Alex like learning about?",
+        options: ["Different countries", "Different sports", "New games", "New apps"],
+        correct: 0
+      }
+    ]
+  }
+];
+
+/* ---------- 3. SCORE STATE ---------- */
+const scores = { 1:0, 2:0, 3:0, 4:0 };
+const attempts = { 1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0] }; // per-question attempt count
+const currentStudent = { idx: 0, qIdx: 0, plays: 0 };
+
+function totalScore(){ return scores[1]+scores[2]+scores[3]+scores[4]; }
+
+/* ---------- 4. AUDIO SYSTEM ---------- */
+/* 4a. Background music — procedural, light electronic */
+let audioCtx = null;
+let musicGain = null;
+let musicNodes = [];
+let musicOn = true;
+let soundOn = true;
+let musicStarted = false;
+
+function ensureAudioCtx(){
+  if(!audioCtx){
+    try{
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }catch(e){ console.warn('Web Audio not supported', e); }
+  }
+  if(audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
+  return audioCtx;
+}
+
+function startBackgroundMusic(){
+  if(!musicOn || musicStarted) return;
+  const ctx = ensureAudioCtx(); if(!ctx) return;
+  musicStarted = true;
+
+  musicGain = ctx.createGain();
+  musicGain.gain.value = 0.0;
+  musicGain.connect(ctx.destination);
+  // gentle fade in
+  musicGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 1.5);
+
+  // Soft pad chord (Cmaj7)
+  const padFreqs = [130.81, 164.81, 196.00, 246.94]; // C3 E3 G3 B3
+  padFreqs.forEach(f=>{
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    const g = ctx.createGain();
+    g.gain.value = 0.05;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 900;
+    osc.connect(lp); lp.connect(g); g.connect(musicGain);
+    osc.start();
+    musicNodes.push(osc);
+  });
+
+  // Gentle arpeggio
+  const arpNotes = [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25]; // C5 E5 G5 C6 G5 E5
+  let step = 0;
+  const arpTimer = setInterval(()=>{
+    if(!musicOn){ return; }
+    const ctxNow = audioCtx; if(!ctxNow) return;
+    const osc = ctxNow.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = arpNotes[step % arpNotes.length];
+    const g = ctxNow.createGain();
+    const t = ctxNow.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    const lp = ctxNow.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 2200;
+    osc.connect(lp); lp.connect(g); g.connect(musicGain);
+    osc.start(t); osc.stop(t + 0.5);
+    step++;
+  }, 420);
+  musicNodes._arpTimer = arpTimer;
+}
+
+function stopBackgroundMusic(){
+  if(!musicStarted) return;
+  try{
+    if(musicNodes._arpTimer) clearInterval(musicNodes._arpTimer);
+    musicNodes.forEach(n=>{ try{ n.stop(); }catch(e){} });
+    musicNodes = [];
+    if(musicGain){ musicGain.gain.cancelScheduledValues(audioCtx.currentTime); musicGain.gain.value = 0; }
+  }catch(e){}
+  musicStarted = false;
+}
+
+function duckMusic(target=0.02, dur=0.6){
+  if(!musicGain || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  musicGain.gain.cancelScheduledValues(t);
+  musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+  musicGain.gain.linearRampToValueAtTime(target, t + dur);
+}
+function restoreMusic(target=0.12, dur=1.2){
+  if(!musicGain || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  musicGain.gain.cancelScheduledValues(t);
+  musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+  musicGain.gain.linearRampToValueAtTime(target, t + dur);
+}
+
+/* 4b. Sound effects — procedural */
+function sfx(type){
+  if(!soundOn) return;
+  const ctx = ensureAudioCtx(); if(!ctx) return;
+  const t = ctx.currentTime;
+
+  const blip = (freq=600, dur=0.08, typeOsc='sine', vol=0.15)=>{
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = typeOsc; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  };
+
+  if(type === 'click'){ blip(800, 0.05, 'square', 0.08); }
+  else if(type === 'start'){
+    [523.25, 659.25, 783.99, 1046.50].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.09;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.18, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.25);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.3);
+    });
+  }
+  else if(type === 'correct'){
+    [659.25, 783.99, 1046.50].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      const st = t + i*0.08;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.22, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.35);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.4);
+    });
+  }
+  else if(type === 'wrong'){
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(280, t);
+    o.frequency.linearRampToValueAtTime(200, t+0.25);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.15, t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.3);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+0.35);
+  }
+  else if(type === 'complete'){
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    notes.forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.07;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.2, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.5);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.55);
+    });
+  }
+  else if(type === 'finish'){
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+    notes.forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      const st = t + i*0.1;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.22, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.7);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.8);
+    });
+  }
+}
+
+/* ---------- 5. LISTENING AUDIO ---------- */
+/* Try browser TTS (British English). Fallback: local mp3. */
+let listeningUtterance = null;
+let listeningAudioEl = null;
+let listeningMode = 'none'; // 'tts' | 'mp3' | 'none'
+let britishVoice = null;
+
+function pickBritishVoice(){
+  if(!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices();
+  // Prefer en-GB female or male natural
+  let v = voices.find(x => /en-GB/i.test(x.lang) && /female|zira|libby|sonia|maisie/i.test(x.name));
+  if(!v) v = voices.find(x => /en-GB/i.test(x.lang));
+  if(!v) v = voices.find(x => /^en/i.test(x.lang));
+  return v || null;
+}
+
+function initVoices(){
+  if(!('speechSynthesis' in window)) return;
+  britishVoice = pickBritishVoice();
+  if(!britishVoice){
+    speechSynthesis.onvoiceschanged = ()=>{ britishVoice = pickBritishVoice(); };
+  }
+}
+if('speechSynthesis' in window){ initVoices(); }
+
+function playListeningAudio(onEnd){
+  // Duck music
+  duckMusic(0.02, 0.4);
+
+  // 1) Try TTS
+  if('speechSynthesis' in window){
+    if(!britishVoice) britishVoice = pickBritishVoice();
+    if(britishVoice){
+      try{
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(LISTENING_SCRIPT);
+        u.voice = britishVoice;
+        u.lang = britishVoice.lang || 'en-GB';
+        u.rate = 0.92;   // moderately slow
+        u.pitch = 1.0;
+        u.volume = 1.0;
+        u.onend = ()=>{
+          listeningMode = 'none';
+          restoreMusic(0.12, 1.2);
+          if(onEnd) onEnd();
+        };
+        u.onerror = ()=>{
+          // fall through to mp3
+          tryMp3(onEnd);
+        };
+        listeningUtterance = u;
+        listeningMode = 'tts';
+        speechSynthesis.speak(u);
+        return;
+      }catch(e){ /* fall through */ }
+    }
+  }
+  // 2) Try mp3
+  tryMp3(onEnd);
+}
+
+function tryMp3(onEnd){
+  try{
+    if(listeningAudioEl){ listeningAudioEl.pause(); listeningAudioEl = null; }
+    const a = new Audio('alex_online_life.mp3');
+    a.preload = 'auto';
+    a.onended = ()=>{
+      listeningMode = 'none';
+      restoreMusic(0.12, 1.2);
+      if(onEnd) onEnd();
+    };
+    a.onerror = ()=>{
+      listeningMode = 'none';
+      restoreMusic(0.12, 1.2);
+      // Show message instead of crashing
+      showAudioMissing();
+      if(onEnd) onEnd();
+    };
+    listeningAudioEl = a;
+    listeningMode = 'mp3';
+    a.play().catch(()=>{
+      listeningMode = 'none';
+      restoreMusic(0.12, 1.2);
+      showAudioMissing();
+      if(onEnd) onEnd();
+    });
+  }catch(e){
+    listeningMode = 'none';
+    restoreMusic(0.12, 1.2);
+    showAudioMissing();
+    if(onEnd) onEnd();
+  }
+}
+
+function stopListeningAudio(){
+  try{
+    if(listeningMode === 'tts' && 'speechSynthesis' in window){ speechSynthesis.cancel(); }
+    if(listeningMode === 'mp3' && listeningAudioEl){ listeningAudioEl.pause(); }
+  }catch(e){}
+  listeningMode = 'none';
+}
+
+function showAudioMissing(){
+  const status = document.getElementById('audioStatus');
+  if(status){
+    status.innerHTML = "⚠️ Listening audio file not found. Please add <code>alex_online_life.mp3</code> to the HTML folder.";
+  }
+}
+
+/* ---------- 6. UI: BACKGROUND FLOATERS ---------- */
+function buildFloaters(){
+  const scene = document.getElementById('bgScene');
+  const icons = ['📱','💬','🎧','🔊','⭐','🔍','💻','🌐','⚡','🎵'];
+  const count = 22;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = icons[i % icons.length];
+    const size = 28 + Math.random()*40;
+    el.style.fontSize = size + 'px';
+    el.style.left = (Math.random()*100) + '%';
+    el.style.top  = (Math.random()*100) + '%';
+    el.style.opacity = (0.25 + Math.random()*0.45).toFixed(2);
+    el.style.animationDuration = (14 + Math.random()*18) + 's, ' + (18 + Math.random()*22) + 's';
+    el.style.animationDelay = (-Math.random()*20) + 's, ' + (-Math.random()*20) + 's';
+    el.style.transform = `translateZ(${-40 - Math.random()*120}px)`;
+    scene.appendChild(el);
+  }
+}
+buildFloaters();
+
+/* ---------- 7. CONFETTI ---------- */
+const confettiCanvas = document.getElementById('confetti');
+const cctx = confettiCanvas.getContext('2d');
+let confettiParts = [];
+let confettiRunning = false;
+function resizeCanvas(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfetti(count=160){
+  const colors = ['#00e5ff','#7c4dff','#ffd60a','#ff6b6b','#1de9b6','#ff4fa3','#2979ff'];
+  for(let i=0;i<count;i++){
+    confettiParts.push({
+      x: Math.random()*confettiCanvas.width,
+      y: -20 - Math.random()*confettiCanvas.height*0.3,
+      w: 6 + Math.random()*8,
+      h: 10 + Math.random()*8,
+      c: colors[Math.floor(Math.random()*colors.length)],
+      vx: -2 + Math.random()*4,
+      vy: 2 + Math.random()*4,
+      a: Math.random()*Math.PI,
+      va: -0.2 + Math.random()*0.4,
+      life: 0
+    });
+  }
+  if(!confettiRunning){ confettiRunning = true; tickConfetti(); }
+}
+function tickConfetti(){
+  cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  confettiParts = confettiParts.filter(p=>p.y < confettiCanvas.height + 40 && p.life < 600);
+  confettiParts.forEach(p=>{
+    p.x += p.vx; p.y += p.vy; p.a += p.va; p.vy += 0.05; p.life++;
+    cctx.save();
+    cctx.translate(p.x, p.y); cctx.rotate(p.a);
+    cctx.fillStyle = p.c;
+    cctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    cctx.restore();
+  });
+  if(confettiParts.length > 0){
+    requestAnimationFrame(tickConfetti);
+  } else {
+    confettiRunning = false;
+    cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+/* ---------- 8. RENDERING HELPERS ---------- */
+const screens = {
+  start: document.getElementById('screen-start'),
+  student: document.getElementById('screen-student'),
+  result: document.getElementById('screen-result'),
+  final: document.getElementById('screen-final')
+};
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+  // Re-trigger animation
+  const el = screens[name];
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+}
+
+function updateProgress(){
+  const chips = document.querySelectorAll('.detective-chip');
+  chips.forEach(ch=>{
+    const d = parseInt(ch.dataset.d,10);
+    ch.classList.remove('done','current');
+    if(d < currentStudent.idx+1) ch.classList.add('done');
+    else if(d === currentStudent.idx+1 && currentState !== STATES.FINAL && currentState !== STATES.START) ch.classList.add('current');
+  });
+  document.getElementById('scorePill').textContent = `CLASS SCORE: ${totalScore()} / 8`;
+}
+
+/* ---------- 9. RENDER: STUDENT SCREEN ---------- */
+function renderStudentListen(studentIdx){
+  const s = STUDENTS[studentIdx];
+  const card = document.getElementById('studentCard');
+  
+  // Show skip button only for students 2, 3, 4 (not student 1)
+  const showSkipButton = studentIdx > 0;
+  
+  card.innerHTML = `
+    <div class="student-header">
+      <div class="student-badge">${s.id}</div>
+      <div>
+        <div class="student-title">🔎 DETECTIVE ${s.id}</div>
+        <div class="student-sub">STUDENT ${s.id} — Questions ${s.id*2-1}–${s.id*2}</div>
+      </div>
+    </div>
+    <p style="font-size:18px; color:var(--text-soft); margin-top:8px">
+      🎧 Listen carefully. You may replay the audio <b>ONCE</b>.
+    </p>
+    <div class="audio-panel">
+      <div class="wave-bars paused" id="waveBars">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+      <div class="audio-status" id="audioStatus">Press PLAY to start listening.</div>
+      <div class="play-count" id="playCount">Plays: 0 / 2</div>
+      <div class="actions">
+        <button class="btn" id="btnPlay">▶ PLAY LISTENING</button>
+        ${showSkipButton ? `<button class="btn skip" id="btnSkip">⏭️ SKIP LISTENING</button>` : ''}
+      </div>
+    </div>
+    <div id="questionsArea"></div>
+  `;
+  currentStudent.plays = 0;
+  updatePlayUI();
+
+  document.getElementById('btnPlay').addEventListener('click', handlePlayClick);
+  
+  if(showSkipButton){
+    document.getElementById('btnSkip').addEventListener('click', handleSkipClick);
+  }
+}
+
+function updatePlayUI(){
+  const btn = document.getElementById('btnPlay');
+  const count = document.getElementById('playCount');
+  if(!btn) return;
+  if(currentStudent.plays === 0){
+    btn.textContent = '▶ PLAY LISTENING';
+    btn.disabled = false;
+  } else if(currentStudent.plays === 1){
+    btn.textContent = '🔁 REPLAY ONCE';
+    btn.disabled = false;
+  } else {
+    btn.textContent = '✅ NO MORE PLAYS';
+    btn.disabled = true;
+  }
+  if(count) count.textContent = `Plays: ${currentStudent.plays} / 2`;
+}
+
+function handlePlayClick(){
+  sfx('click');
+  const bars = document.getElementById('waveBars');
+  const status = document.getElementById('audioStatus');
+  if(bars) bars.classList.remove('paused');
+  if(status) status.textContent = '🎧 Listening… focus on the details.';
+  currentStudent.plays++;
+  updatePlayUI();
+
+  playListeningAudio(()=>{
+    if(bars) bars.classList.add('paused');
+    if(status) status.textContent = '✅ Listening complete! Now find the details.';
+    // Reveal questions for this student
+    renderQuestionsForStudent(currentStudent.idx);
+  });
+}
+
+function handleSkipClick(){
+  sfx('click');
+  const status = document.getElementById('audioStatus');
+  if(status) status.textContent = '⏭️ Listening skipped. Answer the questions!';
+  // Mark as having "played" to disable further audio options
+  currentStudent.plays = 2;
+  updatePlayUI();
+  // Immediately show questions
+  renderQuestionsForStudent(currentStudent.idx);
+}
+
+function renderQuestionsForStudent(studentIdx){
+  const s = STUDENTS[studentIdx];
+  // Determine which question we are on based on state
+  let qIdx = 0;
+  if(currentState.endsWith('_Q2') || currentState.endsWith('_Q4') || currentState.endsWith('_Q6') || currentState.endsWith('_Q8')){
+    qIdx = 1;
+  }
+  currentStudent.qIdx = qIdx;
+  renderQuestion(studentIdx, qIdx);
+}
+
+function renderQuestion(studentIdx, qIdx){
+  const s = STUDENTS[studentIdx];
+  const q = s.questions[qIdx];
+  const area = document.getElementById('questionsArea');
+  if(!area) return;
+
+  const letters = ['A','B','C','D'];
+  area.innerHTML = `
+    <div class="question-card" id="qCard">
+      <div class="q-label">Question ${q.id} of 8</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options" id="optionsBox">
+        ${q.options.map((opt,i)=>`
+          <button class="option" data-i="${i}" aria-label="Option ${letters[i]}: ${opt}">
+            <span class="letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="actions">
+        <button class="btn ghost hidden" id="btnRetry">🔄 TRY AGAIN</button>
+        <button class="btn secondary hidden" id="btnNextQ">➡️ NEXT QUESTION</button>
+      </div>
+    </div>
+  `;
+
+  const opts = area.querySelectorAll('.option');
+  const feedback = document.getElementById('feedback');
+  const retryBtn = document.getElementById('btnRetry');
+  const nextBtn = document.getElementById('btnNextQ');
+
+  opts.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = parseInt(btn.dataset.i,10);
+      attempts[studentIdx+1][qIdx]++;
+      if(i === q.correct){
+        // Correct
+        btn.classList.add('correct');
+        opts.forEach(o=>o.disabled = true);
+        feedback.className = 'feedback show good';
+        feedback.innerHTML = `Correct! 🎯 You found the detail! <b>+1 point</b>`;
+        sfx('correct');
+        scores[studentIdx+1]++;
+        updateProgress();
+        nextBtn.classList.remove('hidden');
+        retryBtn.classList.add('hidden');
+      } else {
+        // Wrong
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        feedback.className = 'feedback show bad';
+        feedback.innerHTML = `Not quite. Listen for the detail again.`;
+        sfx('wrong');
+        retryBtn.classList.remove('hidden');
+        nextBtn.classList.add('hidden');
+      }
+    });
+  });
+
+  retryBtn.addEventListener('click', ()=>{
+    sfx('click');
+    // Re-enable wrong options, keep correct disabled
+    opts.forEach(o=>{
+      if(!o.classList.contains('correct')){
+        o.disabled = false;
+        o.classList.remove('wrong');
+      }
+    });
+    feedback.className = 'feedback';
+    retryBtn.classList.add('hidden');
+  });
+
+  nextBtn.addEventListener('click', ()=>{
+    sfx('click');
+    advanceFromQuestion(studentIdx, qIdx);
+  });
+}
+
+function advanceFromQuestion(studentIdx, qIdx){
+  // Move to next question or result
+  if(qIdx === 0){
+    // go to Q2
+    const nextStates = {
+      0: STATES.S1_Q2,
+      1: STATES.S2_Q4,
+      2: STATES.S3_Q6,
+      3: STATES.S4_Q8
+    };
+    transitionTo(nextStates[studentIdx]);
+  } else {
+    // go to result
+    const nextStates = {
+      0: STATES.S1_RESULT,
+      1: STATES.S2_RESULT,
+      2: STATES.S3_RESULT,
+      3: STATES.S4_RESULT
+    };
+    transitionTo(nextStates[studentIdx]);
+  }
+}
+
+/* ---------- 10. RENDER: RESULT SCREEN ---------- */
+function renderStudentResult(studentIdx){
+  sfx('studentDone' in {studentDone:1} ? 'complete' : 'complete');
+  sfx('complete');
+  const s = STUDENTS[studentIdx];
+  const sc = scores[s.id];
+  const card = document.getElementById('resultCard');
+  card.innerHTML = `
+    <div class="student-header center" style="justify-content:center">
+      <div class="student-badge">${s.id}</div>
+      <div>
+        <div class="student-title">🎉 DETECTIVE ${s.id} RESULT</div>
+        <div class="student-sub">STUDENT ${s.id}</div>
+      </div>
+    </div>
+    <div class="result-score">${sc} / 2</div>
+    <div class="result-msg">${sc===2 ? 'Perfect detective work! 🌟' : sc===1 ? 'Good effort! 💪' : 'Keep practising! 🎧'}</div>
+    <div class="actions mt-20">
+      ${studentIdx < 3
+        ? `<button class="btn" id="btnNextDetective">➡️ NEXT DETECTIVE</button>`
+        : `<button class="btn" id="btnFinish">🏁 SEE FINAL RESULTS</button>`}
+    </div>
+  `;
+  const btn = document.getElementById('btnNextDetective') || document.getElementById('btnFinish');
+  btn.addEventListener('click', ()=>{
+    sfx('click');
+    if(studentIdx < 3){
+      transitionTo(FLOW[FLOW.indexOf(currentState) + 1]); // next student listen
+    } else {
+      transitionTo(STATES.FINAL);
+    }
+  });
+}
+
+/* ---------- 11. RENDER: FINAL SCREEN ---------- */
+function renderFinal(){
+  sfx('finish');
+  const card = document.getElementById('finalCard');
+  const total = totalScore();
+  let msg = '';
+  if(total === 8) msg = "Outstanding! Your class found almost every detail! 🌟";
+  else if(total >= 6) msg = "Excellent work! You understood most of the details! 👏";
+  else if(total >= 4) msg = "Good effort! Keep practising listening for details! 💪";
+  else msg = "Keep practising. Listen carefully for key details! 🎧";
+
+  card.innerHTML = `
+    <div style="font-size:72px; margin-bottom:6px">🏆</div>
+    <h1 class="title">LISTENING DETECTIVES — MISSION COMPLETE!</h1>
+    <div class="final-grid">
+      ${STUDENTS.map(s=>`
+        <div class="final-row">
+          <span>🔎 DETECTIVE ${s.id}</span>
+          <span class="pts">${scores[s.id]} / 2</span>
+        </div>
+      `).join('')}
+    </div>
+    <div>CLASS TOTAL</div>
+    <div class="total-big">${total} / 8</div>
+    <div class="result-msg">${msg}</div>
+    <div class="objective-tag">🎧 Listening skill: Specific information & details</div>
+    <div class="objective-tag">🎯 Learning Objective: 7.2.5.1</div>
+    <div class="actions mt-20">
+      <button class="btn" id="btnRestart">🔄 RESTART MISSION</button>
+      <button class="btn secondary" id="btnFinishEnd">🏁 FINISH</button>
+    </div>
+  `;
+  launchConfetti(200);
+  document.getElementById('btnRestart').addEventListener('click', ()=>{
+    sfx('click');
+    restartMission();
+  });
+  document.getElementById('btnFinishEnd').addEventListener('click', ()=>{
+    sfx('click');
+    stopBackgroundMusic();
+    stopListeningAudio();
+    document.body.innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:20px">
+        <div style="font-size:80px">🎧</div>
+        <h1 style="font-size:42px;margin-top:10px">Mission Complete</h1>
+        <p style="font-size:20px;color:#cfd8ff;margin-top:8px">Thank you, Detectives! Great listening.</p>
+      </div>
+    `;
+  });
+}
+
+/* ---------- 12. STATE TRANSITIONS ---------- */
+function transitionTo(newState){
+  currentState = newState;
+  stateIndex = FLOW.indexOf(newState);
+  updateProgress();
+
+  if(newState === STATES.START){
+    showScreen('start');
+  }
+  else if(newState.endsWith('_LISTEN')){
+    const idx = parseInt(newState.match(/STUDENT_(\d)_LISTEN/)[1],10) - 1;
+    currentStudent.idx = idx;
+    currentStudent.qIdx = 0;
+    currentStudent.plays = 0;
+    showScreen('student');
+    renderStudentListen(idx);
+  }
+  else if(/_Q[0-9]/.test(newState)){
+    // Question state — student screen already visible
+    showScreen('student');
+    const idx = currentStudent.idx;
+    const qIdx = (newState.endsWith('Q2') || newState.endsWith('Q4') || newState.endsWith('Q6') || newState.endsWith('Q8')) ? 1 : 0;
+    currentStudent.qIdx = qIdx;
+    renderQuestion(idx, qIdx);
+  }
+  else if(newState.endsWith('_RESULT')){
+    const idx = parseInt(newState.match(/STUDENT_(\d)_RESULT/)[1],10) - 1;
+    showScreen('result');
+    renderStudentResult(idx);
+  }
+  else if(newState === STATES.FINAL){
+    showScreen('final');
+    renderFinal();
+  }
+}
+
+/* ---------- 13. START / RESTART ---------- */
+function startMission(){
+  sfx('start');
+  if(musicOn) startBackgroundMusic();
+  transitionTo(STATES.S1_LISTEN);
+}
+
+function restartMission(){
+  stopListeningAudio();
+  scores[1]=scores[2]=scores[3]=scores[4]=0;
+  attempts[1]=[0,0]; attempts[2]=[0,0]; attempts[3]=[0,0]; attempts[4]=[0,0];
+  currentStudent.idx = 0; currentStudent.qIdx = 0; currentStudent.plays = 0;
+  updateProgress();
+  transitionTo(STATES.START);
+}
+
+/* ---------- 14. BUTTON BINDINGS ---------- */
+document.getElementById('btnStart').addEventListener('click', ()=>{
+  sfx('click');
+  startMission();
+});
+
+document.getElementById('btnMusic').addEventListener('click', (e)=>{
+  musicOn = !musicOn;
+  e.currentTarget.textContent = musicOn ? '🎵 Music ON' : '🎵 Music OFF';
+  e.currentTarget.classList.toggle('active', musicOn);
+  if(musicOn){
+    if(currentState !== STATES.START) startBackgroundMusic();
+  } else {
+    stopBackgroundMusic();
+  }
+  sfx('click');
+});
+
+document.getElementById('btnSound').addEventListener('click', (e)=>{
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? '🔊 Sound ON' : '🔇 Sound OFF';
+  e.currentTarget.classList.toggle('active', soundOn);
+  if(soundOn) sfx('click');
+});
+
+document.getElementById('btnTeacher').addEventListener('click', ()=>{
+  sfx('click');
+  document.getElementById('teacherModal').classList.add('show');
+});
+document.getElementById('btnCloseTeacher').addEventListener('click', ()=>{
+  sfx('click');
+  document.getElementById('teacherModal').classList.remove('show');
+});
+document.getElementById('teacherModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'teacherModal'){
+    document.getElementById('teacherModal').classList.remove('show');
+  }
+});
+
+/* ---------- 15. KEYBOARD SUPPORT ---------- */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    document.getElementById('teacherModal').classList.remove('show');
+  }
+});
+
+/* ---------- 16. INITIAL RENDER ---------- */
+updateProgress();
+showScreen('start');
+
+/* Ensure voices are loaded for TTS */
+window.addEventListener('load', ()=>{
+  if('speechSynthesis' in window){
+    speechSynthesis.getVoices();
+    setTimeout(()=>{ britishVoice = pickBritishVoice(); }, 300);
+  }
+});
+</script>
+</body>
+</html>

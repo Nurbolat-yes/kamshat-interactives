@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>💬 KEEP THE CHAT GOING</title>
+<style>
+  /* =========================================================
+     THEME
+     ========================================================= */
+  :root{
+    --cyan:#00e5ff;
+    --electric-blue:#2979ff;
+    --purple:#7c4dff;
+    --yellow:#ffd60a;
+    --coral:#ff6b6b;
+    --turquoise:#1de9b6;
+    --pink:#ff4fa3;
+    --bg1:#0b1026;
+    --bg2:#1a0b3d;
+    --bg3:#0a2540;
+    --text:#ffffff;
+    --text-soft:#e6ecff;
+    --card-bg:rgba(255,255,255,0.12);
+    --card-border:rgba(255,255,255,0.25);
+    --success:#22c55e;
+    --error:#ef4444;
+    --shadow-glow:0 0 40px rgba(124,77,255,.45), 0 0 80px rgba(0,229,255,.25);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow-x:hidden}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 800px at 10% 10%, rgba(124,77,255,.35), transparent 60%),
+      radial-gradient(1000px 700px at 90% 20%, rgba(0,229,255,.28), transparent 60%),
+      radial-gradient(900px 700px at 50% 100%, rgba(255,107,107,.22), transparent 60%),
+      linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+    min-height:100vh;
+    position:relative;
+  }
+
+  /* =========================================================
+     FLOATING BACKGROUND
+     ========================================================= */
+  .bg-scene{
+    position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .floater{
+    position:absolute;
+    font-size:42px;
+    opacity:.4;
+    filter: blur(.3px) drop-shadow(0 0 10px rgba(255,255,255,.25));
+    animation: floatY 18s ease-in-out infinite;
+    will-change:transform,opacity;
+  }
+  @keyframes floatY{
+    0%,100%{ transform: translate3d(0,0,0) rotate(0deg) }
+    50%   { transform: translate3d(0,-40px,40px) rotate(180deg) }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .floater{ animation:none !important; }
+    .card, .modal-card, .stage-card, .turn-indicator, .timer-ring{ animation:none !important; transition:none !important; }
+    .progress-fill{ transition:none !important; }
+  }
+
+  /* =========================================================
+     APP
+     ========================================================= */
+  .app{
+    position:relative; z-index:2;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    padding:16px;
+  }
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; flex-wrap:wrap;
+    padding:12px 16px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--shadow-glow);
+  }
+  .topbar .brand{
+    font-weight:800; letter-spacing:.5px;
+    font-size:16px;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .topbar .controls{ display:flex; gap:8px; flex-wrap:wrap }
+  .icon-btn{
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    color:#fff; padding:8px 12px;
+    border-radius:12px; cursor:pointer;
+    font-size:14px; font-weight:600;
+    transition: transform .15s ease, background .2s ease;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.18); transform: translateY(-1px) }
+  .icon-btn:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+  .icon-btn.active{ background:linear-gradient(135deg,var(--cyan),var(--electric-blue)); color:#0b1026; border-color:transparent }
+
+  /* =========================================================
+     STATUS ROW
+     ========================================================= */
+  .status-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap:12px;
+    margin-top:12px;
+  }
+  @media (max-width: 900px){ .status-row{ grid-template-columns: 1fr } }
+
+  .turn-indicator{
+    padding:14px 18px;
+    background:linear-gradient(135deg, rgba(255,214,10,.2), rgba(255,107,107,.2));
+    border:2px solid var(--yellow);
+    border-radius:18px;
+    text-align:center;
+    box-shadow: 0 0 24px rgba(255,214,10,.4);
+    animation: pulseTurn 2s ease-in-out infinite;
+  }
+  @keyframes pulseTurn{
+    0%,100%{ box-shadow: 0 0 24px rgba(255,214,10,.4) }
+    50%   { box-shadow: 0 0 40px rgba(255,214,10,.7) }
+  }
+  .turn-indicator .label{
+    font-size:13px; font-weight:700; letter-spacing:2px;
+    color:var(--text-soft); text-transform:uppercase;
+  }
+  .turn-indicator .student-name{
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight:900;
+    background:linear-gradient(90deg,var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-top:4px;
+  }
+  .turn-indicator .stage-name{
+    font-size:14px; font-weight:700; color:var(--cyan); margin-top:2px;
+  }
+
+  .round-display{
+    padding:14px 18px;
+    background:linear-gradient(135deg, rgba(0,229,255,.2), rgba(124,77,255,.2));
+    border:2px solid var(--cyan);
+    border-radius:18px;
+    text-align:center;
+    box-shadow: 0 0 24px rgba(0,229,255,.35);
+  }
+  .round-display .label{
+    font-size:13px; font-weight:700; letter-spacing:2px;
+    color:var(--text-soft); text-transform:uppercase;
+  }
+  .round-display .round-name{
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight:900;
+    background:linear-gradient(90deg,var(--cyan),var(--turquoise));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-top:4px;
+  }
+  .round-display .pair-name{
+    font-size:14px; font-weight:700; color:var(--yellow); margin-top:2px;
+  }
+
+  /* =========================================================
+     TIMER
+     ========================================================= */
+  .timer-box{
+    padding:14px 18px;
+    background:linear-gradient(135deg, rgba(255,107,107,.2), rgba(124,77,255,.2));
+    border:2px solid var(--coral);
+    border-radius:18px;
+    text-align:center;
+    box-shadow: 0 0 24px rgba(255,107,107,.35);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .timer-box .label{
+    font-size:13px; font-weight:700; letter-spacing:2px;
+    color:var(--text-soft); text-transform:uppercase;
+  }
+  .timer-display{
+    font-size: clamp(32px, 4.5vw, 48px);
+    font-weight:900;
+    font-variant-numeric: tabular-nums;
+    background:linear-gradient(90deg,var(--coral),var(--yellow));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-top:2px;
+    letter-spacing:2px;
+  }
+  .timer-display.warning{
+    background:linear-gradient(90deg,var(--error),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation: timerPulse 1s ease-in-out infinite;
+  }
+  @keyframes timerPulse{
+    0%,100%{ transform: scale(1) }
+    50%   { transform: scale(1.05) }
+  }
+  .timer-controls{
+    display:flex; gap:6px; margin-top:6px;
+  }
+  .timer-btn{
+    padding:6px 12px;
+    border-radius:10px;
+    border:1px solid var(--card-border);
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    font-size:13px; font-weight:700;
+    cursor:pointer;
+    transition: background .2s ease;
+  }
+  .timer-btn:hover{ background:rgba(255,255,255,.2) }
+  .timer-btn:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+
+  /* =========================================================
+     PROGRESS
+     ========================================================= */
+  .progress-wrap{
+    margin-top:12px;
+    padding:10px 16px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    backdrop-filter: blur(10px);
+  }
+  .progress-info{
+    display:flex; justify-content:space-between; align-items:center;
+    font-weight:700; font-size:14px; margin-bottom:6px;
+    color:var(--text-soft);
+  }
+  .progress-bar{
+    height:10px; border-radius:999px;
+    background:rgba(255,255,255,.1);
+    overflow:hidden;
+    border:1px solid var(--card-border);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),var(--coral));
+    width:0%;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 0 12px rgba(0,229,255,.6);
+  }
+
+  /* =========================================================
+     SCREENS
+     ========================================================= */
+  .screen{
+    flex:1; display:none;
+    margin-top:14px;
+    animation: fadeUp .5s ease both;
+  }
+  .screen.active{ display:flex; flex-direction:column; align-items:center; }
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translate3d(0,20px,0) }
+    to  { opacity:1; transform: translate3d(0,0,0) }
+  }
+
+  /* =========================================================
+     START SCREEN
+     ========================================================= */
+  .hero{
+    text-align:center; padding:20px 10px;
+    max-width:1000px; width:100%;
+  }
+  .badge{
+    width:140px; height:140px; margin:0 auto 12px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%),
+      conic-gradient(from 0deg, var(--cyan), var(--purple), var(--coral), var(--yellow), var(--turquoise), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-size:72px;
+    box-shadow: 0 0 40px rgba(0,229,255,.5), inset 0 0 30px rgba(255,255,255,.25);
+    animation: badgeGlow 3s ease-in-out infinite;
+  }
+  @keyframes badgeGlow{
+    0%,100%{ transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px rgba(0,229,255,.6)) }
+    50%   { transform: scale(1.05) rotate(8deg); filter: drop-shadow(0 0 28px rgba(124,77,255,.9)) }
+  }
+  .title{
+    font-size: clamp(28px, 4.2vw, 52px);
+    font-weight:900; letter-spacing:1px;
+    background: linear-gradient(90deg, var(--cyan), #fff, var(--yellow), var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 4px 30px rgba(0,229,255,.35);
+    margin:6px 0 4px;
+  }
+  .subtitle{
+    font-size: clamp(16px, 1.8vw, 22px);
+    color:var(--text-soft);
+    font-style:italic;
+    margin-bottom:18px;
+  }
+
+  /* Formula display */
+  .formula{
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+    gap:10px; margin:20px 0;
+  }
+  .formula-step{
+    padding:14px 20px;
+    border-radius:16px;
+    font-size: clamp(16px, 2vw, 22px);
+    font-weight:900;
+    color:#0b1026;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+    animation: stepPop .6s ease both;
+  }
+  .formula-step:nth-child(1){ background:linear-gradient(135deg,var(--cyan),var(--electric-blue)); animation-delay:.1s }
+  .formula-step:nth-child(3){ background:linear-gradient(135deg,var(--purple),var(--pink)); animation-delay:.3s }
+  .formula-step:nth-child(5){ background:linear-gradient(135deg,var(--yellow),var(--coral)); animation-delay:.5s }
+  .formula-step:nth-child(7){ background:linear-gradient(135deg,var(--turquoise),var(--success)); animation-delay:.7s }
+  @keyframes stepPop{
+    from{ opacity:0; transform: scale(.7) }
+    to{ opacity:1; transform: scale(1) }
+  }
+  .formula-arrow{
+    font-size:28px;
+    color:var(--yellow);
+    font-weight:900;
+  }
+
+  /* Model dialogue */
+  .model-box{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:20px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    margin:14px 0;
+    text-align:left;
+    max-width:800px;
+    margin-left:auto; margin-right:auto;
+  }
+  .model-title{
+    font-size:16px; font-weight:800; letter-spacing:2px;
+    color:var(--yellow); text-transform:uppercase;
+    margin-bottom:10px; text-align:center;
+  }
+  .chat-line{
+    display:flex; gap:10px; margin:8px 0;
+    align-items:flex-start;
+  }
+  .chat-line.a{ justify-content:flex-start }
+  .chat-line.b{ justify-content:flex-end }
+  .chat-avatar{
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:18px;
+    flex-shrink:0;
+  }
+  .chat-line.a .chat-avatar{ background:linear-gradient(135deg,var(--cyan),var(--electric-blue)); color:#001024 }
+  .chat-line.b .chat-avatar{ background:linear-gradient(135deg,var(--coral),var(--pink)); color:#2a0606 }
+  .chat-bubble{
+    padding:12px 16px;
+    border-radius:16px;
+    max-width:80%;
+    font-size: clamp(14px, 1.6vw, 17px);
+    font-weight:600;
+    line-height:1.4;
+  }
+  .chat-line.a .chat-bubble{
+    background:rgba(0,229,255,.15);
+    border:1px solid rgba(0,229,255,.4);
+    border-top-left-radius:4px;
+  }
+  .chat-line.b .chat-bubble{
+    background:rgba(255,107,107,.15);
+    border:1px solid rgba(255,107,107,.4);
+    border-top-right-radius:4px;
+  }
+  .chat-bubble .hl{
+    display:inline-block;
+    padding:2px 6px;
+    border-radius:6px;
+    font-weight:800;
+    margin:0 2px;
+  }
+  .hl.answer{ background:rgba(0,229,255,.3); color:#fff; border:1px solid var(--cyan) }
+  .hl.add{ background:rgba(124,77,255,.3); color:#fff; border:1px solid var(--purple) }
+  .hl.reason{ background:rgba(255,214,10,.3); color:#fff; border:1px solid var(--yellow) }
+  .hl.askback{ background:rgba(29,233,182,.3); color:#fff; border:1px solid var(--turquoise) }
+
+  .pair-select{
+    display:grid; grid-template-columns: 1fr 1fr;
+    gap:14px; margin:18px 0;
+    max-width:700px; width:100%;
+  }
+  @media (max-width: 600px){ .pair-select{ grid-template-columns: 1fr } }
+  .pair-card{
+    padding:18px;
+    border-radius:18px;
+    background:linear-gradient(135deg, rgba(0,229,255,.15), rgba(124,77,255,.15));
+    border:2px solid var(--card-border);
+    cursor:pointer;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    text-align:center;
+  }
+  .pair-card:hover{ transform: translateY(-3px); border-color:var(--cyan); box-shadow:0 0 24px rgba(0,229,255,.4) }
+  .pair-card:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+  .pair-card.selected{
+    background:linear-gradient(135deg, var(--yellow), var(--coral));
+    color:#2a0606;
+    border-color:var(--yellow);
+    box-shadow:0 0 30px rgba(255,214,10,.5);
+  }
+  .pair-card .pair-title{
+    font-size: clamp(18px, 2.2vw, 24px);
+    font-weight:900;
+    margin-bottom:6px;
+  }
+  .pair-card .pair-students{
+    font-size:15px; font-weight:700;
+  }
+
+  /* =========================================================
+     BUTTONS
+     ========================================================= */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:16px 28px; border-radius:16px; border:none;
+    font-size:20px; font-weight:800; cursor:pointer;
+    color:#0b1026;
+    background:linear-gradient(135deg,var(--yellow),var(--coral));
+    box-shadow:0 10px 30px rgba(255,107,107,.4), inset 0 -3px 0 rgba(0,0,0,.15);
+    transition: transform .15s ease, filter .2s ease;
+    letter-spacing:.3px;
+  }
+  .btn:hover{ transform: translateY(-2px); filter: brightness(1.05) }
+  .btn:active{ transform: translateY(0) }
+  .btn:focus-visible{ outline:3px solid #fff; outline-offset:3px }
+  .btn.secondary{
+    background:linear-gradient(135deg,var(--cyan),var(--electric-blue));
+    color:#001024;
+    box-shadow:0 10px 30px rgba(0,229,255,.35), inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .btn.ghost{
+    background:rgba(255,255,255,.1); color:#fff;
+    border:1px solid var(--card-border);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{ background:rgba(255,255,255,.2) }
+  .btn.success{
+    background:linear-gradient(135deg,var(--success),var(--turquoise));
+    color:#062b14;
+  }
+  .btn.challenge{
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    color:#fff;
+  }
+  .btn[disabled]{ opacity:.45; cursor:not-allowed; filter:grayscale(.3) }
+
+  .actions{
+    display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; justify-content:center;
+  }
+
+  /* =========================================================
+     STAGE CARD (main speaking card)
+     ========================================================= */
+  .stage-card{
+    width:100%; max-width:1000px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:28px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    text-align:center;
+    animation: slideIn .5s ease both;
+  }
+  @keyframes slideIn{
+    from{ opacity:0; transform: translate3d(0,20px,0) }
+    to  { opacity:1; transform: translate3d(0,0,0) }
+  }
+  .stage-label{
+    font-size:14px; font-weight:800; letter-spacing:3px;
+    color:var(--cyan); text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .stage-speaker{
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight:900;
+    background:linear-gradient(90deg,var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:10px;
+  }
+  .stage-instruction{
+    font-size: clamp(16px, 1.8vw, 20px);
+    color:var(--text-soft);
+    margin-bottom:16px;
+    font-style:italic;
+  }
+  .stage-question{
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight:900;
+    line-height:1.3;
+    padding:20px 24px;
+    background:linear-gradient(135deg, rgba(0,229,255,.15), rgba(124,77,255,.15));
+    border:2px solid var(--card-border);
+    border-radius:18px;
+    margin:14px 0;
+    color:#fff;
+  }
+  .stage-prompt{
+    font-size: clamp(18px, 2.2vw, 24px);
+    font-weight:800;
+    padding:16px 20px;
+    background:linear-gradient(135deg, rgba(255,214,10,.15), rgba(255,107,107,.15));
+    border:2px dashed var(--yellow);
+    border-radius:16px;
+    margin:14px 0;
+    color:var(--yellow);
+  }
+
+  /* Starters */
+  .starters{
+    display:grid; gap:8px;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    margin:14px 0;
+    text-align:left;
+  }
+  .starter{
+    padding:10px 14px;
+    border-radius:12px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--card-border);
+    font-size:15px; font-weight:600;
+    color:var(--text-soft);
+  }
+  .starter b{ color:var(--cyan) }
+
+  /* =========================================================
+     SUPPORT PANELS
+     ========================================================= */
+  .support-panel{
+    width:100%; max-width:1000px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:20px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    margin-top:14px;
+    display:none;
+  }
+  .support-panel.show{ display:block; animation: fadeUp .3s ease both }
+  .support-title{
+    font-size:16px; font-weight:800; letter-spacing:2px;
+    color:var(--yellow); text-transform:uppercase;
+    margin-bottom:10px; text-align:center;
+  }
+  .vocab-chips{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  }
+  .vocab-chip{
+    padding:8px 14px;
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(0,229,255,.2), rgba(124,77,255,.2));
+    border:1px solid var(--card-border);
+    font-size:14px; font-weight:700;
+  }
+
+  /* =========================================================
+     ROUND COMPLETE
+     ========================================================= */
+  .complete-card{
+    width:100%; max-width:800px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:32px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    text-align:center;
+  }
+  .complete-icon{
+    font-size:80px;
+    margin-bottom:10px;
+    animation: popIn .5s ease;
+  }
+  @keyframes popIn{
+    0%{ transform: scale(0) }
+    60%{ transform: scale(1.2) }
+    100%{ transform: scale(1) }
+  }
+  .practised-list{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+    margin:16px 0;
+  }
+  .practised-tag{
+    padding:8px 14px;
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(34,197,94,.3), rgba(29,233,182,.2));
+    border:1px solid var(--success);
+    font-size:14px; font-weight:700;
+    color:#d1fae5;
+  }
+
+  /* =========================================================
+     FINAL
+     ========================================================= */
+  .final-card{
+    width:100%; max-width:1000px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:24px;
+    padding:32px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glow);
+    text-align:center;
+  }
+  .student-scores{
+    display:grid; gap:10px;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    margin:20px 0;
+  }
+  .student-score{
+    padding:16px;
+    border-radius:16px;
+    background:linear-gradient(135deg, rgba(0,229,255,.15), rgba(124,77,255,.15));
+    border:1px solid var(--card-border);
+    font-weight:800; font-size:17px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .student-score .pts{
+    font-size:24px;
+    background:linear-gradient(90deg,var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+
+  /* =========================================================
+     MODAL
+     ========================================================= */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:20;
+    background:rgba(5,8,25,.75);
+    backdrop-filter: blur(8px);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
+    overflow-y:auto;
+  }
+  .modal-backdrop.show{ display:flex; animation: fadeUp .3s ease both }
+  .modal-card{
+    max-width:720px; width:100%;
+    background:linear-gradient(135deg, rgba(11,16,38,.97), rgba(26,11,61,.97));
+    border:1px solid var(--card-border);
+    border-radius:24px; padding:28px;
+    box-shadow: var(--shadow-glow);
+    margin:auto;
+  }
+  .modal-card h3{
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight:900;
+    margin-bottom:14px;
+    background:linear-gradient(90deg,var(--cyan),var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-align:center;
+  }
+  .criteria-list{
+    list-style:none;
+    margin:14px 0;
+  }
+  .criteria-list li{
+    padding:12px 14px;
+    margin-bottom:8px;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    display:flex; justify-content:space-between; align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .criteria-list .c-text{
+    font-size:15px; font-weight:600; flex:1; min-width:200px;
+  }
+  .score-toggle{
+    display:flex; gap:6px;
+  }
+  .score-toggle button{
+    width:40px; height:40px;
+    border-radius:10px;
+    border:2px solid var(--card-border);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    font-weight:900; font-size:16px;
+    cursor:pointer;
+    transition: all .2s ease;
+  }
+  .score-toggle button.active-1{
+    background:linear-gradient(135deg,var(--success),var(--turquoise));
+    color:#062b14;
+    border-color:var(--success);
+    box-shadow:0 0 12px rgba(34,197,94,.5);
+  }
+  .score-toggle button.active-0{
+    background:rgba(255,255,255,.15);
+    border-color:var(--card-border);
+  }
+  .score-toggle button:hover{ transform: translateY(-1px) }
+  .score-toggle button:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px }
+
+  .total-score{
+    margin-top:14px;
+    padding:14px;
+    border-radius:14px;
+    background:linear-gradient(135deg, rgba(255,214,10,.2), rgba(255,107,107,.2));
+    border:2px solid var(--yellow);
+    text-align:center;
+    font-size:22px; font-weight:900;
+  }
+  .total-score .big{
+    font-size:32px;
+    background:linear-gradient(90deg,var(--yellow),var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+
+  /* Student selector for assessment */
+  .student-select{
+    display:flex; gap:8px; justify-content:center; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .student-select button{
+    padding:10px 16px;
+    border-radius:12px;
+    border:2px solid var(--card-border);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    font-weight:800; font-size:15px;
+    cursor:pointer;
+    transition: all .2s ease;
+  }
+  .student-select button.active{
+    background:linear-gradient(135deg,var(--cyan),var(--electric-blue));
+    color:#001024;
+    border-color:var(--cyan);
+  }
+  .student-select button:hover{ transform: translateY(-1px) }
+
+  /* =========================================================
+     CONFETTI
+     ========================================================= */
+  #confetti{
+    position:fixed; inset:0; z-index:5; pointer-events:none;
+  }
+
+  /* =========================================================
+     UTILITIES
+     ========================================================= */
+  .center{ text-align:center }
+  .mt-10{ margin-top:10px } .mt-16{ margin-top:16px } .mt-20{ margin-top:20px }
+  .hidden{ display:none !important }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+  @media (max-width: 640px){
+    .btn{ font-size:17px; padding:14px 20px }
+    .stage-card{ padding:20px }
+    .topbar .brand{ font-size:14px }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     FLOATING BACKGROUND
+     ========================================================= -->
+<div class="bg-scene" id="bgScene" aria-hidden="true"></div>
+
+<!-- =========================================================
+     CONFETTI
+     ========================================================= -->
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<!-- =========================================================
+     APP
+     ========================================================= -->
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">💬 KEEP THE CHAT GOING</div>
+    <div class="controls">
+      <button class="icon-btn" id="btnHelp" aria-label="Speaking help" title="Help me talk">💬 HELP</button>
+      <button class="icon-btn" id="btnVocab" aria-label="Vocabulary bank" title="Vocabulary">📚 VOCAB</button>
+      <button class="icon-btn" id="btnMode" aria-label="Toggle mode" title="Mode">🎯 SUPPORT</button>
+      <button class="icon-btn" id="btnAssess" aria-label="Teacher assessment" title="Assessment">📝 ASSESS</button>
+      <button class="icon-btn active" id="btnSound" aria-label="Toggle sound effects" title="Sound effects">🔊 SOUND ON</button>
+      <button class="icon-btn" id="btnRestart" aria-label="Restart activity" title="Restart">↻ RESTART</button>
+    </div>
+  </div>
+
+  <!-- STATUS ROW -->
+  <div class="status-row">
+    <div class="turn-indicator" id="turnIndicator">
+      <div class="label">👤 CURRENT SPEAKER</div>
+      <div class="student-name" id="studentName">—</div>
+      <div class="stage-name" id="stageName">Select a pair to begin</div>
+    </div>
+    <div class="round-display" id="roundDisplay">
+      <div class="label">🎯 ROUND</div>
+      <div class="round-name" id="roundName">—</div>
+      <div class="pair-name" id="pairName">—</div>
+    </div>
+    <div class="timer-box">
+      <div class="label">⏱️ TIME LEFT</div>
+      <div class="timer-display" id="timerDisplay">01:30</div>
+      <div class="timer-controls">
+        <button class="timer-btn" id="btnTimerStart">▶ START</button>
+        <button class="timer-btn" id="btnTimerPause">⏸ PAUSE</button>
+        <button class="timer-btn" id="btnTimerReset">↻ RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span>SPEAKING PROGRESS</span>
+      <span id="progressCount">Round 0 / 4</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- ===================== START SCREEN ===================== -->
+  <section class="screen active" id="screen-start">
+    <div class="hero">
+      <div class="badge" aria-hidden="true">💬</div>
+      <h1 class="title">KEEP THE CHAT GOING</h1>
+      <p class="subtitle">"Don't stop after one answer!"</p>
+
+      <div class="formula" id="formulaDisplay">
+        <div class="formula-step">ANSWER</div>
+        <div class="formula-arrow">→</div>
+        <div class="formula-step">ADD</div>
+        <div class="formula-arrow">→</div>
+        <div class="formula-step">REASON</div>
+        <div class="formula-arrow">→</div>
+        <div class="formula-step">ASK BACK</div>
+      </div>
+
+      <!-- Model dialogue -->
+      <div class="model-box">
+        <div class="model-title">🎬 MODEL DIALOGUE</div>
+        <div class="chat-line a">
+          <div class="chat-avatar">A</div>
+          <div class="chat-bubble">What apps do you use?</div>
+        </div>
+        <div class="chat-line b">
+          <div class="chat-avatar">B</div>
+          <div class="chat-bubble">
+            <span class="hl answer">I use YouTube.</span>
+            <span class="hl add">I usually use it to watch English videos in the evening.</span>
+            <span class="hl reason">It helps me learn new words because the videos are clear.</span>
+            <span class="hl askback">What about you?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pair selection -->
+      <h3 style="font-size:20px; color:var(--yellow); margin-top:18px">👥 SELECT A PAIR</h3>
+      <div class="pair-select">
+        <button class="pair-card" data-pair="1" aria-label="Select Pair 1">
+          <div class="pair-title">👥 PAIR 1</div>
+          <div class="pair-students">Student 1 + Student 2</div>
+        </button>
+        <button class="pair-card" data-pair="2" aria-label="Select Pair 2">
+          <div class="pair-title">👥 PAIR 2</div>
+          <div class="pair-students">Student 3 + Student 4</div>
+        </button>
+      </div>
+
+      <div class="actions mt-10">
+        <button class="btn" id="btnStart" disabled>🚀 START SPEAKING</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROUND SCREEN ===================== -->
+  <section class="screen" id="screen-round">
+    <div class="stage-card" id="stageCard">
+      <div class="stage-label" id="stageLabel">ROUND 1 — APPS</div>
+      <div class="stage-speaker" id="stageSpeaker">STUDENT A — ASK</div>
+      <div class="stage-instruction" id="stageInstruction">Ask your partner the question.</div>
+      <div class="stage-question" id="stageQuestion">What apps do you use?</div>
+      <div class="stage-prompt hidden" id="stagePrompt"></div>
+
+      <div id="startersArea"></div>
+
+      <div class="actions">
+        <button class="btn ghost" id="btnPrevStage">◀ BACK</button>
+        <button class="btn secondary" id="btnRandomQ">🎲 ANOTHER QUESTION</button>
+        <button class="btn" id="btnNextStage">NEXT STAGE ▶</button>
+      </div>
+    </div>
+
+    <!-- Support panels -->
+    <div class="support-panel" id="helpPanel">
+      <div class="support-title">💬 SPEAKING STARTERS</div>
+      <div id="startersList"></div>
+    </div>
+    <div class="support-panel" id="vocabPanel">
+      <div class="support-title">📚 VOCABULARY BANK</div>
+      <div class="vocab-chips">
+        <span class="vocab-chip">smartphone</span>
+        <span class="vocab-chip">chat</span>
+        <span class="vocab-chip">videos</span>
+        <span class="vocab-chip">games</span>
+        <span class="vocab-chip">screen time</span>
+        <span class="vocab-chip">useful</span>
+        <span class="vocab-chip">online</span>
+        <span class="vocab-chip">wisely</span>
+        <span class="vocab-chip">spend time online</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROUND COMPLETE SCREEN ===================== -->
+  <section class="screen" id="screen-complete">
+    <div class="complete-card">
+      <div class="complete-icon">✓</div>
+      <h2 class="title" style="font-size:clamp(26px,3.6vw,44px)">ROUND COMPLETE!</h2>
+      <p class="subtitle" id="completeRoundName">Round 1 — Apps</p>
+      <h3 style="color:var(--yellow); margin:14px 0 10px">What did you practise?</h3>
+      <div class="practised-list">
+        <div class="practised-tag">✓ Answer</div>
+        <div class="practised-tag">✓ Add a detail</div>
+        <div class="practised-tag">✓ Give a reason</div>
+        <div class="practised-tag">✓ Ask back</div>
+      </div>
+      <div class="actions mt-20">
+        <button class="btn" id="btnNextRound">NEXT ROUND ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL SCREEN ===================== -->
+  <section class="screen" id="screen-final">
+    <div class="final-card">
+      <div style="font-size:80px">🎉</div>
+      <h2 class="title" style="font-size:clamp(26px,3.6vw,44px)">GREAT JOB!</h2>
+      <p class="subtitle">KEEPING A CONVERSATION GOING</p>
+
+      <div class="formula" style="margin:16px 0">
+        <div class="formula-step">ANSWER</div>
+        <div class="formula-arrow">→</div>
+        <div class="formula-step">ADD</div>
+        <div class="formula-arrow">→</div>
+        <div class="formula-step">REASON</div>
+        <div class="formula-arrow">→</div>
+        <div class="formula-step">ASK BACK</div>
+      </div>
+
+      <p style="font-size:20px; font-weight:700; color:var(--yellow); margin:14px 0">
+        "You didn't just answer. You kept the conversation going!"
+      </p>
+
+      <h3 style="color:var(--cyan); margin-top:18px">📝 STUDENT SCORES</h3>
+      <div class="student-scores" id="studentScores"></div>
+
+      <div class="actions mt-20">
+        <button class="btn" id="btnRestartFinal">🔄 RESTART ACTIVITY</button>
+        <button class="btn ghost" id="btnBackToSelect">👥 BACK TO PAIR SELECTION</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===================== HELP MODAL ===================== -->
+<div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="modal-card">
+    <h3 id="helpTitle">💬 HELP ME TALK</h3>
+    <p style="color:var(--text-soft); text-align:center; margin-bottom:14px">Use these phrases to keep the conversation going:</p>
+    <div id="helpStarters"></div>
+    <div class="actions mt-20">
+      <button class="btn secondary" id="btnCloseHelp">CLOSE HELP</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ASSESSMENT MODAL ===================== -->
+<div class="modal-backdrop" id="assessModal" role="dialog" aria-modal="true" aria-labelledby="assessTitle">
+  <div class="modal-card">
+    <h3 id="assessTitle">📝 SPEAKING ASSESSMENT — 5 POINTS</h3>
+    <p style="color:var(--text-soft); text-align:center; margin-bottom:10px">Select the student you are assessing:</p>
+    <div class="student-select" id="studentSelect"></div>
+    <ul class="criteria-list" id="criteriaList"></ul>
+    <div class="total-score">
+      SPEAKING SCORE: <span class="big" id="assessTotal">0 / 5</span>
+    </div>
+    <div class="actions mt-20">
+      <button class="btn secondary" id="btnCloseAssess">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =================================================================
+   💬 KEEP THE CHAT GOING
+   Pair speaking scaffold & classroom controller.
+   ================================================================= */
+
+/* ---------- 1. ROUNDS DATA ---------- */
+const ROUNDS = [
+  {
+    id:1,
+    name:'APPS',
+    mainQ:'What apps do you use?',
+    followUps:[
+      'What do you use them for?',
+      'How often do you use them?',
+      'Why do you like them?',
+      'Which app is your favourite?',
+      'Do you use any apps for learning English?'
+    ]
+  },
+  {
+    id:2,
+    name:'ONLINE TIME',
+    mainQ:'How much time do you spend online?',
+    followUps:[
+      'Why do you spend that much time online?',
+      'What do you usually do online?',
+      'Is it too much time?',
+      'When do you usually go online?',
+      'Do you spend more time online at the weekend?'
+    ]
+  },
+  {
+    id:3,
+    name:'FAVOURITE WEBSITE',
+    mainQ:'What is your favourite website?',
+    followUps:[
+      'What do you use it for?',
+      'How often do you use it?',
+      'Why do you like it?',
+      'When did you first use it?',
+      'Would you recommend it to a friend?'
+    ]
+  },
+  {
+    id:4,
+    name:'OPINION',
+    mainQ:'Are smartphones useful?',
+    followUps:[
+      'Why or why not?',
+      'Can you give an example?',
+      'Do you agree with your partner?',
+      'What do you think?',
+      'What are the good and bad things about smartphones?'
+    ]
+  }
+];
+
+/* Stage types for each round */
+const STAGES = [
+  { key:'MAIN_Q', speaker:'BOTH', title:'MAIN QUESTION', instruction:'Read the question together.' },
+  { key:'ASK', speaker:'A', title:'ASK', instruction:'Student A asks the question.' },
+  { key:'ANSWER', speaker:'B', title:'ANSWER', instruction:'Student B answers the question.' },
+  { key:'ADD', speaker:'B', title:'ADD A DETAIL', instruction:'Student B adds more information.' },
+  { key:'REASON', speaker:'B', title:'GIVE A REASON', instruction:'Student B explains WHY.' },
+  { key:'ASK_BACK', speaker:'B', title:'ASK BACK', instruction:'Student B asks Student A a question.' },
+  { key:'RESPOND', speaker:'A', title:'RESPOND', instruction:'Student A responds to the question.' },
+  { key:'KEEP_GOING', speaker:'BOTH', title:'KEEP GOING!', instruction:'Continue the conversation!' }
+];
+
+/* Starters per stage */
+const STARTERS = {
+  ANSWER: [
+    '<b>I think</b> …',
+    '<b>I use</b> …',
+    '<b>I usually</b> …',
+    '<b>In my opinion</b> …'
+  ],
+  ADD: [
+    '<b>Also,</b> …',
+    '<b>For example,</b> …',
+    '<b>Another thing is</b> …',
+    '<b>I also</b> …'
+  ],
+  REASON: [
+    '… <b>because</b> …',
+    '<b>The reason is</b> …',
+    '<b>It helps me</b> …',
+    '<b>I like it because</b> …'
+  ],
+  ASK_BACK: [
+    '<b>What about you?</b>',
+    '<b>How often do you</b> …?',
+    '<b>Why do you think so?</b>',
+    '<b>Can you tell me more?</b>',
+    '<b>Do you agree?</b>'
+  ],
+  RESPOND: [
+    '<b>I agree because</b> …',
+    '<b>I think</b> …',
+    '<b>Me too!</b> I also …',
+    '<b>That\'s interesting. I</b> …'
+  ],
+  KEEP_GOING: [
+    '<b>because</b> …',
+    '<b>but</b> …',
+    '<b>however</b> …',
+    '<b>also</b> …',
+    '<b>for example</b> …'
+  ]
+};
+
+const CRITERIA = [
+  'Answers the partner\'s question appropriately',
+  'Adds additional information or gives a reason',
+  'Asks a follow-up question',
+  'Keeps the conversation going through several exchanges',
+  'Uses appropriate vocabulary and understandable sentences'
+];
+
+/* ---------- 2. STATE ---------- */
+const PHASE = { START:'start', ROUND:'round', COMPLETE:'complete', FINAL:'final' };
+
+const state = {
+  phase: PHASE.START,
+  selectedPair: null,        // 1 or 2
+  currentRound: 0,           // 0-3
+  currentStage: 0,           // 0-7
+  mode: 'support',           // 'support' | 'challenge'
+  timerSeconds: 90,
+  timerRunning: false,
+  timerInterval: null,
+  lastRandomQ: -1,           // to avoid immediate repeat
+  // Assessment: per-student scores (1-4)
+  scores: {
+    1: [0,0,0,0,0],
+    2: [0,0,0,0,0],
+    3: [0,0,0,0,0],
+    4: [0,0,0,0,0]
+  },
+  assessStudent: 1,
+  challengeModeShown: false
+};
+
+/* ---------- 3. AUDIO ---------- */
+let audioCtx = null;
+let soundOn = true;
+
+function ensureAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e){ console.warn('Web Audio not supported', e); }
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function sfx(type){
+  if(!soundOn) return;
+  const ctx = ensureAudioCtx(); if(!ctx) return;
+  const t = ctx.currentTime;
+  const blip = (freq=600, dur=0.08, typeOsc='sine', vol=0.15)=>{
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = typeOsc; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  };
+  if(type === 'click'){ blip(800, 0.05, 'square', 0.08); }
+  else if(type === 'next'){
+    [600, 800].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      const st = t + i*0.06;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.15, st+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.15);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.2);
+    });
+  }
+  else if(type === 'timerStart'){
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(400, t);
+    o.frequency.linearRampToValueAtTime(700, t+0.15);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12, t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.2);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+0.25);
+  }
+  else if(type === 'timerEnd'){
+    [800, 600, 400].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.15;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.18, st+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.35);
+    });
+  }
+  else if(type === 'complete'){
+    [659.25, 783.99, 1046.50].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      const st = t + i*0.08;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.22, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.35);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.4);
+    });
+  }
+  else if(type === 'final'){
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    notes.forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.09;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.2, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.5);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.55);
+    });
+  }
+  else if(type === 'start'){
+    [523.25, 659.25, 783.99, 1046.50].forEach((f,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      const st = t + i*0.09;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.18, st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st+0.25);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(st); o.stop(st+0.3);
+    });
+  }
+}
+
+/* ---------- 4. BACKGROUND FLOATERS ---------- */
+function buildFloaters(){
+  const scene = document.getElementById('bgScene');
+  const icons = ['💬','📱','🌐','🎧','💻','📶','⭐','🎤','📲','✨','🔊','🎮'];
+  const count = 20;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = icons[i % icons.length];
+    const size = 28 + Math.random()*40;
+    el.style.fontSize = size + 'px';
+    el.style.left = (Math.random()*100) + '%';
+    el.style.top  = (Math.random()*100) + '%';
+    el.style.opacity = (0.2 + Math.random()*0.35).toFixed(2);
+    el.style.animationDuration = (14 + Math.random()*18) + 's';
+    el.style.animationDelay = (-Math.random()*20) + 's';
+    scene.appendChild(el);
+  }
+}
+buildFloaters();
+
+/* ---------- 5. CONFETTI ---------- */
+const confettiCanvas = document.getElementById('confetti');
+const cctx = confettiCanvas.getContext('2d');
+let confettiParts = [];
+let confettiRunning = false;
+function resizeCanvas(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfetti(count=160){
+  const colors = ['#00e5ff','#7c4dff','#ffd60a','#ff6b6b','#1de9b6','#ff4fa3','#2979ff'];
+  for(let i=0;i<count;i++){
+    confettiParts.push({
+      x: Math.random()*confettiCanvas.width,
+      y: -20 - Math.random()*confettiCanvas.height*0.3,
+      w: 6 + Math.random()*8, h: 10 + Math.random()*8,
+      c: colors[Math.floor(Math.random()*colors.length)],
+      vx: -2 + Math.random()*4, vy: 2 + Math.random()*4,
+      a: Math.random()*Math.PI, va: -0.2 + Math.random()*0.4, life: 0
+    });
+  }
+  if(!confettiRunning){ confettiRunning = true; tickConfetti(); }
+}
+function tickConfetti(){
+  cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  confettiParts = confettiParts.filter(p=>p.y < confettiCanvas.height + 40 && p.life < 600);
+  confettiParts.forEach(p=>{
+    p.x += p.vx; p.y += p.vy; p.a += p.va; p.vy += 0.05; p.life++;
+    cctx.save();
+    cctx.translate(p.x, p.y); cctx.rotate(p.a);
+    cctx.fillStyle = p.c;
+    cctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    cctx.restore();
+  });
+  if(confettiParts.length > 0) requestAnimationFrame(tickConfetti);
+  else { confettiRunning = false; cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+}
+
+/* ---------- 6. SCREENS ---------- */
+const screens = {
+  start: document.getElementById('screen-start'),
+  round: document.getElementById('screen-round'),
+  complete: document.getElementById('screen-complete'),
+  final: document.getElementById('screen-final')
+};
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+  const el = screens[name];
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+}
+
+/* ---------- 7. TIMER ---------- */
+function formatTime(s){
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+function updateTimerDisplay(){
+  const d = document.getElementById('timerDisplay');
+  d.textContent = formatTime(state.timerSeconds);
+  if(state.timerSeconds <= 15 && state.timerSeconds > 0){
+    d.classList.add('warning');
+  } else {
+    d.classList.remove('warning');
+  }
+}
+function startTimer(){
+  if(state.timerRunning) return;
+  if(state.timerSeconds <= 0) return;
+  state.timerRunning = true;
+  sfx('timerStart');
+  state.timerInterval = setInterval(()=>{
+    state.timerSeconds--;
+    updateTimerDisplay();
+    if(state.timerSeconds <= 0){
+      stopTimer();
+      sfx('timerEnd');
+      onTimerEnd();
+    }
+  }, 1000);
+}
+function pauseTimer(){
+  if(!state.timerRunning) return;
+  state.timerRunning = false;
+  if(state.timerInterval){ clearInterval(state.timerInterval); state.timerInterval = null; }
+}
+function resetTimer(){
+  pauseTimer();
+  state.timerSeconds = 90;
+  updateTimerDisplay();
+}
+function stopTimer(){
+  pauseTimer();
+}
+function onTimerEnd(){
+  // Round complete
+  if(state.phase === PHASE.ROUND){
+    completeRound();
+  }
+}
+
+/* ---------- 8. UI UPDATES ---------- */
+function getStudentLabel(pairId, letter){
+  // Pair 1: Student 1 (A), Student 2 (B)
+  // Pair 2: Student 3 (A), Student 4 (B)
+  if(pairId === 1){
+    return letter === 'A' ? 'STUDENT 1' : 'STUDENT 2';
+  } else {
+    return letter === 'A' ? 'STUDENT 3' : 'STUDENT 4';
+  }
+}
+
+function updateTurnIndicator(){
+  const nameEl = document.getElementById('studentName');
+  const stageEl = document.getElementById('stageName');
+  if(state.phase !== PHASE.ROUND){
+    nameEl.textContent = '—';
+    stageEl.textContent = state.phase === PHASE.COMPLETE ? 'Round complete' : 'Select a pair to begin';
+    return;
+  }
+  const stage = STAGES[state.currentStage];
+  let speakerLabel;
+  if(stage.speaker === 'A'){
+    speakerLabel = getStudentLabel(state.selectedPair, 'A') + ' — ' + stage.title;
+  } else if(stage.speaker === 'B'){
+    speakerLabel = getStudentLabel(state.selectedPair, 'B') + ' — ' + stage.title;
+  } else {
+    speakerLabel = 'BOTH — ' + stage.title;
+  }
+  nameEl.textContent = speakerLabel;
+  stageEl.textContent = stage.instruction;
+}
+
+function updateRoundDisplay(){
+  const nameEl = document.getElementById('roundName');
+  const pairEl = document.getElementById('pairName');
+  if(state.phase === PHASE.START){
+    nameEl.textContent = '—';
+    pairEl.textContent = '—';
+  } else {
+    const r = ROUNDS[state.currentRound];
+    nameEl.textContent = `ROUND ${r.id} — ${r.name}`;
+    pairEl.textContent = state.selectedPair ? `PAIR ${state.selectedPair}` : '—';
+  }
+}
+
+function updateProgress(){
+  const countEl = document.getElementById('progressCount');
+  const fill = document.getElementById('progressFill');
+  if(state.phase === PHASE.START){
+    countEl.textContent = 'Round 0 / 4';
+    fill.style.width = '0%';
+  } else if(state.phase === PHASE.ROUND){
+    countEl.textContent = `Round ${state.currentRound+1} / 4`;
+    fill.style.width = `${((state.currentRound)/4)*100}%`;
+  } else if(state.phase === PHASE.COMPLETE){
+    countEl.textContent = `Round ${state.currentRound+1} / 4`;
+    fill.style.width = `${((state.currentRound+1)/4)*100}%`;
+  } else if(state.phase === PHASE.FINAL){
+    countEl.textContent = 'Complete!';
+    fill.style.width = '100%';
+  }
+}
+
+/* ---------- 9. RENDER STAGE ---------- */
+function renderStage(){
+  const r = ROUNDS[state.currentRound];
+  const stage = STAGES[state.currentStage];
+
+  document.getElementById('stageLabel').textContent = `ROUND ${r.id} — ${r.name}`;
+
+  // Speaker
+  let speakerText;
+  if(stage.speaker === 'A'){
+    speakerText = getStudentLabel(state.selectedPair, 'A') + ' — ' + stage.title;
+  } else if(stage.speaker === 'B'){
+    speakerText = getStudentLabel(state.selectedPair, 'B') + ' — ' + stage.title;
+  } else {
+    speakerText = 'BOTH — ' + stage.title;
+  }
+  document.getElementById('stageSpeaker').textContent = speakerText;
+  document.getElementById('stageInstruction').textContent = stage.instruction;
+
+  // Question / prompt
+  const qEl = document.getElementById('stageQuestion');
+  const pEl = document.getElementById('stagePrompt');
+
+  if(stage.key === 'MAIN_Q' || stage.key === 'ASK'){
+    qEl.textContent = r.mainQ;
+    qEl.classList.remove('hidden');
+    pEl.classList.add('hidden');
+  } else if(stage.key === 'KEEP_GOING'){
+    qEl.textContent = '💬 Keep the conversation going!';
+    qEl.classList.remove('hidden');
+    // Show a random follow-up
+    const fu = getRandomFollowUp();
+    pEl.textContent = 'Try this: ' + fu;
+    pEl.classList.remove('hidden');
+  } else {
+    qEl.classList.add('hidden');
+    // Show stage-specific prompt
+    const prompts = {
+      ANSWER: 'Answer the question clearly.',
+      ADD: 'Add one more detail to your answer.',
+      REASON: 'Explain WHY — use "because".',
+      ASK_BACK: 'Ask your partner a question back.',
+      RESPOND: 'Respond to your partner\'s question.'
+    };
+    pEl.textContent = prompts[stage.key] || '';
+    pEl.classList.remove('hidden');
+  }
+
+  // Starters
+  renderStarters(stage.key);
+
+  // Prev button
+  const prevBtn = document.getElementById('btnPrevStage');
+  prevBtn.disabled = state.currentStage === 0;
+
+  updateTurnIndicator();
+  updateRoundDisplay();
+  updateProgress();
+
+  // Challenge mode offer after Round 2
+  if(state.currentRound === 1 && state.currentStage === 0 && !state.challengeModeShown){
+    state.challengeModeShown = true;
+    // We'll show a subtle hint via the mode button — teacher can activate
+  }
+}
+
+function renderStarters(stageKey){
+  const area = document.getElementById('startersArea');
+  if(state.mode === 'challenge'){
+    area.innerHTML = '';
+    return;
+  }
+  const starters = STARTERS[stageKey];
+  if(!starters || starters.length === 0){
+    area.innerHTML = '';
+    return;
+  }
+  area.innerHTML = `
+    <div class="starters">
+      ${starters.map(s=>`<div class="starter">${s}</div>`).join('')}
+    </div>
+  `;
+}
+
+function getRandomFollowUp(){
+  const r = ROUNDS[state.currentRound];
+  const pool = r.followUps.filter((_,i)=>i !== state.lastRandomQ);
+  const idx = Math.floor(Math.random() * pool.length);
+  const actualIdx = r.followUps.indexOf(pool[idx]);
+  state.lastRandomQ = actualIdx;
+  return pool[idx];
+}
+
+/* ---------- 10. ROUND FLOW ---------- */
+function startRound(roundIdx){
+  state.currentRound = roundIdx;
+  state.currentStage = 0;
+  state.lastRandomQ = -1;
+  resetTimer();
+  state.phase = PHASE.ROUND;
+  showScreen('round');
+  renderStage();
+}
+
+function nextStage(){
+  sfx('next');
+  if(state.currentStage < STAGES.length - 1){
+    state.currentStage++;
+    renderStage();
+  } else {
+    // Round complete
+    completeRound();
+  }
+}
+
+function prevStage(){
+  sfx('click');
+  if(state.currentStage > 0){
+    state.currentStage--;
+    renderStage();
+  }
+}
+
+function completeRound(){
+  stopTimer();
+  sfx('complete');
+  launchConfetti(120);
+  state.phase = PHASE.COMPLETE;
+  const r = ROUNDS[state.currentRound];
+  document.getElementById('completeRoundName').textContent = `Round ${r.id} — ${r.name}`;
+  showScreen('complete');
+  updateProgress();
+
+  // Update next round button text
+  const nb = document.getElementById('btnNextRound');
+  if(state.currentRound >= ROUNDS.length - 1){
+    nb.textContent = '🏁 SEE FINAL RESULTS';
+  } else {
+    nb.textContent = 'NEXT ROUND ▶';
+  }
+}
+
+function nextRound(){
+  sfx('click');
+  if(state.currentRound >= ROUNDS.length - 1){
+    showFinal();
+  } else {
+    startRound(state.currentRound + 1);
+  }
+}
+
+function showFinal(){
+  state.phase = PHASE.FINAL;
+  sfx('final');
+  launchConfetti(220);
+  showScreen('final');
+  renderFinalScores();
+  updateProgress();
+}
+
+function renderFinalScores(){
+  const box = document.getElementById('studentScores');
+  box.innerHTML = '';
+  for(let i=1;i<=4;i++){
+    const total = state.scores[i].reduce((a,b)=>a+b,0);
+    const div = document.createElement('div');
+    div.className = 'student-score';
+    div.innerHTML = `<span>👤 STUDENT ${i}</span><span class="pts">${total} / 5</span>`;
+    box.appendChild(div);
+  }
+}
+
+/* ---------- 11. HELP MODAL ---------- */
+function renderHelpModal(){
+  const box = document.getElementById('helpStarters');
+  const sections = [
+    { title:'ANSWER', items: STARTERS.ANSWER },
+    { title:'ADD', items: STARTERS.ADD },
+    { title:'REASON', items: STARTERS.REASON },
+    { title:'ASK BACK', items: STARTERS.ASK_BACK }
+  ];
+  box.innerHTML = sections.map(s=>`
+    <div style="margin-bottom:14px">
+      <div style="font-size:14px; font-weight:800; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; margin-bottom:6px">${s.title}</div>
+      <div class="starters">
+        ${s.items.map(i=>`<div class="starter">${i}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------- 12. ASSESSMENT MODAL ---------- */
+function renderAssessmentModal(){
+  // Student selector
+  const sel = document.getElementById('studentSelect');
+  sel.innerHTML = '';
+  for(let i=1;i<=4;i++){
+    const b = document.createElement('button');
+    b.textContent = `Student ${i}`;
+    b.dataset.s = i;
+    if(i === state.assessStudent) b.classList.add('active');
+    b.addEventListener('click', ()=>{
+      sfx('click');
+      state.assessStudent = i;
+      renderAssessmentModal();
+    });
+    sel.appendChild(b);
+  }
+
+  // Criteria
+  const list = document.getElementById('criteriaList');
+  list.innerHTML = '';
+  CRITERIA.forEach((c,idx)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="c-text">${idx+1}. ${c}</div>
+      <div class="score-toggle">
+        <button data-score="0" class="${state.scores[state.assessStudent][idx]===0?'active-0':''}">0</button>
+        <button data-score="1" class="${state.scores[state.assessStudent][idx]===1?'active-1':''}">1</button>
+      </div>
+    `;
+    li.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        sfx('click');
+        const v = parseInt(btn.dataset.score,10);
+        state.scores[state.assessStudent][idx] = v;
+        renderAssessmentModal();
+      });
+    });
+    list.appendChild(li);
+  });
+
+  // Total
+  const total = state.scores[state.assessStudent].reduce((a,b)=>a+b,0);
+  document.getElementById('assessTotal').textContent = `${total} / 5`;
+}
+
+/* ---------- 13. EVENT BINDINGS ---------- */
+// Pair selection
+document.querySelectorAll('.pair-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    sfx('click');
+    document.querySelectorAll('.pair-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.selectedPair = parseInt(card.dataset.pair,10);
+    document.getElementById('btnStart').disabled = false;
+  });
+});
+
+// Start
+document.getElementById('btnStart').addEventListener('click', ()=>{
+  if(!state.selectedPair) return;
+  sfx('start');
+  startRound(0);
+});
+
+// Stage navigation
+document.getElementById('btnNextStage').addEventListener('click', ()=>{
+  nextStage();
+});
+document.getElementById('btnPrevStage').addEventListener('click', ()=>{
+  prevStage();
+});
+document.getElementById('btnRandomQ').addEventListener('click', ()=>{
+  sfx('click');
+  const fu = getRandomFollowUp();
+  const pEl = document.getElementById('stagePrompt');
+  pEl.textContent = '🎲 ' + fu;
+  pEl.classList.remove('hidden');
+});
+
+// Round complete
+document.getElementById('btnNextRound').addEventListener('click', ()=>{
+  nextRound();
+});
+
+// Final
+document.getElementById('btnRestartFinal').addEventListener('click', ()=>{
+  sfx('click');
+  restartAll();
+});
+document.getElementById('btnBackToSelect').addEventListener('click', ()=>{
+  sfx('click');
+  backToPairSelect();
+});
+
+// Top bar buttons
+document.getElementById('btnHelp').addEventListener('click', ()=>{
+  sfx('click');
+  renderHelpModal();
+  document.getElementById('helpModal').classList.add('show');
+});
+document.getElementById('btnCloseHelp').addEventListener('click', ()=>{
+  sfx('click');
+  document.getElementById('helpModal').classList.remove('show');
+});
+document.getElementById('helpModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'helpModal') document.getElementById('helpModal').classList.remove('show');
+});
+
+document.getElementById('btnVocab').addEventListener('click', ()=>{
+  sfx('click');
+  document.getElementById('vocabPanel').classList.toggle('show');
+  document.getElementById('helpPanel').classList.remove('show');
+});
+
+document.getElementById('btnMode').addEventListener('click', (e)=>{
+  sfx('click');
+  state.mode = state.mode === 'support' ? 'challenge' : 'support';
+  e.currentTarget.textContent = state.mode === 'support' ? '🎯 SUPPORT' : '🔥 CHALLENGE';
+  e.currentTarget.classList.toggle('active', state.mode === 'challenge');
+  if(state.phase === PHASE.ROUND) renderStage();
+});
+
+document.getElementById('btnAssess').addEventListener('click', ()=>{
+  sfx('click');
+  renderAssessmentModal();
+  document.getElementById('assessModal').classList.add('show');
+});
+document.getElementById('btnCloseAssess').addEventListener('click', ()=>{
+  sfx('click');
+  document.getElementById('assessModal').classList.remove('show');
+});
+document.getElementById('assessModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'assessModal') document.getElementById('assessModal').classList.remove('show');
+});
+
+document.getElementById('btnSound').addEventListener('click', (e)=>{
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? '🔊 SOUND ON' : '🔇 SOUND OFF';
+  e.currentTarget.classList.toggle('active', soundOn);
+  if(soundOn) sfx('click');
+});
+
+document.getElementById('btnRestart').addEventListener('click', ()=>{
+  sfx('click');
+  restartAll();
+});
+
+// Timer
+document.getElementById('btnTimerStart').addEventListener('click', ()=>{
+  startTimer();
+});
+document.getElementById('btnTimerPause').addEventListener('click', ()=>{
+  pauseTimer();
+  sfx('click');
+});
+document.getElementById('btnTimerReset').addEventListener('click', ()=>{
+  resetTimer();
+  sfx('click');
+});
+
+/* ---------- 14. RESTART / BACK ---------- */
+function restartAll(){
+  stopTimer();
+  state.phase = PHASE.START;
+  state.selectedPair = null;
+  state.currentRound = 0;
+  state.currentStage = 0;
+  state.mode = 'support';
+  state.lastRandomQ = -1;
+  state.assessStudent = 1;
+  state.challengeModeShown = false;
+  for(let i=1;i<=4;i++) state.scores[i] = [0,0,0,0,0];
+  document.querySelectorAll('.pair-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnMode').textContent = '🎯 SUPPORT';
+  document.getElementById('btnMode').classList.remove('active');
+  document.getElementById('vocabPanel').classList.remove('show');
+  document.getElementById('helpPanel').classList.remove('show');
+  ['helpModal','assessModal'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  resetTimer();
+  updateTurnIndicator();
+  updateRoundDisplay();
+  updateProgress();
+  showScreen('start');
+}
+
+function backToPairSelect(){
+  stopTimer();
+  // Keep scores, reset round state
+  state.phase = PHASE.START;
+  state.currentRound = 0;
+  state.currentStage = 0;
+  state.lastRandomQ = -1;
+  state.challengeModeShown = false;
+  document.querySelectorAll('.pair-card').forEach(c=>c.classList.remove('selected'));
+  state.selectedPair = null;
+  document.getElementById('btnStart').disabled = true;
+  resetTimer();
+  updateTurnIndicator();
+  updateRoundDisplay();
+  updateProgress();
+  showScreen('start');
+}
+
+/* ---------- 15. KEYBOARD ---------- */
+document.addEventListener('keydown', (e)=>{
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') {
+    if(e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')){
+      // Let button handle it
+      return;
+    }
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  }
+  if(state.phase === PHASE.ROUND){
+    if(e.key === 'ArrowRight'){
+      e.preventDefault();
+      nextStage();
+    } else if(e.key === 'ArrowLeft'){
+      e.preventDefault();
+      prevStage();
+    } else if(e.key === ' '){
+      e.preventDefault();
+      if(state.timerRunning) pauseTimer();
+      else startTimer();
+    }
+  }
+});
+
+/* ---------- 16. INIT ---------- */
+updateTimerDisplay();
+updateTurnIndicator();
+updateRoundDisplay();
+updateProgress();
+showScreen('start');
+</script>
+</body>
+</html>
