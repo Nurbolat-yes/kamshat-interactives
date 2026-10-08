@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🎒 Vocabulary Lab — My Schoolbag</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Comic Sans MS','Trebuchet MS',sans-serif; user-select:none; }
+  html, body { width:100%; height:100%; overflow:hidden; }
+
+  /* ===== SCENE ===== */
+  .scene {
+    position:relative; width:100vw; height:100vh;
+    background: linear-gradient(to bottom, #7ec8ff 0%, #a8dcff 45%, #c8e9ff 60%, #b6e38a 60%, #8bc963 100%);
+    overflow:hidden;
+  }
+
+  /* Sun */
+  .sun {
+    position:absolute; top:40px; right:80px; width:110px; height:110px;
+    background: radial-gradient(circle, #fff8b0 0%, #ffd84d 55%, rgba(255,216,77,0) 75%);
+    border-radius:50%;
+    animation: sunPulse 4s ease-in-out infinite;
+    box-shadow: 0 0 80px 30px rgba(255,220,100,0.5);
+  }
+  @keyframes sunPulse {
+    0%,100% { transform:scale(1); filter:brightness(1); }
+    50% { transform:scale(1.08); filter:brightness(1.15); }
+  }
+
+  .rays {
+    position:absolute; top:90px; right:130px; width:200px; height:200px;
+    background: radial-gradient(circle, rgba(255,240,150,0.35) 0%, rgba(255,240,150,0) 60%);
+    animation: raysSpin 30s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes raysSpin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+
+  /* Clouds */
+  .cloud {
+    position:absolute; background:#fff; border-radius:50%;
+    box-shadow: 25px 10px 0 -5px #fff, -20px 10px 0 -5px #fff, 10px -10px 0 -5px #fff;
+    opacity:0.9;
+  }
+  .cloud1 { top:60px; left:-150px; width:120px; height:40px; animation: moveCloud 60s linear infinite; }
+  .cloud2 { top:140px; left:-200px; width:160px; height:50px; animation: moveCloud 90s linear infinite; animation-delay:-30s; }
+  .cloud3 { top:90px; left:-180px; width:100px; height:35px; animation: moveCloud 75s linear infinite; animation-delay:-50s; }
+  @keyframes moveCloud {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 300px)); }
+  }
+
+  /* Grass */
+  .grass {
+    position:absolute; bottom:0; left:0; width:100%; height:40vh;
+    background: linear-gradient(to bottom, transparent 0%, #7cbf4a 20%, #5fa53a 100%);
+  }
+  .grass::before {
+    content:''; position:absolute; top:-15px; left:0; width:100%; height:30px;
+    background-image:
+      radial-gradient(ellipse at 10% 100%, #6fb841 0 8px, transparent 9px),
+      radial-gradient(ellipse at 25% 100%, #82c952 0 10px, transparent 11px),
+      radial-gradient(ellipse at 40% 100%, #6fb841 0 7px, transparent 8px),
+      radial-gradient(ellipse at 55% 100%, #82c952 0 9px, transparent 10px),
+      radial-gradient(ellipse at 70% 100%, #6fb841 0 11px, transparent 12px),
+      radial-gradient(ellipse at 85% 100%, #82c952 0 8px, transparent 9px);
+    background-size: 120px 30px;
+  }
+
+  /* Flowers */
+  .flower {
+    position:absolute; bottom:0; width:40px; height:60px;
+    animation: sway 3s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  .flower .stem { position:absolute; bottom:0; left:50%; width:3px; height:35px; background:#2e7d32; transform:translateX(-50%); }
+  .flower .petals {
+    position:absolute; top:0; left:50%; width:28px; height:28px;
+    transform:translateX(-50%);
+    background: radial-gradient(circle, #ffeb3b 30%, transparent 31%);
+  }
+  .flower .petals::before, .flower .petals::after,
+  .flower .petals span::before, .flower .petals span::after {
+    content:''; position:absolute; width:14px; height:14px; border-radius:50%;
+    background: var(--petal, #ff5c8a); top:50%; left:50%;
+  }
+  .flower .petals::before { transform: translate(-130%, -50%); }
+  .flower .petals::after { transform: translate(30%, -50%); }
+  .flower .petals span::before { transform: translate(-50%, -130%); }
+  .flower .petals span::after { transform: translate(-50%, 30%); }
+  @keyframes sway {
+    0%,100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
+  }
+  .f1 { left:8%; --petal:#ff5c8a; animation-delay:0s; }
+  .f2 { left:18%; --petal:#ffeb3b; animation-delay:0.5s; }
+  .f3 { left:30%; --petal:#ba68c8; animation-delay:1s; }
+  .f4 { right:28%; --petal:#ff7043; animation-delay:0.3s; }
+  .f5 { right:15%; --petal:#4fc3f7; animation-delay:0.8s; }
+  .f6 { right:5%; --petal:#ff5c8a; animation-delay:1.2s; }
+
+  /* Butterflies */
+  .butterfly {
+    position:absolute; font-size:28px;
+    animation: flyAround 25s linear infinite;
+  }
+  .butterfly span { display:inline-block; animation: flap 0.3s ease-in-out infinite alternate; }
+  @keyframes flap { from{transform:scaleX(1);} to{transform:scaleX(0.3);} }
+  @keyframes flyAround {
+    0% { transform: translate(0,0) rotate(0deg); }
+    25% { transform: translate(30vw,-10vh) rotate(10deg); }
+    50% { transform: translate(60vw,5vh) rotate(-10deg); }
+    75% { transform: translate(20vw,-15vh) rotate(5deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
+  }
+  .b1 { top:30%; left:10%; animation-duration:28s; }
+  .b2 { top:50%; right:15%; animation-duration:35s; animation-delay:-10s; }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    position:absolute; top:15px; left:50%; transform:translateX(-50%);
+    background: rgba(255,255,255,0.9); padding:10px 25px; border-radius:30px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    display:flex; align-items:center; gap:20px; z-index:50;
+    border: 3px solid #ffd54f;
+  }
+  .title-top { font-size:20px; font-weight:bold; color:#1565c0; }
+  .stars { display:flex; align-items:center; gap:6px; font-size:22px; color:#f9a825; font-weight:bold; }
+
+  /* ===== CONTROLS ===== */
+  .controls {
+    position:absolute; top:15px; right:15px; display:flex; gap:8px; z-index:50;
+  }
+  .ctrl-btn {
+    width:48px; height:48px; border-radius:50%; border:none;
+    background: linear-gradient(145deg,#fff,#e0e0e0);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size:22px; cursor:pointer; transition:transform 0.2s;
+  }
+  .ctrl-btn:hover { transform:scale(1.1); }
+  .ctrl-btn.off { background: linear-gradient(145deg,#ccc,#999); opacity:0.7; }
+
+  /* ===== SCHOOLBAG ===== */
+  .bag-wrap {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    z-index:20; text-align:center;
+  }
+  .bag {
+    width:340px; height:320px; position:relative;
+    cursor:pointer;
+    transition: transform 0.3s;
+    animation: bagFloat 3s ease-in-out infinite;
+  }
+  .bag:hover { transform: scale(1.05); }
+  @keyframes bagFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .bag-body {
+    position:absolute; bottom:0; left:0; width:100%; height:260px;
+    background: linear-gradient(145deg, #42a5f5 0%, #1565c0 100%);
+    border-radius: 30px 30px 40px 40px;
+    box-shadow: inset 0 -20px 40px rgba(0,0,0,0.3), 0 15px 30px rgba(0,0,0,0.3);
+    border: 4px solid #0d47a1;
+  }
+  .bag-body::before {
+    content:''; position:absolute; top:40px; left:50%; transform:translateX(-50%);
+    width:140px; height:90px; background: linear-gradient(145deg,#64b5f6,#1976d2);
+    border-radius:20px; border:3px solid #0d47a1;
+    box-shadow: inset 0 -10px 20px rgba(0,0,0,0.3);
+  }
+  .bag-top {
+    position:absolute; top:0; left:10%; width:80%; height:80px;
+    background: linear-gradient(145deg, #64b5f6, #1976d2);
+    border-radius: 40px 40px 10px 10px;
+    border: 4px solid #0d47a1;
+    z-index:5;
+  }
+  .bag-handle {
+    position:absolute; top:-25px; left:50%; transform:translateX(-50%);
+    width:80px; height:40px; border: 8px solid #0d47a1;
+    border-bottom:none; border-radius: 40px 40px 0 0;
+  }
+  .bag-label {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:24px; font-weight:bold; color:#fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    z-index:6;
+  }
+  .bag.open { animation: bagShake 0.6s; }
+  @keyframes bagShake {
+    0%,100% { transform: translateY(0) rotate(0); }
+    25% { transform: translateY(-5px) rotate(-3deg); }
+    75% { transform: translateY(-5px) rotate(3deg); }
+  }
+
+  .click-hint {
+    position:absolute; bottom:-40px; left:50%; transform:translateX(-50%);
+    font-size:20px; font-weight:bold; color:#fff;
+    background: rgba(255,152,0,0.9); padding:10px 25px; border-radius:25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    animation: hintPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes hintPulse {
+    0%,100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
+  }
+
+  /* Flying object */
+  .flying-obj {
+    position:absolute; font-size:80px; z-index:30;
+    pointer-events:none;
+    animation: flyOut 1s cubic-bezier(.68,-0.55,.27,1.55) forwards;
+  }
+  @keyframes flyOut {
+    0% { transform: translate(-50%,-50%) scale(0.3) rotate(0); opacity:0; }
+    50% { transform: translate(-50%,-150%) scale(1.2) rotate(180deg); opacity:1; }
+    100% { transform: translate(-50%,-50%) scale(1) rotate(360deg); opacity:1; }
+  }
+
+  /* ===== VOCABULARY CARD ===== */
+  .card-container {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:450px; height:550px;
+    perspective: 1000px;
+    z-index:40;
+    display:none;
+  }
+  .card-container.active { display:block; animation: cardAppear 0.6s; }
+  @keyframes cardAppear {
+    from { transform: translate(-50%,-50%) scale(0) rotate(-10deg); opacity:0; }
+    to { transform: translate(-50%,-50%) scale(1) rotate(0); opacity:1; }
+  }
+
+  .card {
+    width:100%; height:100%;
+    position:relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+    cursor:pointer;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position:absolute; width:100%; height:100%;
+    backface-visibility: hidden;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:30px;
+  }
+
+  .card-front {
+    background: linear-gradient(145deg, #fff9e6, #fff3c4);
+    border: 6px solid #ffd54f;
+  }
+
+  .card-back {
+    background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+    border: 6px solid #64b5f6;
+    transform: rotateY(180deg);
+  }
+
+  .card-emoji {
+    font-size:160px;
+    margin:20px 0;
+    animation: emojiBounce 2s ease-in-out infinite;
+  }
+  @keyframes emojiBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .card-word {
+    font-size:56px; font-weight:bold; color:#d84315;
+    text-transform: uppercase; letter-spacing:3px;
+    text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(0,0,0,0.1);
+    margin:15px 0;
+  }
+
+  .listen-btn {
+    padding:15px 35px; font-size:22px; font-weight:bold;
+    background: linear-gradient(145deg, #ab47bc, #6a1b9a);
+    color:#fff; border:4px solid #fff; border-radius:30px;
+    cursor:pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    margin:10px 0;
+  }
+  .listen-btn:hover { transform: scale(1.05); }
+
+  .flip-hint {
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    font-size:16px; color:#666; font-style:italic;
+  }
+
+  .card-meaning {
+    font-size:24px; color:#1565c0; text-align:center;
+    margin:20px 0; line-height:1.5;
+  }
+
+  .card-example {
+    font-size:22px; color:#2e7d32; text-align:center;
+    margin:15px 0; font-style:italic;
+    background: rgba(255,255,255,0.6); padding:15px 20px;
+    border-radius:15px; border: 2px dashed #66bb6a;
+  }
+
+  .listen-example-btn {
+    padding:12px 30px; font-size:20px; font-weight:bold;
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    color:#fff; border:4px solid #fff; border-radius:30px;
+    cursor:pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    margin:10px 0;
+  }
+  .listen-example-btn:hover { transform: scale(1.05); }
+
+  /* Progress */
+  .progress-bar {
+    position:absolute; top:80px; left:50%; transform:translateX(-50%);
+    background: rgba(255,255,255,0.9); padding:12px 25px; border-radius:25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    display:flex; align-items:center; gap:15px; z-index:50;
+    border: 3px solid #66bb6a;
+  }
+  .progress-text { font-size:20px; font-weight:bold; color:#2e7d32; }
+  .progress-dots { display:flex; gap:8px; }
+  .p-dot {
+    width:20px; height:20px; border-radius:50%;
+    background:#ccc; border:2px solid #fff;
+    transition: all 0.3s;
+  }
+  .p-dot.done { background:#4caf50; transform:scale(1.1); }
+  .p-dot.current { background:#ff9800; animation: dotPulse 1s infinite; }
+  @keyframes dotPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,152,0,0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(255,152,0,0); }
+  }
+
+  /* Next button */
+  .next-card-btn {
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    padding:15px 40px; font-size:22px; font-weight:bold;
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    color:#fff; border:4px solid #fff; border-radius:30px;
+    cursor:pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    z-index:45;
+    display:none;
+    animation: btnPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes btnPulse {
+    0%,100% { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    50% { box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 40px rgba(102,187,106,0.6); }
+  }
+  .next-card-btn.active { display:block; }
+  .next-card-btn:hover { transform: translateX(-50%) scale(1.05); }
+
+  /* ===== OVERLAYS ===== */
+  .overlay {
+    position:absolute; inset:0; background: rgba(0,0,0,0.5);
+    display:none; align-items:center; justify-content:center;
+    z-index:100; backdrop-filter: blur(3px);
+  }
+  .overlay.active { display:flex; animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+  .panel {
+    background: linear-gradient(145deg, #fff9e6, #fff3c4);
+    border: 5px solid #ffd54f;
+    border-radius: 30px;
+    padding: 30px 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align:center;
+    max-width: 90vw;
+    animation: popIn 0.5s cubic-bezier(.68,-0.55,.27,1.55);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity:0; }
+    to { transform: scale(1); opacity:1; }
+  }
+
+  .panel h2 {
+    font-size: 36px; color:#1565c0; margin-bottom:15px;
+    text-shadow: 2px 2px 0 #fff;
+  }
+  .panel p { font-size:22px; color:#424242; margin:10px 0; }
+
+  /* Challenge */
+  .challenge-emoji {
+    font-size:140px; margin:20px 0;
+    animation: emojiBounce 2s ease-in-out infinite;
+  }
+
+  .choices {
+    display:flex; gap:20px; justify-content:center; margin-top:25px; flex-wrap:wrap;
+  }
+  .choice-btn {
+    width:140px; height:140px; font-size:80px;
+    background: linear-gradient(145deg, #fff, #ffe082);
+    border:4px solid #ff9800; border-radius:25px;
+    cursor:pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .choice-btn:hover { transform: translateY(-5px) scale(1.05); }
+  .choice-btn.correct {
+    background: linear-gradient(145deg, #81c784, #2e7d32);
+    animation: correctGlow 0.8s;
+  }
+  .choice-btn.wrong {
+    background: linear-gradient(145deg, #e57373, #c62828);
+    animation: shake 0.5s;
+  }
+  @keyframes correctGlow {
+    0%,100% { box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+    50% { box-shadow: 0 0 40px 10px #4caf50; }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  /* Sparkles */
+  .sparkle {
+    position:absolute; font-size:30px; pointer-events:none;
+    animation: sparkleFly 1s forwards;
+  }
+  @keyframes sparkleFly {
+    0% { transform: translate(0,0) scale(0); opacity:1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1.5); opacity:0; }
+  }
+
+  /* Confetti */
+  .confetti {
+    position:absolute; width:10px; height:14px;
+    animation: confettiFall 2.5s linear forwards;
+    z-index:200; pointer-events:none;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0); opacity:1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity:0.5; }
+  }
+
+  /* Great message */
+  .great-msg {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:60px; font-weight:bold; color:#fff;
+    text-shadow: 3px 3px 0 #2e7d32, 6px 6px 20px rgba(0,0,0,0.5);
+    z-index:150; pointer-events:none;
+    animation: greatPop 1.5s forwards;
+  }
+  @keyframes greatPop {
+    0% { transform: translate(-50%,-50%) scale(0) rotate(-20deg); opacity:0; }
+    40% { transform: translate(-50%,-50%) scale(1.3) rotate(5deg); opacity:1; }
+    70% { transform: translate(-50%,-50%) scale(1) rotate(0); opacity:1; }
+    100% { transform: translate(-50%,-50%) scale(0.8) rotate(0); opacity:0; }
+  }
+
+  /* Final */
+  .final-title {
+    font-size:60px; font-weight:bold; color:#d84315;
+    text-shadow: 4px 4px 0 #fff, 8px 8px 0 rgba(0,0,0,0.2);
+    animation: finalBounce 1.5s cubic-bezier(.68,-0.55,.27,1.55);
+    margin:20px 0;
+  }
+  @keyframes finalBounce {
+    0% { transform: scale(0) rotate(-10deg); }
+    60% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .final-stars {
+    font-size:60px; margin:20px 0;
+    display:flex; justify-content:center; gap:10px;
+  }
+  .final-star {
+    animation: starPop 0.5s backwards;
+  }
+  .final-star:nth-child(1) { animation-delay: 0.2s; }
+  .final-star:nth-child(2) { animation-delay: 0.4s; }
+  .final-star:nth-child(3) { animation-delay: 0.6s; }
+  .final-star:nth-child(4) { animation-delay: 0.8s; }
+  .final-star:nth-child(5) { animation-delay: 1s; }
+  @keyframes starPop {
+    from { transform: scale(0) rotate(-180deg); opacity:0; }
+    to { transform: scale(1) rotate(0); opacity:1; }
+  }
+
+  .bottom-bar {
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    display:flex; gap:12px; z-index:50;
+  }
+  .bottom-btn {
+    padding:12px 25px; font-size:18px; font-weight:bold;
+    background: linear-gradient(145deg, #fff, #e0e0e0);
+    color:#333; border:3px solid #fff; border-radius:25px;
+    cursor:pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+  }
+  .bottom-btn:hover { transform: translateY(-3px); }
+  .bottom-btn.primary {
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    color:#fff;
+  }
+
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="scene" id="scene">
+  <!-- Sun -->
+  <div class="rays"></div>
+  <div class="sun"></div>
+
+  <!-- Clouds -->
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <div class="cloud cloud3"></div>
+
+  <!-- Butterflies -->
+  <div class="butterfly b1"><span>🦋</span></div>
+  <div class="butterfly b2"><span>🦋</span></div>
+
+  <!-- Grass -->
+  <div class="grass"></div>
+
+  <!-- Flowers -->
+  <div class="flower f1"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f2"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f3"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f4"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f5"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f6"><div class="stem"></div><div class="petals"><span></span></div></div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="title-top">🎒 VOCABULARY LAB</div>
+    <div class="stars">⭐ <span id="starCount">0</span></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="soundBtn" title="Sound">🔊</button>
+    <button class="ctrl-btn" id="musicBtn" title="Music">🎵</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-text">WORD <span id="wordNum">1</span>/5</div>
+    <div class="progress-dots">
+      <div class="p-dot" data-i="0"></div>
+      <div class="p-dot" data-i="1"></div>
+      <div class="p-dot" data-i="2"></div>
+      <div class="p-dot" data-i="3"></div>
+      <div class="p-dot" data-i="4"></div>
+    </div>
+  </div>
+
+  <!-- Schoolbag -->
+  <div class="bag-wrap" id="bagWrap">
+    <div class="bag" id="bag">
+      <div class="bag-handle"></div>
+      <div class="bag-top"></div>
+      <div class="bag-body"></div>
+      <div class="bag-label">CLICK ME!</div>
+    </div>
+    <div class="click-hint">👆 Click the bag!</div>
+  </div>
+
+  <!-- Vocabulary Card -->
+  <div class="card-container" id="cardContainer">
+    <div class="card" id="card">
+      <div class="card-face card-front">
+        <div class="card-emoji" id="cardEmoji">✏️</div>
+        <div class="card-word" id="cardWord">PENCIL</div>
+        <button class="listen-btn" id="listenBtn">🔊 LISTEN</button>
+        <div class="flip-hint">👆 CLICK TO FLIP</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-meaning" id="cardMeaning">A thin object used for writing.</div>
+        <div class="card-example" id="cardExample">"I have got a pencil."</div>
+        <button class="listen-example-btn" id="listenExampleBtn">🔊 Listen example</button>
+        <div class="flip-hint">👆 CLICK TO FLIP BACK</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="next-card-btn" id="nextCardBtn">➡️ NEXT WORD</button>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <button class="bottom-btn" id="replayBtn">🔄 REPLAY</button>
+    <button class="bottom-btn primary" id="nextMissionBtn">➡️ NEXT MISSION</button>
+  </div>
+
+  <!-- OVERLAY: Challenge -->
+  <div class="overlay" id="challengeOverlay">
+    <div class="panel">
+      <h2>🎯 VOCABULARY CHALLENGE</h2>
+      <p>What is it?</p>
+      <div class="challenge-emoji" id="challengeEmoji">✏️</div>
+      <div class="choices" id="challengeChoices"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: Final -->
+  <div class="overlay" id="finalOverlay">
+    <div class="panel">
+      <h2>🏆 VOCABULARY MASTER</h2>
+      <div class="final-title">🎒 MY SCHOOLBAG</div>
+      <p>You learned all the words!</p>
+      <div class="final-stars" id="finalStars"></div>
+      <p id="finalMessage"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const WORDS = [
+  { emoji:'🖊️', word:'pen', meaning:'A tool used for writing with ink.', example:'I have got a pen.' },
+  { emoji:'✏️', word:'pencil', meaning:'A thin object used for writing.', example:'I have got a pencil.' },
+  { emoji:'🧽', word:'rubber', meaning:'Used to erase pencil marks.', example:'I have got a rubber.' },
+  { emoji:'🎒', word:'bag', meaning:'You put your school things in it.', example:'I have got a bag.' },
+  { emoji:'🍎', word:'apple', meaning:'A red or green fruit.', example:'I have got an apple.' }
+];
+
+/* ============ STATE ============ */
+let state = {
+  currentWord: 0,
+  soundOn: true,
+  musicOn: true,
+  stars: 0,
+  challengeIndex: 0,
+  challengeCorrect: 0,
+  audioCtx: null,
+  musicTimer: null,
+  cardFlipped: false
+};
+
+/* ============ AUDIO ============ */
+function getCtx(){
+  if(!state.audioCtx){
+    try { state.audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
+  }
+  return state.audioCtx;
+}
+function playTone(freq, dur=0.2, type='sine', vol=0.2){
+  if(!state.soundOn) return;
+  const ctx = getCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(); osc.stop(ctx.currentTime + dur);
+}
+function playCorrect(){
+  playTone(660, 0.15, 'triangle', 0.25);
+  setTimeout(()=>playTone(880, 0.15, 'triangle', 0.25), 120);
+  setTimeout(()=>playTone(1100, 0.25, 'triangle', 0.25), 240);
+}
+function playWrong(){
+  playTone(220, 0.2, 'sawtooth', 0.15);
+  setTimeout(()=>playTone(180, 0.3, 'sawtooth', 0.15), 150);
+}
+function playClick(){ playTone(500, 0.08, 'square', 0.1); }
+function playReveal(){
+  playTone(523, 0.15, 'sine', 0.2);
+  setTimeout(()=>playTone(659, 0.15, 'sine', 0.2), 120);
+  setTimeout(()=>playTone(784, 0.15, 'sine', 0.2), 240);
+  setTimeout(()=>playTone(1046, 0.3, 'sine', 0.2), 360);
+}
+function playFanfare(){
+  const notes = [523, 659, 784, 1046, 784, 1046, 1318];
+  notes.forEach((n,i)=> setTimeout(()=>playTone(n, 0.2, 'triangle', 0.25), i*120));
+}
+
+function startMusic(){
+  if(state.musicTimer) return;
+  const melody = [523, 659, 784, 659, 523, 784, 659, 523];
+  let i = 0;
+  state.musicTimer = setInterval(()=>{
+    if(state.musicOn){
+      const ctx = getCtx(); if(!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = melody[i % melody.length];
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.4);
+    }
+    i++;
+  }, 500);
+}
+function stopMusic(){
+  if(state.musicTimer){ clearInterval(state.musicTimer); state.musicTimer=null; }
+}
+
+/* ============ SPEECH ============ */
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = 0.85; u.pitch = 1.2;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+/* ============ UI HELPERS ============ */
+const $ = id => document.getElementById(id);
+
+function updateStars(){ $('starCount').textContent = state.stars; }
+
+function updateProgress(){
+  document.querySelectorAll('.p-dot').forEach((d,i)=>{
+    d.classList.remove('done','current');
+    if(i < state.currentWord) d.classList.add('done');
+    else if(i === state.currentWord && state.currentWord < WORDS.length) d.classList.add('current');
+  });
+  $('wordNum').textContent = Math.min(state.currentWord + 1, WORDS.length);
+}
+
+function spawnSparkles(x, y, count=12){
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = ['✨','⭐','💫','🌟'][Math.floor(Math.random()*4)];
+    const angle = (Math.PI*2*i)/count;
+    const dist = 80 + Math.random()*60;
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    s.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+    s.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+    $('scene').appendChild(s);
+    setTimeout(()=>s.remove(), 1000);
+  }
+}
+
+function spawnConfetti(count=80){
+  const colors = ['#ff5252','#ffd54f','#69f0ae','#40c4ff','#ea80fc','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.top = '-20px';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay = Math.random()*0.8 + 's';
+    c.style.animationDuration = (2 + Math.random()*1.5) + 's';
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    $('scene').appendChild(c);
+    setTimeout(()=>c.remove(), 4000);
+  }
+}
+
+function showGreatJob(){
+  const m = document.createElement('div');
+  m.className = 'great-msg';
+  m.textContent = '🌟 GREAT JOB! 🌟';
+  $('scene').appendChild(m);
+  setTimeout(()=>m.remove(), 1500);
+}
+
+/* ============ FLOW ============ */
+function clickBag(){
+  if(state.currentWord >= WORDS.length) return;
+  
+  playClick();
+  startMusic();
+  
+  const bag = $('bag');
+  bag.classList.add('open');
+  
+  const word = WORDS[state.currentWord];
+  
+  // Create flying object
+  const fly = document.createElement('div');
+  fly.className = 'flying-obj';
+  fly.textContent = word.emoji;
+  fly.style.left = '50%';
+  fly.style.top = '50%';
+  $('scene').appendChild(fly);
+  
+  setTimeout(()=>{
+    fly.remove();
+    showCard();
+  }, 1000);
+}
+
+function showCard(){
+  const word = WORDS[state.currentWord];
+  
+  $('cardEmoji').textContent = word.emoji;
+  $('cardWord').textContent = word.word.toUpperCase();
+  $('cardMeaning').textContent = word.meaning;
+  $('cardExample').textContent = `"${word.example}"`;
+  
+  $('card').classList.remove('flipped');
+  state.cardFlipped = false;
+  
+  $('cardContainer').classList.add('active');
+  $('bagWrap').style.display = 'none';
+  $('nextCardBtn').classList.remove('active');
+  
+  playReveal();
+  
+  // Auto speak word
+  setTimeout(()=> speak(word.word), 500);
+}
+
+function flipCard(){
+  if(state.cardFlipped){
+    $('card').classList.remove('flipped');
+    state.cardFlipped = false;
+  } else {
+    $('card').classList.add('flipped');
+    state.cardFlipped = true;
+    playClick();
+  }
+}
+
+function nextWord(){
+  playClick();
+  $('cardContainer').classList.remove('active');
+  $('nextCardBtn').classList.remove('active');
+  
+  state.currentWord++;
+  updateProgress();
+  
+  if(state.currentWord >= WORDS.length){
+    // Start challenge
+    setTimeout(()=> startChallenge(), 500);
+  } else {
+    // Show bag again
+    setTimeout(()=>{
+      $('bagWrap').style.display = 'block';
+      $('bag').classList.remove('open');
+    }, 300);
+  }
+}
+
+function startChallenge(){
+  state.challengeIndex = 0;
+  state.challengeCorrect = 0;
+  showChallengeQuestion();
+}
+
+function showChallengeQuestion(){
+  if(state.challengeIndex >= WORDS.length){
+    showFinal();
+    return;
+  }
+  
+  const correct = WORDS[state.challengeIndex];
+  const others = WORDS.filter(w => w.word !== correct.word);
+  
+  // Shuffle others
+  for(let i=others.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [others[i],others[j]] = [others[j],others[i]];
+  }
+  
+  const choices = [correct, others[0], others[1]];
+  // Shuffle choices
+  for(let i=choices.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [choices[i],choices[j]] = [choices[j],choices[i]];
+  }
+  
+  $('challengeEmoji').textContent = correct.emoji;
+  
+  const box = $('challengeChoices');
+  box.innerHTML = '';
+  choices.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.textContent = c.emoji;
+    b.onclick = () => handleChallengeChoice(b, c.word, correct.word);
+    box.appendChild(b);
+  });
+  
+  $('challengeOverlay').classList.add('active');
+}
+
+function handleChallengeChoice(btn, chosen, correct){
+  if(btn.classList.contains('correct') || btn.style.pointerEvents === 'none') return;
+  
+  playClick();
+  
+  if(chosen === correct){
+    btn.classList.add('correct');
+    state.stars++;
+    state.challengeCorrect++;
+    updateStars();
+    playCorrect();
+    spawnConfetti(60);
+    showGreatJob();
+    
+    document.querySelectorAll('#challengeChoices .choice-btn').forEach(b=>b.style.pointerEvents='none');
+    
+    setTimeout(()=>{
+      $('challengeOverlay').classList.remove('active');
+      state.challengeIndex++;
+      setTimeout(()=> showChallengeQuestion(), 400);
+    }, 1600);
+  } else {
+    btn.classList.add('wrong');
+    btn.style.pointerEvents = 'none';
+    playWrong();
+    
+    const panel = $('challengeOverlay').querySelector('.panel');
+    panel.style.animation = 'none';
+    void panel.offsetWidth;
+    panel.style.animation = 'shake 0.5s';
+    
+    const msg = document.createElement('div');
+    msg.className = 'great-msg';
+    msg.textContent = '🔄 TRY AGAIN!';
+    msg.style.color = '#ffeb3b';
+    msg.style.textShadow = '3px 3px 0 #c62828, 6px 6px 20px rgba(0,0,0,0.5)';
+    $('scene').appendChild(msg);
+    setTimeout(()=>msg.remove(), 1200);
+  }
+}
+
+function showFinal(){
+  $('finalStars').innerHTML = '';
+  for(let i=0;i<5;i++){
+    const star = document.createElement('span');
+    star.className = 'final-star';
+    star.textContent = i < state.challengeCorrect ? '⭐' : '☆';
+    $('finalStars').appendChild(star);
+  }
+  
+  let message = '';
+  if(state.challengeCorrect === 5) message = 'Perfect! You are a Vocabulary Master! 🎉';
+  else if(state.challengeCorrect >= 3) message = 'Great job! You learned the words well! 👏';
+  else message = 'Good try! Keep practicing! 💪';
+  
+  $('finalMessage').textContent = message;
+  
+  $('finalOverlay').classList.add('active');
+  playFanfare();
+  spawnConfetti(120);
+  
+  setTimeout(()=> speak("Vocabulary Master! You learned all the words!"), 500);
+}
+
+function restart(){
+  state.currentWord = 0;
+  state.stars = 0;
+  state.challengeIndex = 0;
+  state.challengeCorrect = 0;
+  state.cardFlipped = false;
+  
+  updateStars();
+  updateProgress();
+  
+  $('cardContainer').classList.remove('active');
+  $('nextCardBtn').classList.remove('active');
+  $('challengeOverlay').classList.remove('active');
+  $('finalOverlay').classList.remove('active');
+  
+  $('bagWrap').style.display = 'block';
+  $('bag').classList.remove('open');
+}
+
+/* ============ EVENTS ============ */
+$('bag').addEventListener('click', clickBag);
+
+$('card').addEventListener('click', (e)=>{
+  if(e.target.tagName === 'BUTTON') return;
+  flipCard();
+});
+
+$('listenBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const word = WORDS[state.currentWord];
+  speak(word.word);
+});
+
+$('listenExampleBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const word = WORDS[state.currentWord];
+  speak(word.example);
+});
+
+$('nextCardBtn').addEventListener('click', nextWord);
+
+// Show next button after card is flipped
+const observer = new MutationObserver((mutations)=>{
+  mutations.forEach((m)=>{
+    if(m.attributeName === 'class'){
+      if($('card').classList.contains('flipped')){
+        setTimeout(()=> $('nextCardBtn').classList.add('active'), 800);
+      }
+    }
+  });
+});
+observer.observe($('card'), { attributes: true });
+
+$('replayBtn').addEventListener('click', ()=>{
+  playClick();
+  restart();
+});
+
+$('nextMissionBtn').addEventListener('click', ()=>{
+  playClick();
+  alert('Next mission coming soon! 🚀');
+});
+
+$('soundBtn').addEventListener('click', ()=>{
+  state.soundOn = !state.soundOn;
+  $('soundBtn').textContent = state.soundOn ? '🔊' : '🔇';
+  $('soundBtn').classList.toggle('off', !state.soundOn);
+  if(state.soundOn) playClick();
+});
+
+$('musicBtn').addEventListener('click', ()=>{
+  state.musicOn = !state.musicOn;
+  $('musicBtn').textContent = state.musicOn ? '🎵' : '🎵';
+  $('musicBtn').classList.toggle('off', !state.musicOn);
+  if(!state.musicOn) stopMusic();
+  else startMusic();
+});
+
+/* Init */
+updateProgress();
+updateStars();
+
+document.addEventListener('click', ()=>{
+  const ctx = getCtx();
+  if(ctx && ctx.state === 'suspended') ctx.resume();
+}, { once:true });
+</script>
+
+</body>
+</html>

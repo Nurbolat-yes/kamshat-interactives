@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🔎 Schoolbag Detectives</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Comic Sans MS','Trebuchet MS',sans-serif; user-select:none; }
+  html, body { width:100%; height:100%; overflow:hidden; }
+
+  /* ===== SCENE ===== */
+  .scene {
+    position:relative; width:100vw; height:100vh;
+    background: linear-gradient(to bottom, #7ec8ff 0%, #a8dcff 45%, #c8e9ff 60%, #b6e38a 60%, #8bc963 100%);
+    overflow:hidden;
+  }
+
+  /* Sun */
+  .sun {
+    position:absolute; top:40px; right:80px; width:100px; height:100px;
+    background: radial-gradient(circle, #fff8b0 0%, #ffd84d 55%, rgba(255,216,77,0) 75%);
+    border-radius:50%;
+    animation: sunPulse 4s ease-in-out infinite;
+    box-shadow: 0 0 80px 30px rgba(255,220,100,0.5);
+  }
+  @keyframes sunPulse {
+    0%,100% { transform:scale(1); filter:brightness(1); }
+    50% { transform:scale(1.08); filter:brightness(1.15); }
+  }
+  .rays {
+    position:absolute; top:90px; right:130px; width:200px; height:200px;
+    background: radial-gradient(circle, rgba(255,240,150,0.35) 0%, rgba(255,240,150,0) 60%);
+    animation: raysSpin 30s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes raysSpin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+
+  /* Clouds */
+  .cloud {
+    position:absolute; background:#fff; border-radius:50%;
+    box-shadow: 25px 10px 0 -5px #fff, -20px 10px 0 -5px #fff, 10px -10px 0 -5px #fff;
+    opacity:0.9;
+  }
+  .cloud1 { top:60px; left:-150px; width:120px; height:40px; animation: moveCloud 60s linear infinite; }
+  .cloud2 { top:140px; left:-200px; width:160px; height:50px; animation: moveCloud 90s linear infinite; animation-delay:-30s; }
+  .cloud3 { top:90px; left:-180px; width:100px; height:35px; animation: moveCloud 75s linear infinite; animation-delay:-50s; }
+  @keyframes moveCloud {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 300px)); }
+  }
+
+  /* Grass */
+  .grass {
+    position:absolute; bottom:0; left:0; width:100%; height:40vh;
+    background: linear-gradient(to bottom, transparent 0%, #7cbf4a 20%, #5fa53a 100%);
+  }
+  .grass::before {
+    content:''; position:absolute; top:-15px; left:0; width:100%; height:30px;
+    background-image:
+      radial-gradient(ellipse at 10% 100%, #6fb841 0 8px, transparent 9px),
+      radial-gradient(ellipse at 25% 100%, #82c952 0 10px, transparent 11px),
+      radial-gradient(ellipse at 40% 100%, #6fb841 0 7px, transparent 8px),
+      radial-gradient(ellipse at 55% 100%, #82c952 0 9px, transparent 10px),
+      radial-gradient(ellipse at 70% 100%, #6fb841 0 11px, transparent 12px),
+      radial-gradient(ellipse at 85% 100%, #82c952 0 8px, transparent 9px);
+    background-size: 120px 30px;
+  }
+
+  /* Flowers */
+  .flower {
+    position:absolute; bottom:0; width:40px; height:60px;
+    animation: sway 3s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  .flower .stem { position:absolute; bottom:0; left:50%; width:3px; height:35px; background:#2e7d32; transform:translateX(-50%); }
+  .flower .petals {
+    position:absolute; top:0; left:50%; width:28px; height:28px;
+    transform:translateX(-50%);
+    background: radial-gradient(circle, #ffeb3b 30%, transparent 31%);
+  }
+  .flower .petals::before, .flower .petals::after,
+  .flower .petals span::before, .flower .petals span::after {
+    content:''; position:absolute; width:14px; height:14px; border-radius:50%;
+    background: var(--petal, #ff5c8a); top:50%; left:50%;
+  }
+  .flower .petals::before { transform: translate(-130%, -50%); }
+  .flower .petals::after { transform: translate(30%, -50%); }
+  .flower .petals span::before { transform: translate(-50%, -130%); }
+  .flower .petals span::after { transform: translate(-50%, 30%); }
+  @keyframes sway {
+    0%,100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
+  }
+  .f1 { left:8%; --petal:#ff5c8a; }
+  .f2 { left:18%; --petal:#ffeb3b; animation-delay:0.5s; }
+  .f3 { left:30%; --petal:#ba68c8; animation-delay:1s; }
+  .f4 { right:28%; --petal:#ff7043; animation-delay:0.3s; }
+  .f5 { right:15%; --petal:#4fc3f7; animation-delay:0.8s; }
+  .f6 { right:5%; --petal:#ff5c8a; animation-delay:1.2s; }
+
+  /* Butterflies */
+  .butterfly {
+    position:absolute; font-size:28px;
+    animation: flyAround 25s linear infinite;
+  }
+  .butterfly span { display:inline-block; animation: flap 0.3s ease-in-out infinite alternate; }
+  @keyframes flap { from{transform:scaleX(1);} to{transform:scaleX(0.3);} }
+  @keyframes flyAround {
+    0% { transform: translate(0,0) rotate(0deg); }
+    25% { transform: translate(30vw,-10vh) rotate(10deg); }
+    50% { transform: translate(60vw,5vh) rotate(-10deg); }
+    75% { transform: translate(20vw,-15vh) rotate(5deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
+  }
+  .b1 { top:30%; left:10%; animation-duration:28s; }
+  .b2 { top:50%; right:15%; animation-duration:35s; animation-delay:-10s; }
+
+  /* ===== HEADER ===== */
+  .header {
+    position:absolute; top:15px; left:50%; transform:translateX(-50%);
+    background: linear-gradient(145deg, #263238, #37474f);
+    padding: 12px 30px;
+    border-radius: 30px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    display:flex; align-items:center; gap:20px;
+    z-index: 50;
+    border: 3px solid #ffd54f;
+  }
+  .header-title {
+    font-size: 22px; font-weight: bold;
+    color: #ffd54f;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    letter-spacing: 1px;
+  }
+  .mission-badge {
+    background: linear-gradient(145deg, #ff9800, #e65100);
+    color:#fff; font-weight:bold; font-size:16px;
+    padding: 6px 14px; border-radius: 20px;
+    border: 2px solid #fff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  }
+  .stars {
+    display:flex; align-items:center; gap:6px;
+    font-size: 22px; color:#ffd54f; font-weight:bold;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+
+  /* ===== CONTROLS ===== */
+  .controls {
+    position:absolute; top:15px; right:15px;
+    display:flex; gap:8px; z-index:50;
+  }
+  .ctrl-btn {
+    width:48px; height:48px; border-radius:50%; border:none;
+    background: linear-gradient(145deg,#fff,#e0e0e0);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size:22px; cursor:pointer; transition:transform 0.2s;
+  }
+  .ctrl-btn:hover { transform:scale(1.1); }
+  .ctrl-btn.off { background: linear-gradient(145deg,#ccc,#999); opacity:0.7; }
+
+  /* ===== QUESTION AREA ===== */
+  .question-area {
+    position:absolute; top:50%; left:50%;
+    transform: translate(-50%, -50%);
+    width: 90vw; max-width: 1100px;
+    text-align:center;
+    z-index: 20;
+  }
+
+  .question-card {
+    background: linear-gradient(145deg, #fff9e6, #fff3c4);
+    border: 5px solid #ffd54f;
+    border-radius: 25px;
+    padding: 25px 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    margin-bottom: 25px;
+    position:relative;
+  }
+  .question-card::before {
+    content:'🔎';
+    position:absolute; top:-25px; left:50%; transform:translateX(-50%);
+    font-size: 50px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  .question-text {
+    font-size: 34px;
+    font-weight: bold;
+    color: #1565c0;
+    text-shadow: 2px 2px 0 #fff;
+    margin-top: 15px;
+  }
+  .question-number {
+    font-size: 18px;
+    color: #e65100;
+    font-weight: bold;
+    margin-top: 5px;
+  }
+
+  /* ===== CHARACTER CARDS ===== */
+  .cards-row {
+    display:flex; gap:20px; justify-content:center; flex-wrap:wrap;
+  }
+  .char-card {
+    width: 220px; height: 320px;
+    background: linear-gradient(145deg, #fff, #f5f5f5);
+    border: 5px solid #90a4ae;
+    border-radius: 25px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .char-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    border-color: #ff9800;
+    box-shadow: 0 15px 35px rgba(255,152,0,0.4);
+  }
+  .char-card.correct {
+    border-color: #2e7d32;
+    background: linear-gradient(145deg, #c8e6c9, #81c784);
+    animation: correctGlow 1.2s;
+  }
+  .char-card.wrong {
+    animation: shake 0.5s;
+    border-color: #c62828;
+  }
+  .char-card.disabled { pointer-events:none; opacity:0.6; }
+  .char-card.revealed { pointer-events:none; }
+
+  @keyframes correctGlow {
+    0%,100% { box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    50% { box-shadow: 0 0 60px 20px #4caf50, 0 0 100px 30px rgba(76,175,80,0.5); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-15px) rotate(-3deg); }
+    40% { transform: translateX(15px) rotate(3deg); }
+    60% { transform: translateX(-10px) rotate(-2deg); }
+    80% { transform: translateX(10px) rotate(2deg); }
+  }
+
+  .char-name {
+    position:absolute; bottom:10px; left:0; right:0;
+    font-size: 22px; font-weight: bold;
+    color: #333;
+    background: rgba(255,255,255,0.9);
+    padding: 6px;
+    border-radius: 0 0 20px 20px;
+  }
+
+  /* ===== CHARACTERS (CSS drawn) ===== */
+  .char-figure {
+    position:relative;
+    width: 140px; height: 200px;
+    margin-top: 10px;
+  }
+
+  /* Teacher */
+  .char-teacher .head {
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:75px; height:80px;
+    background: radial-gradient(circle at 40% 40%, #ffe0b2, #ffb74d);
+    border-radius: 50%;
+    border: 3px solid #5d4037;
+  }
+  .char-teacher .hair {
+    position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+    width:80px; height:45px;
+    background: #4e342e;
+    border-radius: 50% 50% 30% 30%;
+    z-index:-1;
+  }
+  .char-teacher .hair::after {
+    content:''; position:absolute; top:10px; right:-8px;
+    width:25px; height:25px; background: #4e342e; border-radius: 50%;
+  }
+  .char-teacher .eye {
+    position:absolute; top:32px; width:7px; height:9px;
+    background:#3e2723; border-radius:50%;
+    animation: blink 4s infinite;
+  }
+  .char-teacher .eye.left { left:20px; }
+  .char-teacher .eye.right { right:20px; }
+  @keyframes blink {
+    0%,92%,100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+  }
+  .char-teacher .glasses {
+    position:absolute; top:28px; left:50%; transform:translateX(-50%);
+    width:55px; height:20px;
+    border: 2px solid #3e2723;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+  }
+  .char-teacher .glasses::before {
+    content:''; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+    width:5px; height:2px; background:#3e2723;
+  }
+  .char-teacher .mouth {
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    width:18px; height:8px;
+    border: 2px solid #c62828;
+    border-top:none;
+    border-radius: 0 0 18px 18px;
+    background: #e57373;
+  }
+  .char-teacher .body {
+    position:absolute; top:75px; left:50%; transform:translateX(-50%);
+    width:100px; height:115px;
+    background: linear-gradient(145deg, #7b1fa2, #4a148c);
+    border-radius: 25px 25px 15px 15px;
+    border: 3px solid #311b92;
+  }
+  .char-teacher .arm {
+    position:absolute; top:85px; width:20px; height:70px;
+    background: linear-gradient(145deg, #7b1fa2, #4a148c);
+    border: 3px solid #311b92;
+    border-radius: 12px;
+  }
+  .char-teacher .arm.left { left:12px; }
+  .char-teacher .arm.right { right:12px; }
+
+  /* Student */
+  .char-student .head {
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:70px; height:75px;
+    background: radial-gradient(circle at 40% 40%, #ffe0b2, #ffb74d);
+    border-radius: 50%;
+    border: 3px solid #5d4037;
+  }
+  .char-student .hair {
+    position:absolute; top:-5px; left:50%; transform:translateX(-50%);
+    width:73px; height:32px;
+    background: #3e2723;
+    border-radius: 50% 50% 20% 20%;
+    z-index:-1;
+  }
+  .char-student .hair::before, .char-student .hair::after {
+    content:''; position:absolute; top:-5px;
+    width:13px; height:18px;
+    background: #3e2723;
+    border-radius: 50% 50% 0 0;
+  }
+  .char-student .hair::before { left:14px; transform: rotate(-20deg); }
+  .char-student .hair::after { right:14px; transform: rotate(20deg); }
+  .char-student .eye {
+    position:absolute; top:30px; width:7px; height:9px;
+    background:#3e2723; border-radius:50%;
+    animation: blink 4.5s infinite;
+  }
+  .char-student .eye.left { left:18px; }
+  .char-student .eye.right { right:18px; }
+  .char-student .mouth {
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    width:16px; height:7px;
+    border: 2px solid #c62828;
+    border-top:none;
+    border-radius: 0 0 16px 16px;
+    background: #e57373;
+  }
+  .char-student .body {
+    position:absolute; top:70px; left:50%; transform:translateX(-50%);
+    width:95px; height:110px;
+    background: linear-gradient(145deg, #42a5f5, #1565c0);
+    border-radius: 22px 22px 12px 12px;
+    border: 3px solid #0d47a1;
+  }
+  .char-student .arm {
+    position:absolute; top:80px; width:20px; height:70px;
+    background: linear-gradient(145deg, #42a5f5, #1565c0);
+    border: 3px solid #0d47a1;
+    border-radius: 12px;
+  }
+  .char-student .arm.left { left:14px; }
+  .char-student .arm.right { right:14px; }
+
+  /* Tom */
+  .char-tom .head {
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:70px; height:75px;
+    background: radial-gradient(circle at 40% 40%, #ffe0b2, #ffb74d);
+    border-radius: 50%;
+    border: 3px solid #5d4037;
+  }
+  .char-tom .hair {
+    position:absolute; top:-3px; left:50%; transform:translateX(-50%);
+    width:73px; height:28px;
+    background: #f57c00;
+    border-radius: 50% 50% 20% 20%;
+    z-index:-1;
+  }
+  .char-tom .eye {
+    position:absolute; top:30px; width:7px; height:9px;
+    background:#3e2723; border-radius:50%;
+    animation: blink 5s infinite;
+  }
+  .char-tom .eye.left { left:18px; }
+  .char-tom .eye.right { right:18px; }
+  .char-tom .mouth {
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    width:16px; height:7px;
+    border: 2px solid #c62828;
+    border-top:none;
+    border-radius: 0 0 16px 16px;
+    background: #e57373;
+  }
+  .char-tom .body {
+    position:absolute; top:70px; left:50%; transform:translateX(-50%);
+    width:95px; height:110px;
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    border-radius: 22px 22px 12px 12px;
+    border: 3px solid #1b5e20;
+  }
+  .char-tom .arm {
+    position:absolute; top:80px; width:20px; height:70px;
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    border: 3px solid #1b5e20;
+    border-radius: 12px;
+  }
+  .char-tom .arm.left { left:14px; }
+  .char-tom .arm.right { right:14px; }
+
+  /* Object on character (clue reveal) */
+  .char-object {
+    position:absolute;
+    font-size: 50px;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.6s cubic-bezier(.68,-0.55,.27,1.55);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    z-index: 5;
+  }
+  .char-object.show {
+    opacity: 1;
+    transform: scale(1);
+    animation: objPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes objPulse {
+    0%,100% { transform: scale(1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 4px 15px rgba(255,200,0,0.8)); }
+  }
+
+  /* ===== STAMP ===== */
+  .stamp {
+    position:absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0) rotate(-20deg);
+    font-size: 60px;
+    font-weight: bold;
+    color: #2e7d32;
+    background: rgba(200,230,201,0.95);
+    border: 6px double #2e7d32;
+    padding: 15px 30px;
+    border-radius: 15px;
+    z-index: 100;
+    pointer-events:none;
+    opacity: 0;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+  }
+  .stamp.show {
+    animation: stampSlam 1.2s forwards;
+  }
+  @keyframes stampSlam {
+    0% { transform: translate(-50%, -50%) scale(3) rotate(-30deg); opacity:0; }
+    30% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity:1; }
+    50% { transform: translate(-50%, -50%) scale(1.1) rotate(-8deg); opacity:1; }
+    70% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity:1; }
+    100% { transform: translate(-50%, -50%) scale(0.9) rotate(-10deg); opacity:0; }
+  }
+
+  /* ===== MAGNIFYING GLASS ===== */
+  .mag-glass {
+    position:absolute;
+    font-size: 100px;
+    pointer-events:none;
+    opacity: 0;
+    z-index: 90;
+    filter: drop-shadow(0 6px 15px rgba(0,0,0,0.4));
+  }
+  .mag-glass.scan {
+    animation: magScan 1.5s ease-in-out forwards;
+  }
+  @keyframes magScan {
+    0% { opacity:0; transform: translate(-50%, -50%) scale(0.5) rotate(-30deg); }
+    20% { opacity:1; transform: translate(-50%, -50%) scale(1.2) rotate(10deg); }
+    50% { opacity:1; transform: translate(-50%, -50%) scale(1) rotate(-5deg); }
+    80% { opacity:1; transform: translate(-50%, -50%) scale(1.3) rotate(15deg); }
+    100% { opacity:0; transform: translate(-50%, -50%) scale(0.5) rotate(30deg); }
+  }
+
+  /* ===== LOOK AGAIN MESSAGE ===== */
+  .look-again {
+    position:absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 48px;
+    font-weight: bold;
+    color: #c62828;
+    background: rgba(255,255,255,0.95);
+    border: 5px solid #c62828;
+    padding: 15px 30px;
+    border-radius: 25px;
+    z-index: 100;
+    pointer-events:none;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+  }
+  .look-again.show {
+    animation: lookAgainPop 1.2s forwards;
+  }
+  @keyframes lookAgainPop {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity:0; }
+    30% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); opacity:1; }
+    60% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity:1; }
+    100% { transform: translate(-50%, -50%) scale(0.9) rotate(0); opacity:0; }
+  }
+
+  /* ===== PROGRESS ===== */
+  .progress {
+    position:absolute; bottom:15px; left:50%; transform:translateX(-50%);
+    display:flex; gap:10px;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 50;
+    border: 3px solid #ffd54f;
+  }
+  .prog-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    border: 3px solid #fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 14px; font-weight: bold;
+    color:#666;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .prog-dot.done {
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    color:#fff;
+    transform: scale(1.1);
+  }
+  .prog-dot.current {
+    background: linear-gradient(145deg, #ff9800, #e65100);
+    color:#fff;
+    animation: dotPulse 1s infinite;
+  }
+  @keyframes dotPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,152,0,0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(255,152,0,0); }
+  }
+
+  /* ===== BOTTOM BUTTONS ===== */
+  .bottom-bar {
+    position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+    display:flex; gap:12px; z-index:50;
+  }
+  .bottom-btn {
+    padding: 12px 25px;
+    font-size: 18px; font-weight: bold;
+    background: linear-gradient(145deg, #fff, #e0e0e0);
+    color: #333;
+    border: 3px solid #fff;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .bottom-btn:hover { transform: translateY(-3px); }
+  .bottom-btn.primary {
+    background: linear-gradient(145deg, #66bb6a, #2e7d32);
+    color:#fff;
+  }
+  .bottom-btn.orange {
+    background: linear-gradient(145deg, #ff9800, #e65100);
+    color:#fff;
+  }
+
+  /* ===== FINAL OVERLAY ===== */
+  .overlay {
+    position:absolute; inset:0;
+    background: rgba(0,0,0,0.6);
+    display:none; align-items:center; justify-content:center;
+    z-index: 200;
+    backdrop-filter: blur(5px);
+  }
+  .overlay.active { display:flex; animation: fadeIn 0.5s; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+  .final-card {
+    background: linear-gradient(145deg, #fff9e6, #fff3c4);
+    border: 6px solid #ffd54f;
+    border-radius: 30px;
+    padding: 40px 50px;
+    text-align:center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: popIn 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+    max-width: 90vw;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5) rotate(-5deg); opacity:0; }
+    to { transform: scale(1) rotate(0); opacity:1; }
+  }
+  .final-card h1 {
+    font-size: 52px;
+    color:#d84315;
+    text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  .final-score {
+    font-size: 36px;
+    font-weight: bold;
+    color:#2e7d32;
+    margin: 15px 0;
+  }
+  .final-score span {
+    color: #d84315;
+    font-size: 48px;
+  }
+
+  /* Detective badge */
+  .badge {
+    width: 180px; height: 180px;
+    margin: 20px auto;
+    position: relative;
+    animation: badgeSpin 3s ease-out;
+  }
+  @keyframes badgeSpin {
+    0% { transform: scale(0) rotate(-720deg); opacity:0; }
+    60% { transform: scale(1.2) rotate(20deg); opacity:1; }
+    100% { transform: scale(1) rotate(0); opacity:1; }
+  }
+  .badge-star {
+    width: 100%; height: 100%;
+    background: linear-gradient(145deg, #ffd54f, #ff9800);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 10px 30px rgba(255,152,0,0.5);
+    animation: badgeGlow 2s ease-in-out infinite;
+  }
+  @keyframes badgeGlow {
+    0%,100% { filter: drop-shadow(0 0 20px rgba(255,200,0,0.6)); }
+    50% { filter: drop-shadow(0 0 40px rgba(255,200,0,1)); }
+  }
+  .badge-inner {
+    width: 80px; height: 80px;
+    background: linear-gradient(145deg, #c62828, #8e0000);
+    border-radius: 50%;
+    border: 4px solid #ffd54f;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 40px;
+    color:#ffd54f;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+
+  .final-buttons {
+    display:flex; gap:15px; justify-content:center; flex-wrap:wrap;
+    margin-top: 25px;
+  }
+  .final-btn {
+    padding: 14px 28px;
+    font-size: 18px; font-weight: bold;
+    border: 4px solid #fff;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .final-btn:hover { transform: scale(1.05); }
+  .final-btn.restart { background: linear-gradient(145deg, #42a5f5, #1565c0); color:#fff; }
+  .final-btn.watch { background: linear-gradient(145deg, #ab47bc, #6a1b9a); color:#fff; }
+  .final-btn.next { background: linear-gradient(145deg, #66bb6a, #2e7d32); color:#fff; }
+
+  /* ===== CONFETTI ===== */
+  .confetti {
+    position:absolute; width:10px; height:14px;
+    animation: confettiFall 3s linear forwards;
+    z-index:300; pointer-events:none;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0); opacity:1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity:0.5; }
+  }
+
+  /* ===== SPARKLES ===== */
+  .sparkle {
+    position:absolute; font-size:30px; pointer-events:none;
+    animation: sparkleFly 1s forwards;
+    z-index: 150;
+  }
+  @keyframes sparkleFly {
+    0% { transform: translate(0,0) scale(0); opacity:1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1.5); opacity:0; }
+  }
+
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="scene" id="scene">
+  <!-- Background -->
+  <div class="rays"></div>
+  <div class="sun"></div>
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <div class="cloud cloud3"></div>
+  <div class="butterfly b1"><span>🦋</span></div>
+  <div class="butterfly b2"><span>🦋</span></div>
+  <div class="grass"></div>
+  <div class="flower f1"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f2"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f3"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f4"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f5"><div class="stem"></div><div class="petals"><span></span></div></div>
+  <div class="flower f6"><div class="stem"></div><div class="petals"><span></span></div></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">🔎 SCHOOLBAG DETECTIVE</div>
+    <div class="mission-badge">MISSION 1/3</div>
+    <div class="stars">⭐ <span id="starCount">0</span></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="soundBtn" title="Sound">🔊</button>
+    <button class="ctrl-btn" id="musicBtn" title="Music">🎵</button>
+  </div>
+
+  <!-- Question Area -->
+  <div class="question-area" id="questionArea">
+    <div class="question-card">
+      <div class="question-number" id="questionNumber">QUESTION 1 OF 4</div>
+      <div class="question-text" id="questionText">Who has got a pen?</div>
+    </div>
+    <div class="cards-row" id="cardsRow"></div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress" id="progress">
+    <div class="prog-dot current" data-i="0">1</div>
+    <div class="prog-dot" data-i="1">2</div>
+    <div class="prog-dot" data-i="2">3</div>
+    <div class="prog-dot" data-i="3">4</div>
+  </div>
+
+  <!-- Bottom buttons -->
+  <div class="bottom-bar">
+    <button class="bottom-btn orange" id="restartBtn">🔄 RESTART</button>
+    <button class="bottom-btn" id="watchBtn">🎬 WATCH STORY</button>
+    <button class="bottom-btn primary" id="nextBtn">➡️ NEXT</button>
+  </div>
+
+  <!-- Final overlay -->
+  <div class="overlay" id="finalOverlay">
+    <div class="final-card">
+      <h1>🔎 CASE SOLVED!</h1>
+      <div class="badge">
+        <div class="badge-star">
+          <div class="badge-inner">🔎</div>
+        </div>
+      </div>
+      <div class="final-score">Score: <span id="finalScore">4</span>/4</div>
+      <p style="font-size:22px; color:#424242; margin-top:10px;">
+        🌟 Excellent detective work! 🌟
+      </p>
+      <div class="final-buttons">
+        <button class="final-btn restart" id="finalRestartBtn">🔄 RESTART</button>
+        <button class="final-btn watch" id="finalWatchBtn">🎬 WATCH STORY AGAIN</button>
+        <button class="final-btn next" id="finalNextBtn">➡️ NEXT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const QUESTIONS = [
+  {
+    q: "Who has got a pen?",
+    correct: 'student',
+    chars: ['teacher', 'student', 'tom'],
+    clueObj: { student: '🖊️' }
+  },
+  {
+    q: "Who has got a bag?",
+    correct: 'student',
+    chars: ['student', 'tom', 'teacher'],
+    clueObj: { student: '🎒' }
+  },
+  {
+    q: "Who has got two rubbers?",
+    correct: 'tom',
+    chars: ['teacher', 'tom', 'student'],
+    clueObj: { tom: '🧽🧽' }
+  },
+  {
+    q: "Who hasn't got a rubber?",
+    correct: 'student',
+    chars: ['tom', 'student', 'teacher'],
+    clueObj: { student: '❌🧽' }
+  }
+];
+
+const CHAR_NAMES = {
+  teacher: 'Teacher',
+  student: 'Student',
+  tom: 'Tom'
+};
+
+/* ============ STATE ============ */
+const state = {
+  currentQ: 0,
+  stars: 0,
+  soundOn: true,
+  musicOn: true,
+  audioCtx: null,
+  musicTimer: null,
+  answered: false
+};
+
+/* ============ AUDIO ============ */
+function getCtx(){
+  if(!state.audioCtx){
+    try { state.audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
+  }
+  return state.audioCtx;
+}
+function playTone(freq, dur=0.2, type='sine', vol=0.2){
+  if(!state.soundOn) return;
+  const ctx = getCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(); osc.stop(ctx.currentTime + dur);
+}
+function playCorrect(){
+  playTone(660, 0.15, 'triangle', 0.25);
+  setTimeout(()=>playTone(880, 0.15, 'triangle', 0.25), 120);
+  setTimeout(()=>playTone(1100, 0.25, 'triangle', 0.25), 240);
+}
+function playWrong(){
+  playTone(220, 0.2, 'sawtooth', 0.15);
+  setTimeout(()=>playTone(180, 0.3, 'sawtooth', 0.15), 150);
+}
+function playClick(){ playTone(500, 0.08, 'square', 0.1); }
+function playStamp(){
+  playTone(150, 0.15, 'square', 0.3);
+  setTimeout(()=>playTone(100, 0.2, 'square', 0.2), 100);
+}
+function playFanfare(){
+  const notes = [523, 659, 784, 1046, 784, 1046, 1318];
+  notes.forEach((n,i)=> setTimeout(()=>playTone(n, 0.2, 'triangle', 0.25), i*120));
+}
+
+function startMusic(){
+  if(state.musicTimer) return;
+  const melody = [392, 440, 523, 440, 392, 523, 440, 392];
+  let i = 0;
+  state.musicTimer = setInterval(()=>{
+    if(state.musicOn){
+      const ctx = getCtx(); if(!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = melody[i % melody.length];
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.4);
+    }
+    i++;
+  }, 500);
+}
+function stopMusic(){
+  if(state.musicTimer){ clearInterval(state.musicTimer); state.musicTimer=null; }
+}
+
+/* ============ HELPERS ============ */
+const $ = id => document.getElementById(id);
+
+function updateStars(){ $('starCount').textContent = state.stars; }
+
+function updateProgress(){
+  document.querySelectorAll('.prog-dot').forEach((d,i)=>{
+    d.classList.remove('done','current');
+    if(i < state.currentQ) d.classList.add('done');
+    else if(i === state.currentQ && state.currentQ < QUESTIONS.length) d.classList.add('current');
+  });
+}
+
+function spawnConfetti(count=80){
+  const colors = ['#ff5252','#ffd54f','#69f0ae','#40c4ff','#ea80fc','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.top = '-20px';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay = Math.random()*0.8 + 's';
+    c.style.animationDuration = (2 + Math.random()*1.5) + 's';
+    $('scene').appendChild(c);
+    setTimeout(()=>c.remove(), 4000);
+  }
+}
+
+function spawnSparkles(x, y, count=12){
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = ['✨','⭐','💫','🌟'][Math.floor(Math.random()*4)];
+    const angle = (Math.PI*2*i)/count;
+    const dist = 80 + Math.random()*60;
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    s.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+    s.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+    $('scene').appendChild(s);
+    setTimeout(()=>s.remove(), 1000);
+  }
+}
+
+/* ============ CHARACTER HTML ============ */
+function getCharHTML(type){
+  if(type === 'teacher'){
+    return `
+      <div class="char-figure char-teacher">
+        <div class="hair"></div>
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="glasses"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+      </div>`;
+  }
+  if(type === 'student'){
+    return `
+      <div class="char-figure char-student">
+        <div class="hair"></div>
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+      </div>`;
+  }
+  if(type === 'tom'){
+    return `
+      <div class="char-figure char-tom">
+        <div class="hair"></div>
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+      </div>`;
+  }
+  return '';
+}
+
+/* ============ RENDER QUESTION ============ */
+function renderQuestion(){
+  const q = QUESTIONS[state.currentQ];
+  $('questionText').textContent = q.q;
+  $('questionNumber').textContent = `QUESTION ${state.currentQ + 1} OF ${QUESTIONS.length}`;
+
+  const row = $('cardsRow');
+  row.innerHTML = '';
+
+  q.chars.forEach(charType => {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    card.dataset.char = charType;
+    card.innerHTML = `
+      ${getCharHTML(charType)}
+      <div class="char-object" data-for="${charType}"></div>
+      <div class="char-name">${CHAR_NAMES[charType]}</div>
+    `;
+    card.addEventListener('click', ()=> handleChoice(card, charType));
+    row.appendChild(card);
+  });
+
+  state.answered = false;
+  updateProgress();
+}
+
+/* ============ HANDLE CHOICE ============ */
+function handleChoice(card, chosen){
+  if(state.answered) return;
+  if(card.classList.contains('correct')) return;
+
+  const q = QUESTIONS[state.currentQ];
+  playClick();
+
+  if(chosen === q.correct){
+    // CORRECT
+    state.answered = true;
+    state.stars++;
+    updateStars();
+    card.classList.add('correct');
+    playCorrect();
+    playStamp();
+
+    // Disable other cards
+    document.querySelectorAll('.char-card').forEach(c => {
+      if(c !== card) c.classList.add('disabled');
+    });
+
+    // Magnifying glass animation
+    const rect = card.getBoundingClientRect();
+    const mag = document.createElement('div');
+    mag.className = 'mag-glass';
+    mag.textContent = '🔎';
+    mag.style.left = (rect.left + rect.width/2) + 'px';
+    mag.style.top = (rect.top + rect.height/2) + 'px';
+    $('scene').appendChild(mag);
+    setTimeout(()=> mag.classList.add('scan'), 50);
+    setTimeout(()=> mag.remove(), 1600);
+
+    // Stamp
+    setTimeout(()=>{
+      const stamp = document.createElement('div');
+      stamp.className = 'stamp';
+      stamp.textContent = '✓ CORRECT!';
+      stamp.style.left = (rect.left + rect.width/2) + 'px';
+      stamp.style.top = (rect.top + rect.height/2) + 'px';
+      $('scene').appendChild(stamp);
+      setTimeout(()=> stamp.classList.add('show'), 50);
+      setTimeout(()=> stamp.remove(), 1300);
+    }, 400);
+
+    // Sparkles
+    setTimeout(()=>{
+      spawnSparkles(rect.left + rect.width/2, rect.top + rect.height/2, 15);
+    }, 500);
+
+    // Reveal clue object
+    setTimeout(()=>{
+      const objEl = card.querySelector('.char-object');
+      if(objEl && q.clueObj[chosen]){
+        objEl.textContent = q.clueObj[chosen];
+        objEl.style.bottom = '40%';
+        objEl.style.left = '50%';
+        objEl.style.transform = 'translateX(-50%) scale(0)';
+        objEl.classList.add('show');
+      }
+      card.classList.add('revealed');
+    }, 1200);
+
+    // Next question
+    setTimeout(()=>{
+      state.currentQ++;
+      if(state.currentQ >= QUESTIONS.length){
+        showFinal();
+      } else {
+        renderQuestion();
+      }
+    }, 3000);
+  } else {
+    // WRONG
+    card.classList.add('wrong');
+    playWrong();
+
+    // LOOK AGAIN message
+    const msg = document.createElement('div');
+    msg.className = 'look-again';
+    msg.textContent = '🔍 LOOK AGAIN!';
+    $('scene').appendChild(msg);
+    setTimeout(()=> msg.classList.add('show'), 50);
+    setTimeout(()=> msg.remove(), 1300);
+
+    setTimeout(()=> card.classList.remove('wrong'), 500);
+  }
+}
+
+/* ============ FINAL ============ */
+function showFinal(){
+  $('finalScore').textContent = state.stars;
+  $('finalOverlay').classList.add('active');
+  playFanfare();
+  spawnConfetti(150);
+}
+
+function restart(){
+  state.currentQ = 0;
+  state.stars = 0;
+  state.answered = false;
+  updateStars();
+  updateProgress();
+  $('finalOverlay').classList.remove('active');
+  renderQuestion();
+}
+
+/* ============ EVENTS ============ */
+$('soundBtn').addEventListener('click', ()=>{
+  state.soundOn = !state.soundOn;
+  $('soundBtn').textContent = state.soundOn ? '🔊' : '🔇';
+  $('soundBtn').classList.toggle('off', !state.soundOn);
+  if(state.soundOn) playClick();
+});
+
+$('musicBtn').addEventListener('click', ()=>{
+  state.musicOn = !state.musicOn;
+  $('musicBtn').classList.toggle('off', !state.musicOn);
+  if(!state.musicOn) stopMusic();
+  else startMusic();
+});
+
+$('restartBtn').addEventListener('click', ()=>{
+  playClick();
+  restart();
+});
+
+$('watchBtn').addEventListener('click', ()=>{
+  playClick();
+  alert('🎬 Watch the cartoon story first!\n(Go back to the Comic → Cartoon activity)');
+});
+
+$('nextBtn').addEventListener('click', ()=>{
+  playClick();
+  if(state.currentQ < QUESTIONS.length){
+    // Skip to next question
+    state.currentQ++;
+    if(state.currentQ >= QUESTIONS.length){
+      showFinal();
+    } else {
+      renderQuestion();
+    }
+  }
+});
+
+$('finalRestartBtn').addEventListener('click', ()=>{
+  playClick();
+  restart();
+});
+
+$('finalWatchBtn').addEventListener('click', ()=>{
+  playClick();
+  alert('🎬 Returning to the cartoon story...');
+  restart();
+});
+
+$('finalNextBtn').addEventListener('click', ()=>{
+  playClick();
+  alert('➡️ Next mission coming soon! 🚀');
+});
+
+/* ============ INIT ============ */
+document.addEventListener('click', ()=>{
+  const ctx = getCtx();
+  if(ctx && ctx.state === 'suspended') ctx.resume();
+  startMusic();
+}, { once:true });
+
+updateStars();
+renderQuestion();
+</script>
+
+</body>
+</html>
