@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whole Class Discussion – Dialogue Builder</title>
+  <style>
+    :root{
+      --blue:#4a90ff;
+      --blue2:#8dd6ff;
+      --pink:#ff6fb3;
+      --yellow:#ffd84d;
+      --green:#67d98b;
+      --purple:#9a7cff;
+      --bg:#f5fbff;
+      --dark:#17324d;
+      --white:#ffffff;
+      --shadow:0 10px 24px rgba(17,38,75,.16);
+      --border:4px solid #20385c;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Segoe UI", Arial, sans-serif;
+      color:var(--dark);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,255,255,.9), transparent 18%),
+        radial-gradient(circle at 90% 15%, rgba(255,255,255,.65), transparent 18%),
+        linear-gradient(135deg,#7dc8ff,#b38cff,#ff93c8,#ffe18b);
+      min-height:100vh;
+    }
+    .wrap{max-width:1450px;margin:0 auto;padding:18px}
+    .hero{
+      background:rgba(255,255,255,.2);
+      backdrop-filter: blur(10px);
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow:var(--shadow);
+      padding:18px 20px 22px;
+      margin-bottom:18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:before,.hero:after{
+      content:"";position:absolute;border-radius:50%;opacity:.18;pointer-events:none;
+    }
+    .hero:before{width:200px;height:200px;background:#fff;top:-70px;right:-40px}
+    .hero:after{width:160px;height:160px;background:#fff;bottom:-60px;left:-30px}
+    h1{
+      margin:0;
+      text-align:center;
+      font-size:clamp(2rem,4vw,3.5rem);
+      line-height:1.05;
+      font-weight:900;
+      color:#0e2d52;
+      text-shadow:0 2px 0 rgba(255,255,255,.35);
+    }
+    .sub{
+      text-align:center;
+      margin:10px auto 0;
+      font-size:1.08rem;
+      max-width:900px;
+      font-weight:600;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1.18fr .82fr;
+      gap:18px;
+    }
+    .card{
+      background:rgba(255,255,255,.92);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      border:var(--border);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding:16px 20px;
+      font-size:1.7rem;
+      font-weight:900;
+      color:#102947;
+    }
+    .headBlue{background:linear-gradient(180deg,#bcecff,#88d6ff)}
+    .headYellow{background:linear-gradient(180deg,#fff1a6,#ffd85b)}
+    .headPink{background:linear-gradient(180deg,#ffc1dd,#ff92c2)}
+    .body{padding:18px 20px 22px}
+    .wordBank{
+      display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;
+    }
+    .wordBtn{
+      border:none;cursor:pointer;border-radius:18px;padding:14px 20px;
+      font-size:1.15rem;font-weight:900;color:#15324d;
+      background:linear-gradient(180deg,#fff7c2,#ffd455);
+      box-shadow:0 6px 0 #dfb83d;
+      transition:transform .12s ease, opacity .12s ease;
+    }
+    .wordBtn:hover{transform:translateY(-2px)}
+    .wordBtn.used{opacity:.35;pointer-events:none;box-shadow:none;transform:none}
+    .instructions{
+      background:#eef9ff;border-radius:20px;padding:14px 16px;margin-bottom:14px;
+      border:3px dashed #8ecff8;font-weight:700;font-size:1.02rem;
+    }
+    .line{
+      display:flex;align-items:flex-start;gap:12px;margin:10px 0;
+      font-size:clamp(1.1rem,1.8vw,1.45rem);line-height:1.45;font-weight:700;
+    }
+    .num{width:38px;flex:0 0 38px;color:#0e3969;font-weight:900}
+    .speaker{
+      display:inline-block;min-width:62px;padding:6px 10px;border-radius:14px;
+      text-align:center;font-weight:900;color:#14304d;margin-right:8px;
+    }
+    .s1{background:#aee2ff}
+    .s2{background:#ffc6dd}
+    .s3{background:#cbf0ce}
+    .blank{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:130px;min-height:48px;padding:6px 14px;margin:0 6px;
+      border-radius:16px;border:3px dashed #5ba8f7;background:#f6fcff;
+      vertical-align:middle;cursor:pointer;font-weight:900;color:#245089;
+      transition:.12s ease;
+    }
+    .blank.active{background:#fff3b7;border-color:#ffb300;transform:scale(1.02)}
+    .blank.filled{border-style:solid;background:#def5ff}
+    .controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .btn{
+      border:none;cursor:pointer;border-radius:18px;padding:14px 18px;
+      font-size:1rem;font-weight:900;color:#0f2f50;box-shadow:0 6px 0 rgba(0,0,0,.12);
+    }
+    .check{background:linear-gradient(180deg,#c7ffd5,#72e68f)}
+    .reset{background:linear-gradient(180deg,#ffd2d2,#ff9393)}
+    .show{background:linear-gradient(180deg,#d7e8ff,#99c0ff)}
+    .next{background:linear-gradient(180deg,#fff2c8,#ffd65b)}
+    .feedback{
+      margin-top:16px;padding:14px 16px;border-radius:18px;font-size:1.05rem;font-weight:800;
+      background:#eef7ff;border:3px solid #cfe7ff;min-height:58px;
+    }
+    .feedback.good{background:#e8fff0;border-color:#9ae2af;color:#115d2f}
+    .feedback.bad{background:#fff0f0;border-color:#f2aaaa;color:#9b1f1f}
+    .miniTitle{font-size:1.28rem;font-weight:900;margin:0 0 10px;color:#17324d}
+    .wordRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .inputRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+    input,select{
+      width:100%;padding:13px 14px;border-radius:16px;border:3px solid #b9d8ff;
+      font-size:1rem;font-weight:700;color:#183655;background:#fff;
+    }
+    .modelBox,.outputBox,.criteria{
+      background:#f8fcff;border-radius:20px;padding:16px;border:3px dashed #bfe0ff;margin-top:14px;
+    }
+    .dialogueOut{font-size:1.08rem;line-height:1.7;font-weight:800;white-space:pre-line}
+    .criteria p{margin:.45rem 0;font-weight:700}
+    .pill{
+      display:inline-block;background:#ffe57a;border:2px solid #f0c740;padding:5px 10px;border-radius:999px;
+      font-weight:900;margin-right:8px;margin-bottom:8px;
+    }
+    .bottomNote{
+      margin-top:18px;background:rgba(255,255,255,.92);border-radius:24px;border:var(--border);box-shadow:var(--shadow);padding:16px 18px;
+    }
+    .floatingEmoji{
+      position:absolute;font-size:2rem;opacity:.13;animation:float 9s ease-in-out infinite;
+    }
+    .e1{left:28px;top:26px}.e2{right:34px;bottom:20px;animation-delay:1.2s}.e3{right:90px;top:24px;animation-delay:2s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    @media (max-width:1050px){.grid{grid-template-columns:1fr}.wordRow,.inputRow{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="floatingEmoji e1">💬</div>
+      <div class="floatingEmoji e2">⭐</div>
+      <div class="floatingEmoji e3">📝</div>
+      <h1>WHOLE CLASS DISCUSSION</h1>
+      <div class="sub">Complete the dialogue with the words in the box, then build a new dialogue by changing the names, country and age.</div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="cardHead headBlue">1. Complete the Dialogue</div>
+        <div class="body">
+          <div class="instructions">Click a blank first. Then click a word from the box to fill it in. Use all six words: <strong>good, How, Hello, from, Fine, friend</strong>.</div>
+          <div class="wordBank" id="wordBank"></div>
+
+          <div class="line"><div class="num">1.</div><div><span class="speaker s1">Polly</span><span class="blank" data-id="0"></span>, Joe, how are you?</div></div>
+          <div class="line"><div class="num">2.</div><div><span class="speaker s2">Joe</span>I’m <span class="blank" data-id="1"></span>, thanks. And you?</div></div>
+          <div class="line"><div class="num">3.</div><div><span class="speaker s1">Polly</span><span class="blank" data-id="2"></span>, thanks, Joe.</div></div>
+          <div class="line"><div class="num">4.</div><div><span class="speaker s2">Joe</span>This is my <span class="blank" data-id="3"></span>, Oraz.</div></div>
+          <div class="line"><div class="num">5.</div><div><span class="speaker s1">Polly</span>Hi, Oraz. Where are you <span class="blank" data-id="4"></span>?</div></div>
+          <div class="line"><div class="num">6.</div><div><span class="speaker s1">Polly</span><span class="blank" data-id="5"></span> old are you?</div></div>
+          <div class="line"><div class="num">&nbsp;</div><div><span class="speaker s3">Oraz</span>Hi. I’m from Kazakhstan.</div></div>
+          <div class="line"><div class="num">&nbsp;</div><div><span class="speaker s3">Oraz</span>I’m twelve.</div></div>
+
+          <div class="controls">
+            <button class="btn check" id="checkBtn">✅ Check</button>
+            <button class="btn reset" id="resetBtn">↺ Reset</button>
+            <button class="btn show" id="showBtn">👀 Show Answers</button>
+          </div>
+          <div class="feedback" id="feedback">Choose a blank and complete the dialogue.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:18px;">
+          <div class="cardHead headYellow">2. Create a New Dialogue</div>
+          <div class="body">
+            <p class="miniTitle">Change the details:</p>
+            <div class="wordRow">
+              <input id="nameA" placeholder="Name 1" value="Aigerim">
+              <input id="nameB" placeholder="Friend's name" value="Aslan">
+            </div>
+            <div class="inputRow">
+              <input id="country" placeholder="Country" value="Kazakhstan">
+              <input id="age" placeholder="Age" value="12">
+            </div>
+            <button class="btn next" id="buildBtn">✨ Build New Dialogue</button>
+
+            <div class="outputBox">
+              <div class="miniTitle">Model Dialogue</div>
+              <div class="dialogueOut" id="generatedDialogue">A: Hello, Aigerim. How are you?
+B: I’m fine, thanks. And you?
+A: Good, thanks.
+B: This is my friend, Aslan.
+A: Hi, Aslan. Where are you from?
+C: I’m from Kazakhstan.
+A: How old are you?
+C: I’m 12.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cardHead headPink">3. Descriptor & Assessment</div>
+          <div class="body">
+            <div class="criteria">
+              <p><span class="pill">Descriptor</span> A learner identifies the main parts of a dialogue and suggests appropriate information.</p>
+              <p><span class="pill">Assessment</span> Formative assessment.</p>
+              <p><span class="pill">Differentiation</span> Support learners use sentence frames. More confident learners suggest one more question.</p>
+              <p><span class="pill">Resources</span> Exercise 7, interactive board, dialogue structure card.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bottomNote">
+      <strong>Teacher tip:</strong> After checking the dialogue, ask learners: <em>“What can we change?”</em> Then create a new version by changing the names, country and age.
+    </section>
+  </div>
+
+  <script>
+    const words = ['Hello','Fine','Good','friend','from','How'];
+    const answers = ['Hello','Fine','Good','friend','from','How'];
+    const wordBank = document.getElementById('wordBank');
+    const blanks = [...document.querySelectorAll('.blank')];
+    const feedback = document.getElementById('feedback');
+    let activeBlank = null;
+    let placed = Array(6).fill('');
+
+    function initWordBank(){
+      wordBank.innerHTML='';
+      words.forEach(word=>{
+        const btn=document.createElement('button');
+        btn.className='wordBtn';
+        btn.textContent=word;
+        btn.dataset.word=word;
+        btn.addEventListener('click',()=>placeWord(word,btn));
+        wordBank.appendChild(btn);
+      });
+    }
+
+    blanks.forEach(blank=>{
+      blank.addEventListener('click',()=>{
+        blanks.forEach(b=>b.classList.remove('active'));
+        blank.classList.add('active');
+        activeBlank=blank;
+      });
+      blank.addEventListener('dblclick',()=>{
+        const id=+blank.dataset.id;
+        if(placed[id]){
+          restoreWord(placed[id]);
+          placed[id]='';
+          blank.textContent='';
+          blank.classList.remove('filled');
+          clickSound();
+        }
+      });
+    });
+
+    function placeWord(word,btn){
+      if(!activeBlank){
+        setFeedback('Please click a blank first.', false); return;
+      }
+      const id=+activeBlank.dataset.id;
+      if(placed[id]) restoreWord(placed[id]);
+      activeBlank.textContent=word;
+      activeBlank.classList.add('filled');
+      placed[id]=word;
+      btn.classList.add('used');
+      activeBlank.classList.remove('active');
+      activeBlank=null;
+      clickSound();
+    }
+
+    function restoreWord(word){
+      const btn=[...document.querySelectorAll('.wordBtn')].find(b=>b.dataset.word===word);
+      if(btn) btn.classList.remove('used');
+    }
+
+    function setFeedback(text,isGood){
+      feedback.textContent=text;
+      feedback.className='feedback ' + (isGood===true ? 'good' : isGood===false ? 'bad' : '');
+    }
+
+    document.getElementById('checkBtn').addEventListener('click',()=>{
+      const complete=placed.every(Boolean);
+      if(!complete){setFeedback('Please fill in all blanks first.', false); errorSound(); return;}
+      const correct=placed.every((w,i)=>w===answers[i]);
+      if(correct){setFeedback('Excellent! The dialogue is correct. Now create a new dialogue on the right.', true); successSound(); confettiBurst();}
+      else {setFeedback('Some answers are not correct. Try again.', false); errorSound();}
+    });
+
+    document.getElementById('resetBtn').addEventListener('click',()=>{
+      placed = Array(6).fill('');
+      blanks.forEach(b=>{b.textContent=''; b.classList.remove('filled','active');});
+      document.querySelectorAll('.wordBtn').forEach(b=>b.classList.remove('used'));
+      activeBlank=null;
+      setFeedback('Dialogue reset. Try again.', null);
+      clickSound();
+    });
+
+    document.getElementById('showBtn').addEventListener('click',()=>{
+      placed=[...answers];
+      blanks.forEach((b,i)=>{b.textContent=answers[i]; b.classList.add('filled'); b.classList.remove('active');});
+      document.querySelectorAll('.wordBtn').forEach(b=>b.classList.add('used'));
+      activeBlank=null;
+      setFeedback('Answers are shown. Read the dialogue together.', true);
+      successSound();
+    });
+
+    document.getElementById('buildBtn').addEventListener('click',()=>{
+      const nameA=document.getElementById('nameA').value.trim() || 'Aigerim';
+      const nameB=document.getElementById('nameB').value.trim() || 'Aslan';
+      const country=document.getElementById('country').value.trim() || 'Kazakhstan';
+      const age=document.getElementById('age').value.trim() || '12';
+      document.getElementById('generatedDialogue').textContent =
+`A: Hello, ${nameA}. How are you?\nB: I’m fine, thanks. And you?\nA: Good, thanks.\nB: This is my friend, ${nameB}.\nA: Hi, ${nameB}. Where are you from?\nC: I’m from ${country}.\nA: How old are you?\nC: I’m ${age}.`;
+      successSound();
+    });
+
+    let audioCtx;
+    function getCtx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+    function tone(freq,duration,vol=.04,type='sine',delay=0){
+      const ctx=getCtx(); const now=ctx.currentTime+delay;
+      const osc=ctx.createOscillator(); const gain=ctx.createGain();
+      osc.type=type; osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(vol, now+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now+duration);
+      osc.connect(gain).connect(ctx.destination); osc.start(now); osc.stop(now+duration+0.02);
+    }
+    function clickSound(){ tone(560,.07,.03,'triangle'); }
+    function successSound(){ tone(523,.10,.05,'triangle',0); tone(659,.10,.05,'triangle',.09); tone(784,.16,.06,'triangle',.18); }
+    function errorSound(){ tone(200,.10,.04,'sawtooth',0); tone(160,.12,.03,'sawtooth',.07); }
+
+    function confettiBurst(){
+      for(let i=0;i<70;i++){
+        const c=document.createElement('div');
+        c.style.position='fixed'; c.style.left=Math.random()*100+'vw'; c.style.top='-20px';
+        c.style.width='12px'; c.style.height='18px'; c.style.borderRadius='3px';
+        c.style.background=['#ff6fb3','#ffd84d','#67d98b','#4a90ff','#9a7cff'][Math.floor(Math.random()*5)];
+        c.style.zIndex='9999'; c.style.opacity='0.92'; c.style.pointerEvents='none';
+        c.style.transform=`rotate(${Math.random()*360}deg)`;
+        c.style.transition='transform 1.8s linear, top 1.8s linear, opacity 1.8s linear';
+        document.body.appendChild(c);
+        requestAnimationFrame(()=>{c.style.top='105vh'; c.style.transform=`translateX(${(Math.random()-.5)*160}px) rotate(${540+Math.random()*200}deg)`; c.style.opacity='0';});
+        setTimeout(()=>c.remove(),1900);
+      }
+    }
+
+    initWordBank();
+  </script>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unscramble the Words</title>
+  <style>
+    :root {
+      --bg1: #6a5cff;
+      --bg2: #ff67b3;
+      --bg3: #22c7f0;
+      --card: rgba(255,255,255,0.16);
+      --card-strong: rgba(255,255,255,0.24);
+      --text: #ffffff;
+      --dark: #1b1e3d;
+      --accent: #ffe66d;
+      --green: #42d392;
+      --red: #ff6b6b;
+      --shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.18), transparent 15%),
+        radial-gradient(circle at 85% 15%, rgba(255,255,255,0.14), transparent 14%),
+        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.12), transparent 15%),
+        linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+    }
+
+    .floating {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      animation: floatUp linear infinite;
+      filter: blur(1px);
+    }
+
+    @keyframes floatUp {
+      from { transform: translateY(30px) scale(1); opacity: 0; }
+      15% { opacity: 1; }
+      to { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 18px 18px 10px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.22);
+    }
+
+    .header p {
+      margin: 10px auto 0;
+      max-width: 900px;
+      font-size: clamp(1rem, 1.7vw, 1.18rem);
+      line-height: 1.5;
+      opacity: 0.97;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel, .game-card, .footer-bar {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 18px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .panel h2, .game-card h2 {
+      margin: 0 0 14px;
+      font-size: 1.35rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.18);
+      padding: 14px 10px;
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    .stat .big {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: 900;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      font-size: 0.92rem;
+      margin: 4px 6px 0 0;
+    }
+
+    .word-list {
+      display: grid;
+      gap: 8px;
+      max-height: 470px;
+      overflow: auto;
+      padding-right: 6px;
+      margin-top: 10px;
+    }
+
+    .word-item {
+      border: none;
+      width: 100%;
+      border-radius: 16px;
+      padding: 11px 12px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.98rem;
+      font-weight: 700;
+      background: rgba(255,255,255,0.16);
+      color: white;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .word-item:hover { transform: translateY(-2px); background: rgba(255,255,255,0.26); }
+    .word-item.active { outline: 3px solid var(--accent); background: rgba(255,255,255,0.28); }
+    .word-item.done { background: rgba(66,211,146,0.28); }
+
+    .game-card {
+      padding: 22px;
+      min-height: 740px;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.2);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .message {
+      margin: 12px 0 18px;
+      min-height: 34px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .message.success { color: #fff5a5; }
+    .message.error { color: #ffe3e3; }
+
+    .scramble-box {
+      background: rgba(255,255,255,0.12);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-weight: 900;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      opacity: 0.95;
+    }
+
+    .tiles, .answer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      min-height: 92px;
+    }
+
+    .tile {
+      min-width: 64px;
+      height: 64px;
+      border: none;
+      cursor: pointer;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fff59e, #ffd64f);
+      color: var(--dark);
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      font-weight: 900;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      padding: 0 8px;
+    }
+
+    .tile:hover { transform: translateY(-3px) scale(1.03); }
+    .tile.used { opacity: 0.28; transform: scale(0.92); pointer-events: none; }
+    .tile.space-tile { min-width: 88px; background: linear-gradient(180deg, #d9e7ff, #bfd4ff); }
+
+    .slot {
+      min-width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.16);
+      border: 3px dashed rgba(255,255,255,0.55);
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      font-weight: 900;
+      color: white;
+      cursor: pointer;
+    }
+
+    .slot.filled {
+      border-style: solid;
+      background: rgba(255,255,255,0.28);
+    }
+
+    .slot.space-slot {
+      min-width: 24px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      position: relative;
+    }
+
+    .slot.space-slot::after {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.6);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--dark);
+      background: white;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.14);
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn.primary { background: linear-gradient(180deg, #c8ffce, #71ee8d); }
+    .btn.secondary { background: linear-gradient(180deg, #fff5bb, #ffd95d); }
+    .btn.alt { background: linear-gradient(180deg, #d8ebff, #9fc5ff); }
+    .btn.danger { background: linear-gradient(180deg, #ffd0d0, #ff8f8f); }
+
+    .helper-grid {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 14px;
+    }
+
+    .helper-card {
+      background: rgba(255,255,255,0.13);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 110px;
+    }
+
+    .helper-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+    }
+
+    .helper-card p {
+      margin: 0;
+      line-height: 1.45;
+      font-size: 0.96rem;
+    }
+
+    .footer-bar {
+      margin-top: 16px;
+      padding: 14px 18px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .celebration {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 12px;
+      height: 18px;
+      opacity: 0.9;
+      animation: confettiFall 1.8s linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    .complete-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 20px 20px;
+    }
+
+    .complete-screen.show { display: block; }
+
+    .complete-screen h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin: 0 0 12px;
+    }
+
+    .complete-screen p {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      max-width: 720px;
+      margin: 0 auto 20px;
+    }
+
+    .hide { display: none !important; }
+
+    @media (max-width: 1020px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel { position: static; }
+      .game-card { min-height: auto; }
+      .helper-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .tile, .slot { min-width: 52px; height: 52px; font-size: 1.25rem; border-radius: 14px; }
+      .tiles, .answer { gap: 8px; }
+      .game-card { padding: 16px; }
+      .panel { padding: 14px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .word-list { max-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating" id="floating"></div>
+  <div class="celebration" id="celebration"></div>
+
+  <div class="wrapper">
+    <div class="header">
+      <h1>UNSCRAMBLE THE WORDS</h1>
+      <p>
+        Whole-class interactive game. Learners come to the board one by one, click the big letters,
+        and build the correct word or country name. Use the buttons to check, clear, shuffle, or go to the next word.
+      </p>
+    </div>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>📚 Progress</h2>
+        <div class="stats">
+          <div class="stat">
+            <span class="big" id="solvedCount">0</span>
+            Solved
+          </div>
+          <div class="stat">
+            <span class="big" id="totalCount">0</span>
+            Total
+          </div>
+        </div>
+
+        <div>
+          <span class="pill">Vocabulary</span>
+          <span class="pill">Numbers</span>
+          <span class="pill">Countries</span>
+        </div>
+
+        <div class="word-list" id="wordList"></div>
+      </aside>
+
+      <main class="game-card">
+        <div id="gameArea">
+          <div class="top-row">
+            <div class="category-badge" id="categoryBadge">✨ Vocabulary</div>
+            <div class="category-badge" id="indexBadge">Word 1 / 21</div>
+          </div>
+
+          <div class="message" id="message">Click the big letters to build the correct answer.</div>
+
+          <div class="scramble-box">
+            <div class="section-title">Scrambled Letters</div>
+            <div class="tiles" id="tiles"></div>
+          </div>
+
+          <div class="scramble-box">
+            <div class="section-title">Your Answer</div>
+            <div class="answer" id="answer"></div>
+          </div>
+
+          <div class="controls">
+            <button class="btn primary" id="checkBtn">✅ Check</button>
+            <button class="btn secondary" id="clearBtn">↩ Clear</button>
+            <button class="btn alt" id="shuffleBtn">🔀 Shuffle</button>
+            <button class="btn danger" id="nextBtn">➡ Next</button>
+          </div>
+
+          <div class="helper-grid">
+            <div class="helper-card">
+              <h3>🎤 Oral Sentence</h3>
+              <p id="oralSentence">This is a book.</p>
+            </div>
+            <div class="helper-card">
+              <h3>💡 Teacher Tip</h3>
+              <p id="teacherTip">Ask the learner to read the word aloud after solving it.</p>
+            </div>
+            <div class="helper-card">
+              <h3>⭐ Descriptor</h3>
+              <p>A learner unscrambles a word, matches it with the correct visual, and makes a simple oral sentence.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="complete-screen" id="completeScreen">
+          <h2>🎉 GREAT JOB! 🎉</h2>
+          <p>
+            All words are completed. You finished the whole-class unscramble activity for vocabulary,
+            numbers, and countries.
+          </p>
+          <button class="btn primary" id="restartBtn">🔄 Play Again</button>
+        </div>
+      </main>
+    </div>
+
+    <div class="footer-bar">
+      Click a word on the left to jump directly to it. Sound effects and confetti are built in.
+    </div>
+  </div>
+
+  <script>
+    const words = [
+      { answer: 'BOOK', category: 'Vocabulary', sentence: 'This is a book.', tip: 'Ask learners to point to the correct picture or real object.' },
+      { answer: 'BAG', category: 'Vocabulary', sentence: 'This is a bag.', tip: 'Invite the class to repeat the sentence.' },
+      { answer: 'COMPUTER', category: 'Vocabulary', sentence: 'This is a computer.', tip: 'Ask: Is it a bag or a computer?' },
+      { answer: 'BOY', category: 'Vocabulary', sentence: 'He is a boy.', tip: 'Focus on the sentence starter: He is ...' },
+      { answer: 'TEACHER', category: 'Vocabulary', sentence: 'She is a teacher.', tip: 'Ask another learner to make the same sentence.' },
+      { answer: 'BICYCLE', category: 'Vocabulary', sentence: 'This is a bicycle.', tip: 'Learners can clap the syllables after solving.' },
+      { answer: 'PHONE', category: 'Vocabulary', sentence: 'This is a phone.', tip: 'Ask for quick repetition with clear pronunciation.' },
+      { answer: 'PEN', category: 'Vocabulary', sentence: 'This is a pen.', tip: 'Support learners can say only the short sentence.' },
+      { answer: 'ELEVEN', category: 'Numbers', sentence: 'Eleven is a number.', tip: 'Ask the class to say the number together.' },
+      { answer: 'FIVE', category: 'Numbers', sentence: 'Five is a number.', tip: 'Ask learners to show the number with fingers.' },
+      { answer: 'FIFTEEN', category: 'Numbers', sentence: 'Fifteen is a number.', tip: 'Contrast five and fifteen.' },
+      { answer: 'NINE', category: 'Numbers', sentence: 'Nine is a number.', tip: 'Invite one learner to write the numeral 9 on the board.' },
+      { answer: 'TWELVE', category: 'Numbers', sentence: 'Twelve is a number.', tip: 'Ask: What comes after eleven?' },
+      { answer: 'THREE', category: 'Numbers', sentence: 'Three is a number.', tip: 'Keep the rhythm quick to maintain whole-class energy.' },
+      { answer: 'EIGHT', category: 'Numbers', sentence: 'Eight is a number.', tip: 'Check pronunciation after the word is solved.' },
+      { answer: 'HUNGARY', category: 'Countries', sentence: 'Hungary is a country.', tip: 'Ask: Where are you from? — I\'m from Kazakhstan.' },
+      { answer: 'BRAZIL', category: 'Countries', sentence: 'Brazil is a country.', tip: 'Invite a learner to identify the flag.' },
+      { answer: 'JAPAN', category: 'Countries', sentence: 'Japan is a country.', tip: 'Ask the learner to say the country clearly.' },
+      { answer: 'GREAT BRITAIN', category: 'Countries', sentence: 'Great Britain is a country.', tip: 'Remind learners this answer has two words.' },
+      { answer: 'RUSSIA', category: 'Countries', sentence: 'Russia is a country.', tip: 'Ask learners to match it with the flag.' },
+      { answer: 'TURKEY', category: 'Countries', sentence: 'Turkey is a country.', tip: 'Encourage an additional sentence from stronger learners.' },
+      { answer: 'THE USA', category: 'Countries', sentence: 'The USA is a country.', tip: 'This answer has two words. The space is already shown.' }
+    ];
+
+    const wordList = document.getElementById('wordList');
+    const solvedCountEl = document.getElementById('solvedCount');
+    const totalCountEl = document.getElementById('totalCount');
+    const categoryBadge = document.getElementById('categoryBadge');
+    const indexBadge = document.getElementById('indexBadge');
+    const message = document.getElementById('message');
+    const tilesEl = document.getElementById('tiles');
+    const answerEl = document.getElementById('answer');
+    const oralSentenceEl = document.getElementById('oralSentence');
+    const teacherTipEl = document.getElementById('teacherTip');
+    const completeScreen = document.getElementById('completeScreen');
+    const gameArea = document.getElementById('gameArea');
+    const celebration = document.getElementById('celebration');
+
+    totalCountEl.textContent = words.length;
+
+    let currentIndex = 0;
+    let currentWord = null;
+    let picked = [];
+    let solved = new Set();
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildFloating() {
+      const container = document.getElementById('floating');
+      for (let i = 0; i < 18; i++) {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const size = 18 + Math.random() * 70;
+        b.style.width = size + 'px';
+        b.style.height = size + 'px';
+        b.style.left = Math.random() * 100 + 'vw';
+        b.style.top = (70 + Math.random() * 40) + 'vh';
+        b.style.animationDuration = (14 + Math.random() * 20) + 's';
+        b.style.animationDelay = (-Math.random() * 20) + 's';
+        container.appendChild(b);
+      }
+    }
+
+    function makeScramble(answer) {
+      const chars = answer.split('');
+      const letters = chars.map((ch, idx) => ({ ch, idx }));
+      return shuffle(letters);
+    }
+
+    function renderWordList() {
+      wordList.innerHTML = '';
+      words.forEach((word, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'word-item';
+        if (idx === currentIndex) btn.classList.add('active');
+        if (solved.has(idx)) btn.classList.add('done');
+        btn.textContent = `${idx + 1}. ${word.answer}`;
+        btn.addEventListener('click', () => {
+          currentIndex = idx;
+          loadWord();
+        });
+        wordList.appendChild(btn);
+      });
+    }
+
+    function slotCount(answer) {
+      return answer.split('').length;
+    }
+
+    function loadWord() {
+      currentWord = words[currentIndex];
+      picked = [];
+      message.textContent = 'Click the big letters to build the correct answer.';
+      message.className = 'message';
+      categoryBadge.textContent = `✨ ${currentWord.category}`;
+      indexBadge.textContent = `Word ${currentIndex + 1} / ${words.length}`;
+      oralSentenceEl.textContent = currentWord.sentence;
+      teacherTipEl.textContent = currentWord.tip;
+      renderWordList();
+      renderTiles();
+      renderAnswer();
+      if (solved.size === words.length) showComplete();
+      else hideComplete();
+    }
+
+    function renderTiles() {
+      tilesEl.innerHTML = '';
+      const scrambled = makeScramble(currentWord.answer);
+      scrambled.forEach((item, tileIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'tile' + (item.ch === ' ' ? ' space-tile' : '');
+        btn.textContent = item.ch === ' ' ? 'SPACE' : item.ch;
+        btn.dataset.char = item.ch;
+        btn.dataset.id = tileIdx;
+        btn.addEventListener('click', () => {
+          picked.push({ char: item.ch, id: tileIdx });
+          btn.classList.add('used');
+          renderAnswer();
+          playClick();
+        });
+        tilesEl.appendChild(btn);
+      });
+    }
+
+    function renderAnswer() {
+      answerEl.innerHTML = '';
+      const total = slotCount(currentWord.answer);
+      for (let i = 0; i < total; i++) {
+        const expected = currentWord.answer[i];
+        const slot = document.createElement('div');
+        const filled = picked[i];
+        if (expected === ' ') {
+          slot.className = 'slot space-slot';
+        } else {
+          slot.className = 'slot' + (filled ? ' filled' : '');
+          slot.textContent = filled ? filled.char : '';
+          if (filled) {
+            slot.title = 'Click to remove';
+            slot.addEventListener('click', () => removePicked(i));
+          }
+        }
+        answerEl.appendChild(slot);
+      }
+    }
+
+    function removePicked(index) {
+      const removed = picked[index];
+      if (!removed) return;
+      picked.splice(index, 1);
+      const tileBtn = [...tilesEl.querySelectorAll('.tile')].find(t => Number(t.dataset.id) === removed.id);
+      if (tileBtn) tileBtn.classList.remove('used');
+      renderAnswer();
+      playClick();
+    }
+
+    function getPickedText() {
+      return picked.map(x => x.char).join('');
+    }
+
+    function checkAnswer() {
+      const attempt = getPickedText();
+      if (attempt === currentWord.answer) {
+        solved.add(currentIndex);
+        solvedCountEl.textContent = solved.size;
+        message.textContent = 'Excellent! Correct answer!';
+        message.className = 'message success';
+        playSuccess();
+        burstConfetti();
+        renderWordList();
+        if (solved.size === words.length) {
+          setTimeout(showComplete, 700);
+        }
+      } else {
+        message.textContent = 'Try again! Check the order of the letters.';
+        message.className = 'message error';
+        playError();
+      }
+    }
+
+    function clearAnswer() {
+      picked = [];
+      [...tilesEl.querySelectorAll('.tile')].forEach(tile => tile.classList.remove('used'));
+      renderAnswer();
+      message.textContent = 'Answer cleared. Try again!';
+      message.className = 'message';
+      playClick();
+    }
+
+    function nextWord() {
+      if (currentIndex < words.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0;
+      }
+      loadWord();
+      playClick();
+    }
+
+    function restartGame() {
+      solved = new Set();
+      solvedCountEl.textContent = 0;
+      currentIndex = 0;
+      loadWord();
+      playClick();
+    }
+
+    function showComplete() {
+      if (solved.size === words.length) {
+        gameArea.classList.add('hide');
+        completeScreen.classList.add('show');
+        burstConfetti(180);
+      }
+    }
+
+    function hideComplete() {
+      gameArea.classList.remove('hide');
+      completeScreen.classList.remove('show');
+    }
+
+    function burstConfetti(amount = 90) {
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff8fab', '#c77dff'];
+      for (let i = 0; i < amount; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = -20 + 'px';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.transform = `translateY(-20px) rotate(${Math.random()*360}deg)`;
+        c.style.animationDuration = (1.3 + Math.random() * 1.4) + 's';
+        celebration.appendChild(c);
+        setTimeout(() => c.remove(), 2300);
+      }
+    }
+
+    let audioCtx;
+    function getAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function beep(freq, duration, type = 'sine', volume = 0.04, delay = 0) {
+      const ctx = getAudio();
+      const now = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function playClick() {
+      beep(540, 0.08, 'triangle', 0.03);
+    }
+
+    function playSuccess() {
+      beep(523, 0.12, 'triangle', 0.05, 0);
+      beep(659, 0.12, 'triangle', 0.05, 0.09);
+      beep(784, 0.18, 'triangle', 0.06, 0.18);
+    }
+
+    function playError() {
+      beep(220, 0.12, 'sawtooth', 0.04, 0);
+      beep(180, 0.16, 'sawtooth', 0.03, 0.08);
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+    document.getElementById('clearBtn').addEventListener('click', clearAnswer);
+    document.getElementById('shuffleBtn').addEventListener('click', () => { renderTiles(); picked = []; renderAnswer(); playClick(); });
+    document.getElementById('nextBtn').addEventListener('click', nextWord);
+    document.getElementById('restartBtn').addEventListener('click', restartGame);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkAnswer();
+      if (e.key === 'Escape') clearAnswer();
+      if (e.key.toLowerCase() === 'n') nextWord();
+    });
+
+    buildFloating();
+    loadWord();
+  </script>
+</body>
+</html>
