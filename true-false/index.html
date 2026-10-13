@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRUE OR FALSE? — Bullying Prevention Challenge</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  html, body {
+    font-family: 'Segoe UI', 'Trebuchet MS', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #fff;
+    user-select: none;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #6a3093 60%, #a044ff 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+    position: relative;
+    padding: 20px 15px 40px;
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* Animated background particles */
+  .bg-particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.8), rgba(255,255,255,0));
+    animation: floatUp linear infinite;
+    opacity: 0.5;
+  }
+  
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+  
+  /* Floating 3D education objects */
+  .floating-obj {
+    position: fixed;
+    font-size: 3rem;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.5));
+    animation: float3D 8s ease-in-out infinite;
+  }
+  
+  .floating-obj:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+  .floating-obj:nth-child(2) { top: 20%; right: 8%; animation-delay: 1s; font-size: 2.5rem; }
+  .floating-obj:nth-child(3) { top: 50%; left: 3%; animation-delay: 2s; font-size: 3.5rem; }
+  .floating-obj:nth-child(4) { top: 70%; right: 5%; animation-delay: 3s; }
+  .floating-obj:nth-child(5) { top: 85%; left: 10%; animation-delay: 4s; font-size: 2.8rem; }
+  .floating-obj:nth-child(6) { top: 40%; right: 12%; animation-delay: 5s; font-size: 2.2rem; }
+  
+  @keyframes float3D {
+    0%, 100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+    25% { transform: translateY(-20px) rotateY(90deg) rotateX(20deg); }
+    50% { transform: translateY(0) rotateY(180deg) rotateX(0deg); }
+    75% { transform: translateY(20px) rotateY(270deg) rotateX(-20deg); }
+  }
+  
+  /* Animated stars */
+  .star {
+    position: fixed;
+    color: #ffd700;
+    font-size: 1.5rem;
+    pointer-events: none;
+    z-index: 0;
+    animation: twinkle 3s ease-in-out infinite;
+    text-shadow: 0 0 10px #ffd700, 0 0 20px #ffeb3b;
+  }
+  
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
+  }
+  
+  /* Main container */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 850px;
+    margin: 0 auto;
+  }
+  
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 30px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: shimmer 4s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  }
+  
+  .title {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 900;
+    background: linear-gradient(45deg, #fff, #ffeb3b, #ff6b9d, #fff);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    animation: titleGlow 3s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+  }
+  
+  @keyframes titleGlow {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+    50% { filter: drop-shadow(0 0 25px rgba(255,235,59,0.8)); }
+  }
+  
+  .subtitle {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: #ffeb3b;
+    margin-top: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .instructions {
+    margin-top: 15px;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    color: rgba(255,255,255,0.9);
+    font-style: italic;
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Controls */
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .control-btn {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .control-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+  
+  .control-btn.active {
+    background: linear-gradient(135deg, #ff6b9d, #c06c84);
+    box-shadow: 0 0 20px rgba(255,107,157,0.5);
+  }
+  
+  /* Progress section */
+  .progress-section {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+  
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .question-counter {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: 700;
+    color: #ffeb3b;
+  }
+  
+  .score-display {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: 700;
+    color: #7fff7f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .score-display .star-icon {
+    color: #ffd700;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+  
+  .progress-bar-container {
+    width: 100%;
+    height: 14px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff88, #00d4ff, #a044ff, #ff6b9d);
+    background-size: 200% 100%;
+    border-radius: 50px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: progressShine 2s linear infinite;
+    box-shadow: 0 0 15px rgba(0,255,136,0.5);
+    position: relative;
+  }
+  
+  @keyframes progressShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+  
+  /* Question card */
+  .question-card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 30px 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: cardEnter 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b9d, #ffeb3b, #00ff88, #00d4ff, #a044ff);
+    background-size: 200% 100%;
+    animation: progressShine 3s linear infinite;
+  }
+  
+  @keyframes cardEnter {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  
+  .question-number {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b9d, #c06c84);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(255,107,157,0.4);
+  }
+  
+  .statement {
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.5;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    margin: 15px 0 25px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Buttons */
+  .buttons-container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  
+  .tf-btn {
+    flex: 1;
+    min-width: 140px;
+    max-width: 250px;
+    padding: 20px 30px;
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-weight: 800;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+  
+  .tf-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+  
+  .tf-btn:hover::before {
+    left: 100%;
+  }
+  
+  .btn-true {
+    background: linear-gradient(135deg, #00c853, #00e676);
+  }
+  
+  .btn-false {
+    background: linear-gradient(135deg, #ff1744, #ff5252);
+  }
+  
+  .tf-btn:hover:not(:disabled) {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+  }
+  
+  .tf-btn:active:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+  }
+  
+  .tf-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .tf-btn.correct {
+    background: linear-gradient(135deg, #00ff88, #00c853) !important;
+    animation: correctPulse 0.6s ease;
+    box-shadow: 0 0 30px rgba(0,255,136,0.8);
+  }
+  
+  .tf-btn.incorrect {
+    background: linear-gradient(135deg, #ff5252, #d32f2f) !important;
+    animation: shake 0.5s ease;
+    box-shadow: 0 0 30px rgba(255,82,82,0.8);
+  }
+  
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+  
+  /* Feedback message */
+  .feedback {
+    text-align: center;
+    padding: 20px;
+    border-radius: 20px;
+    margin: 20px 0;
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: 700;
+    animation: feedbackPop 0.5s ease;
+    display: none;
+  }
+  
+  @keyframes feedbackPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  .feedback.correct {
+    background: linear-gradient(135deg, rgba(0,200,83,0.3), rgba(0,230,118,0.3));
+    border: 2px solid #00ff88;
+    color: #7fff7f;
+    display: block;
+  }
+  
+  .feedback.incorrect {
+    background: linear-gradient(135deg, rgba(255,23,68,0.3), rgba(255,82,82,0.3));
+    border: 2px solid #ff5252;
+    color: #ffb3b3;
+    display: block;
+  }
+  
+  .glowing-star {
+    display: inline-block;
+    font-size: 2.5rem;
+    color: #ffd700;
+    animation: starSpin 1s ease-in-out infinite;
+    text-shadow: 0 0 20px #ffd700, 0 0 40px #ffeb3b;
+    margin: 0 10px;
+  }
+  
+  @keyframes starSpin {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+  }
+  
+  /* Correction panel */
+  .correction-panel {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px 0;
+    border: 2px solid rgba(255,193,7,0.5);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: slideIn 0.5s ease;
+    display: none;
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .correction-panel.show {
+    display: block;
+  }
+  
+  .correction-title {
+    color: #ffeb3b;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    font-weight: 800;
+    margin-bottom: 15px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  
+  .original-statement {
+    background: rgba(255,82,82,0.2);
+    border-left: 4px solid #ff5252;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-style: italic;
+    line-height: 1.5;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+  }
+  
+  .correction-input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
+  
+  .correction-input:focus {
+    outline: none;
+    border-color: #ffeb3b;
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 20px rgba(255,235,59,0.3);
+  }
+  
+  .correction-input::placeholder {
+    color: rgba(255,255,255,0.5);
+  }
+  
+  .correction-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .correction-btn {
+    padding: 12px 25px;
+    border-radius: 50px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  
+  .submit-correction-btn {
+    background: linear-gradient(135deg, #00c853, #00e676);
+    box-shadow: 0 5px 15px rgba(0,200,83,0.4);
+  }
+  
+  .show-model-btn {
+    background: linear-gradient(135deg, #ff9800, #ffc107);
+    box-shadow: 0 5px 15px rgba(255,152,0,0.4);
+  }
+  
+  .correction-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  
+  .model-answer {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0,200,83,0.2);
+    border-left: 4px solid #00ff88;
+    border-radius: 10px;
+    line-height: 1.5;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    display: none;
+    animation: slideIn 0.4s ease;
+  }
+  
+  .model-answer.show {
+    display: block;
+  }
+  
+  .model-answer strong {
+    color: #7fff7f;
+  }
+  
+  .user-feedback {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    display: none;
+    animation: feedbackPop 0.4s ease;
+  }
+  
+  .user-feedback.show {
+    display: block;
+  }
+  
+  .user-feedback.good {
+    background: rgba(0,200,83,0.3);
+    color: #7fff7f;
+  }
+  
+  .user-feedback.try-again {
+    background: rgba(255,152,0,0.3);
+    color: #ffeb3b;
+  }
+  
+  /* Next button */
+  .next-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 25px rgba(118,75,162,0.4);
+    text-transform: uppercase;
+  }
+  
+  .next-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(118,75,162,0.6);
+  }
+  
+  .next-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Final results */
+  .results-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 25px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    animation: resultsEnter 0.8s ease;
+  }
+  
+  .results-screen.show {
+    display: block;
+  }
+  
+  @keyframes resultsEnter {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .results-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    background: linear-gradient(45deg, #ffeb3b, #ff6b9d, #00ff88, #00d4ff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleGlow 2s ease-in-out infinite, gradientShift 3s ease infinite;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+  
+  .progress-circle-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 20px auto;
+  }
+  
+  .progress-circle {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  
+  .progress-circle-bg {
+    fill: none;
+    stroke: rgba(255,255,255,0.2);
+    stroke-width: 15;
+  }
+  
+  .progress-circle-fill {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 15;
+    stroke-linecap: round;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: 565.48;
+    transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 10px rgba(255,235,59,0.8));
+  }
+  
+  .progress-circle-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  
+  .score-big {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 900;
+    color: #ffeb3b;
+    text-shadow: 0 0 20px rgba(255,235,59,0.8);
+  }
+  
+  .score-label {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+  }
+  
+  .results-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 15px;
+    margin: 25px 0;
+  }
+  
+  .stat-card {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffeb3b;
+    margin-bottom: 5px;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .achievement-message {
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 800;
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255,235,59,0.2), rgba(255,107,157,0.2));
+    border: 2px solid rgba(255,235,59,0.5);
+    color: #ffeb3b;
+    text-shadow: 0 0 15px rgba(255,235,59,0.5);
+  }
+  
+  .stars-display {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  
+  .achievement-star {
+    font-size: 3rem;
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700, 0 0 40px #ffeb3b;
+    animation: starBounce 0.6s ease;
+    animation-fill-mode: both;
+  }
+  
+  .achievement-star:nth-child(1) { animation-delay: 0.2s; }
+  .achievement-star:nth-child(2) { animation-delay: 0.4s; }
+  .achievement-star:nth-child(3) { animation-delay: 0.6s; }
+  .achievement-star:nth-child(4) { animation-delay: 0.8s; }
+  .achievement-star:nth-child(5) { animation-delay: 1s; }
+  
+  @keyframes starBounce {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    60% { transform: scale(1.3) rotate(360deg); }
+    100% { transform: scale(1) rotate(360deg); opacity: 1; }
+  }
+  
+  .play-again-btn {
+    margin-top: 20px;
+    padding: 18px 50px;
+    background: linear-gradient(135deg, #ff6b9d, #c06c84);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 10px 30px rgba(255,107,157,0.5);
+    transition: all 0.3s ease;
+  }
+  
+  .play-again-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255,107,157,0.7);
+  }
+  
+  /* Confetti canvas */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 100;
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    body { padding: 10px 8px 30px; }
+    .header { padding: 20px 15px; }
+    .question-card { padding: 20px 15px; }
+    .tf-btn { padding: 15px 20px; min-width: 120px; }
+    .floating-obj { font-size: 2rem; }
+    .floating-obj:nth-child(3), .floating-obj:nth-child(5) { display: none; }
+    .controls { gap: 6px; }
+    .control-btn { padding: 8px 12px; font-size: 0.8rem; }
+  }
+  
+  /* Hide on small screens */
+  @media (max-width: 400px) {
+    .floating-obj { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background particles -->
+<div class="bg-particles" id="bgParticles"></div>
+
+<!-- Floating 3D education objects -->
+<div class="floating-obj">📚</div>
+<div class="floating-obj">✏️</div>
+<div class="floating-obj">🎓</div>
+<div class="floating-obj">📖</div>
+<div class="floating-obj">🌟</div>
+<div class="floating-obj">💡</div>
+
+<!-- Animated stars -->
+<div class="star" style="top: 15%; left: 20%;">⭐</div>
+<div class="star" style="top: 30%; right: 15%; animation-delay: 0.5s;">✨</div>
+<div class="star" style="top: 60%; left: 15%; animation-delay: 1s;">⭐</div>
+<div class="star" style="top: 75%; right: 20%; animation-delay: 1.5s;">✨</div>
+<div class="star" style="top: 45%; right: 8%; animation-delay: 2s;">⭐</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">TRUE OR FALSE?</h1>
+    <h2 class="subtitle">🌟 Bullying Prevention Challenge 🌟</h2>
+    <p class="instructions">Read each statement carefully. Choose TRUE or FALSE. Correct the false statements.</p>
+  </div>
+  
+  <!-- Controls -->
+  <div class="controls">
+    <button class="control-btn active" id="musicBtn">🎵 Music: ON</button>
+    <button class="control-btn active" id="soundBtn">🔊 Sound: ON</button>
+  </div>
+  
+  <!-- Game screen -->
+  <div id="gameScreen">
+    
+    <!-- Progress section -->
+    <div class="progress-section">
+      <div class="progress-info">
+        <div class="question-counter">Question <span id="currentQ">1</span> of 15</div>
+        <div class="score-display">
+          <span class="star-icon">⭐</span>
+          Score: <span id="scoreDisplay">0</span>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+      </div>
+    </div>
+    
+    <!-- Question card -->
+    <div class="question-card">
+      <div class="question-number">Statement <span id="qNum">1</span></div>
+      <div class="statement" id="statement">Loading...</div>
+      
+      <div class="buttons-container">
+        <button class="tf-btn btn-true" id="btnTrue" onclick="selectAnswer(true)">TRUE</button>
+        <button class="tf-btn btn-false" id="btnFalse" onclick="selectAnswer(false)">FALSE</button>
+      </div>
+      
+      <!-- Feedback -->
+      <div class="feedback" id="feedback"></div>
+      
+      <!-- Correction panel -->
+      <div class="correction-panel" id="correctionPanel">
+        <div class="correction-title">✏️ CORRECT THE FALSE SENTENCE ✏️</div>
+        <div class="original-statement" id="originalStatement"></div>
+        <textarea class="correction-input" id="correctionInput" placeholder="Type your corrected version of the statement here..."></textarea>
+        <div class="user-feedback" id="userFeedback"></div>
+        <div class="correction-actions">
+          <button class="correction-btn submit-correction-btn" onclick="submitCorrection()">✓ Submit My Answer</button>
+          <button class="correction-btn show-model-btn" onclick="showModelAnswer()">💡 Show Model Answer</button>
+        </div>
+        <div class="model-answer" id="modelAnswer"></div>
+      </div>
+      
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question →</button>
+    </div>
+    
+  </div>
+  
+  <!-- Results screen -->
+  <div class="results-screen" id="resultsScreen">
+    <h2 class="results-title">🎉 CHALLENGE COMPLETED! 🎉</h2>
+    
+    <div class="progress-circle-container">
+      <svg class="progress-circle" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffeb3b"/>
+            <stop offset="50%" stop-color="#ff6b9d"/>
+            <stop offset="100%" stop-color="#00ff88"/>
+          </linearGradient>
+        </defs>
+        <circle class="progress-circle-bg" cx="100" cy="100" r="90"/>
+        <circle class="progress-circle-fill" id="progressCircle" cx="100" cy="100" r="90"/>
+      </svg>
+      <div class="progress-circle-text">
+        <div class="score-big" id="finalScore">0/15</div>
+        <div class="score-label">FINAL SCORE</div>
+      </div>
+    </div>
+    
+    <div class="results-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="correctCount" style="color: #7fff7f;">0</div>
+        <div class="stat-label">✓ Correct</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="incorrectCount" style="color: #ffb3b3;">0</div>
+        <div class="stat-label">✗ Incorrect</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="accuracyPercent" style="color: #ffeb3b;">0%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+    </div>
+    
+    <div class="stars-display" id="starsDisplay"></div>
+    
+    <div class="achievement-message" id="achievementMessage"></div>
+    
+    <button class="play-again-btn" onclick="playAgain()">🔄 Play Again</button>
+  </div>
+  
+</div>
+
+<script>
+// ==================== GAME DATA ====================
+const questions = [
+  {
+    statement: "Bullied children may feel rejected and isolated.",
+    answer: true,
+    modelAnswer: "Bullied children may feel rejected and isolated, and this can affect their emotional well-being as adults, too."
+  },
+  {
+    statement: "Bullying cannot affect emotional well-being later in life.",
+    answer: false,
+    modelAnswer: "Bullying CAN affect emotional well-being later in life, as children who are bullied can often feel rejected and isolated, and this can affect their emotional well-being as adults, too."
+  },
+  {
+    statement: "Bystanders may encourage bullying by not intervening.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Only teachers are responsible for preventing bullying.",
+    answer: false,
+    modelAnswer: "Teachers, parents, support groups, student groups and individual students are ALL responsible for preventing bullying. Everyone can work together to develop an anti-bullying school environment."
+  },
+  {
+    statement: "A whole-school approach involves parents and students.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Working together can help create an anti-bullying environment.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Proactive strategies are used only after bullying happens.",
+    answer: false,
+    modelAnswer: "Proactive strategies aim to PREVENT bullying from occurring in the FIRST PLACE, not after it happens. (Reactive strategies are used after bullying occurs.)"
+  },
+  {
+    statement: "Classroom videos and lectures can help students discuss bullying.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Proactive strategies aim to encourage aggressive behaviour.",
+    answer: false,
+    modelAnswer: "Proactive strategies aim to encourage HEALTHIER attitudes towards others, change students' beliefs about what is acceptable, and teach students to make BETTER decisions."
+  },
+  {
+    statement: "Discussions about bullying can help students make better decisions.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Reactive strategies are prepared responses to bullying incidents.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Reactive strategies aim to make bullying situations worse.",
+    answer: false,
+    modelAnswer: "Reactive strategies aim to DEFUSE the situation quickly and easily to keep children SAFE, not to make situations worse."
+  },
+  {
+    statement: "Children should always fight back physically when bullied.",
+    answer: false,
+    modelAnswer: "Children should NOT be encouraged to fight back, as the situation could be aggravated and a child could be seriously hurt."
+  },
+  {
+    statement: "Having a plan can help children respond in a controlled way.",
+    answer: true,
+    modelAnswer: ""
+  },
+  {
+    statement: "Preventing bullying requires cooperation and appropriate strategies.",
+    answer: true,
+    modelAnswer: ""
+  }
+];
+
+// ==================== GAME STATE ====================
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+let musicOn = true;
+let soundOn = true;
+let audioCtx = null;
+let bgMusicInterval = null;
+
+// ==================== AUDIO SETUP ====================
+function initAudio() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {
+      console.log('Audio not supported');
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.2) {
+  if (!soundOn || !audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playClickSound() {
+  playTone(800, 0.08, 'square', 0.1);
+}
+
+function playCorrectSound() {
+  if (!soundOn) return;
+  const notes = [523.25, 659.25, 783.99, 1046.50];
+  notes.forEach((freq, i) => {
+    setTimeout(() => playTone(freq, 0.2, 'sine', 0.2), i * 80);
+  });
+}
+
+function playIncorrectSound() {
+  if (!soundOn) return;
+  playTone(300, 0.15, 'sawtooth', 0.15);
+  setTimeout(() => playTone(200, 0.25, 'sawtooth', 0.15), 150);
+}
+
+function playVictorySound() {
+  if (!soundOn) return;
+  const melody = [523.25, 659.25, 783.99, 659.25, 783.99, 1046.50];
+  melody.forEach((freq, i) => {
+    setTimeout(() => playTone(freq, 0.25, 'triangle', 0.25), i * 150);
+  });
+}
+
+function startBackgroundMusic() {
+  if (!musicOn || !audioCtx) return;
+  stopBackgroundMusic();
+  
+  const melody = [
+    { f: 392.00, d: 0.4 }, // G
+    { f: 440.00, d: 0.4 }, // A
+    { f: 493.88, d: 0.4 }, // B
+    { f: 523.25, d: 0.4 }, // C
+    { f: 493.88, d: 0.4 }, // B
+    { f: 440.00, d: 0.4 }, // A
+    { f: 392.00, d: 0.8 }, // G
+    { f: 329.63, d: 0.4 }, // E
+    { f: 349.23, d: 0.4 }, // F
+    { f: 392.00, d: 0.4 }, // G
+    { f: 440.00, d: 0.4 }, // A
+    { f: 392.00, d: 0.4 }, // G
+    { f: 349.23, d: 0.4 }, // F
+    { f: 329.63, d: 0.8 }  // E
+  ];
+  
+  let noteIndex = 0;
+  
+  function playNextNote() {
+    if (!musicOn || !audioCtx) return;
+    const note = melody[noteIndex];
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = note.f;
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + note.d);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + note.d);
+    } catch(e) {}
+    
+    noteIndex = (noteIndex + 1) % melody.length;
+  }
+  
+  playNextNote();
+  bgMusicInterval = setInterval(playNextNote, 450);
+}
+
+function stopBackgroundMusic() {
+  if (bgMusicInterval) {
+    clearInterval(bgMusicInterval);
+    bgMusicInterval = null;
+  }
+}
+
+// ==================== UI FUNCTIONS ====================
+function createParticles() {
+  const container = document.getElementById('bgParticles');
+  for (let i = 0; i < 25; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const size = Math.random() * 8 + 3;
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+    particle.style.animationDelay = Math.random() * 10 + 's';
+    container.appendChild(particle);
+  }
+}
+
+function loadQuestion() {
+  const q = questions[currentQuestion];
+  document.getElementById('currentQ').textContent = currentQuestion + 1;
+  document.getElementById('qNum').textContent = currentQuestion + 1;
+  document.getElementById('statement').textContent = q.statement;
+  document.getElementById('scoreDisplay').textContent = score;
+  
+  // Update progress bar
+  const progress = (currentQuestion / questions.length) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+  
+  // Reset UI state
+  answered = false;
+  document.getElementById('btnTrue').disabled = false;
+  document.getElementById('btnFalse').disabled = false;
+  document.getElementById('btnTrue').classList.remove('correct', 'incorrect');
+  document.getElementById('btnFalse').classList.remove('correct', 'incorrect');
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('correctionPanel').classList.remove('show');
+  document.getElementById('modelAnswer').classList.remove('show');
+  document.getElementById('userFeedback').classList.remove('show');
+  document.getElementById('correctionInput').value = '';
+  document.getElementById('nextBtn').disabled = true;
+  
+  // Animate card
+  const card = document.querySelector('.question-card');
+  card.style.animation = 'none';
+  setTimeout(() => {
+    card.style.animation = 'cardEnter 0.5s ease-out';
+  }, 10);
+}
+
+function selectAnswer(userAnswer) {
+  if (answered) return;
+  initAudio();
+  playClickSound();
+  
+  answered = true;
+  const q = questions[currentQuestion];
+  const isCorrect = userAnswer === q.answer;
+  
+  const btnTrue = document.getElementById('btnTrue');
+  const btnFalse = document.getElementById('btnFalse');
+  btnTrue.disabled = true;
+  btnFalse.disabled = true;
+  
+  if (isCorrect) {
+    score++;
+    document.getElementById('scoreDisplay').textContent = score;
+    
+    if (userAnswer) {
+      btnTrue.classList.add('correct');
+    } else {
+      btnFalse.classList.add('correct');
+    }
+    
+    playCorrectSound();
+    document.getElementById('feedback').className = 'feedback correct';
+    document.getElementById('feedback').innerHTML = '<span class="glowing-star">⭐</span> CORRECT! WELL DONE! <span class="glowing-star">⭐</span>';
+    
+    // Show correction panel only for FALSE statements
+    if (!q.answer) {
+      showCorrectionPanel(q);
+    } else {
+      document.getElementById('nextBtn').disabled = false;
+    }
+  } else {
+    if (userAnswer) {
+      btnTrue.classList.add('incorrect');
+    } else {
+      btnFalse.classList.add('incorrect');
+    }
+    
+    playIncorrectSound();
+    const correctText = q.answer ? 'TRUE' : 'FALSE';
+    document.getElementById('feedback').className = 'feedback incorrect';
+    document.getElementById('feedback').innerHTML = 'NOT QUITE! TRY AGAIN NEXT TIME!<br><small style="opacity:0.9;">The correct answer is: <strong>' + correctText + '</strong></small>';
+    
+    // Always show correction panel for FALSE statements
+    if (!q.answer) {
+      showCorrectionPanel(q);
+    } else {
+      document.getElementById('nextBtn').disabled = false;
+    }
+  }
+}
+
+function showCorrectionPanel(q) {
+  const panel = document.getElementById('correctionPanel');
+  document.getElementById('originalStatement').textContent = '"' + q.statement + '"';
+  document.getElementById('modelAnswer').innerHTML = '<strong>Model Answer:</strong> ' + q.modelAnswer;
+  panel.classList.add('show');
+  // Don't enable next button yet - user needs to interact with correction
+  // But we'll enable it after a short delay or after they submit
+  setTimeout(() => {
+    document.getElementById('nextBtn').disabled = false;
+  }, 1500);
+}
+
+function submitCorrection() {
+  const input = document.getElementById('correctionInput').value.trim();
+  const feedback = document.getElementById('userFeedback');
+  
+  if (input.length < 5) {
+    feedback.className = 'user-feedback try-again show';
+    feedback.textContent = '⚠️ Please write a complete correction (at least a few words).';
+    return;
+  }
+  
+  // Validate correction using keyword matching
+  const q = questions[currentQuestion];
+  const isGood = validateCorrection(input, currentQuestion);
+  
+  if (isGood) {
+    feedback.className = 'user-feedback good show';
+    feedback.textContent = '🌟 Great job! Your correction captures the key idea from the passage.';
+    playCorrectSound();
+  } else {
+    feedback.className = 'user-feedback try-again show';
+    feedback.textContent = '💭 Good effort! Compare your answer with the model answer below to see the key corrections.';
+    // Show model answer automatically if their attempt was weak
+    document.getElementById('modelAnswer').classList.add('show');
+  }
+  
+  // Enable next button
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function validateCorrection(text, qIndex) {
+  const lower = text.toLowerCase();
+  
+  // Keyword-based validation for each FALSE statement
+  const keywords = {
+    1: ['can', 'affect', 'adult', 'well-being', 'emotional'], // Q2: Bullying CAN affect...
+    3: ['teachers', 'parents', 'students', 'everyone', 'together', 'support', 'groups'], // Q4: Not only teachers
+    6: ['prevent', 'before', 'first', 'place', 'occur', 'stop', 'avoid'], // Q7: Proactive prevents
+    8: ['healthier', 'better', 'positive', 'kind', 'respect', 'accept', 'good'], // Q9: Healthier attitudes
+    11: ['defuse', 'safe', 'calm', 'better', 'resolve', 'stop', 'less'], // Q12: Defuse/keep safe
+    12: ['shouldn\'t', 'should not', 'don\'t', 'not', 'no', 'never', 'avoid', 'wrong'] // Q13: Shouldn't fight back
+  };
+  
+  const required = keywords[qIndex];
+  if (!required) return false;
+  
+  // Check if at least 1-2 key corrective words are present
+  let matches = 0;
+  for (const word of required) {
+    if (lower.includes(word)) {
+      matches++;
+    }
+  }
+  
+  // For Q13, check for negation of fighting back
+  if (qIndex === 12) {
+    const hasNegation = lower.includes('shouldn\'t') || lower.includes('should not') || 
+                       lower.includes('don\'t') || lower.includes('not') || 
+                       lower.includes('never') || lower.includes('no') ||
+                       lower.includes('aggravat') || lower.includes('hurt');
+    const hasTopic = lower.includes('fight') || lower.includes('back') || lower.includes('physic') || 
+                    lower.includes('bully') || lower.includes('aggress');
+    return hasNegation && (hasTopic || matches >= 1);
+  }
+  
+  return matches >= 2 || (matches >= 1 && lower.length > 30);
+}
+
+function showModelAnswer() {
+  document.getElementById('modelAnswer').classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+  playClickSound();
+}
+
+function nextQuestion() {
+  initAudio();
+  playClickSound();
+  currentQuestion++;
+  
+  if (currentQuestion >= questions.length) {
+    showResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('resultsScreen').classList.add('show');
+  
+  const correct = score;
+  const incorrect = questions.length - score;
+  const accuracy = Math.round((score / questions.length) * 100);
+  
+  document.getElementById('finalScore').textContent = score + '/15';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('incorrectCount').textContent = incorrect;
+  document.getElementById('accuracyPercent').textContent = accuracy + '%';
+  
+  // Animate progress circle
+  const circle = document.getElementById('progressCircle');
+  const circumference = 2 * Math.PI * 90; // r=90
+  const offset = circumference - (accuracy / 100) * circumference;
+  setTimeout(() => {
+    circle.style.strokeDashoffset = offset;
+  }, 100);
+  
+  // Stars display
+  const starsContainer = document.getElementById('starsDisplay');
+  starsContainer.innerHTML = '';
+  let starCount = 0;
+  if (score >= 13) starCount = 5;
+  else if (score >= 10) starCount = 4;
+  else if (score >= 7) starCount = 3;
+  else if (score >= 4) starCount = 2;
+  else starCount = 1;
+  
+  for (let i = 0; i < starCount; i++) {
+    const star = document.createElement('div');
+    star.className = 'achievement-star';
+    star.textContent = '⭐';
+    starsContainer.appendChild(star);
+  }
+  
+  // Achievement message
+  const msg = document.getElementById('achievementMessage');
+  if (score >= 13) {
+    msg.textContent = '🏆 OUTSTANDING! You are a Bullying Prevention Champion! 🏆';
+  } else if (score >= 10) {
+    msg.textContent = '🌟 GREAT JOB! You really understand how to tackle bullying! 🌟';
+  } else if (score >= 7) {
+    msg.textContent = '💪 GOOD EFFORT! Keep learning about bullying prevention! 💪';
+  } else {
+    msg.textContent = '📚 KEEP PRACTISING! Review the passage and try again! 📚';
+  }
+  
+  // Play victory sound and confetti
+  setTimeout(() => {
+    playVictorySound();
+    startConfetti();
+  }, 500);
+}
+
+function playAgain() {
+  initAudio();
+  playClickSound();
+  currentQuestion = 0;
+  score = 0;
+  answered = false;
+  
+  document.getElementById('resultsScreen').classList.remove('show');
+  document.getElementById('gameScreen').style.display = 'block';
+  
+  // Reset progress circle
+  document.getElementById('progressCircle').style.strokeDashoffset = 565.48;
+  
+  loadQuestion();
+}
+
+// ==================== CONFETTI ====================
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  const colors = ['#ff6b9d', '#ffeb3b', '#00ff88', '#00d4ff', '#a044ff', '#ff9800', '#e91e63'];
+  const confetti = [];
+  
+  for (let i = 0; i < 150; i++) {
+    confetti.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: Math.random() * 3 + 2,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.2,
+      drift: (Math.random() - 0.5) * 2
+    });
+  }
+  
+  let frames = 0;
+  const maxFrames = 300;
+  
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    confetti.forEach(c => {
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.angle);
+      ctx.fillStyle = c.color;
+      ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+      ctx.restore();
+      
+      c.y += c.speed;
+      c.x += c.drift;
+      c.angle += c.spin;
+      
+      if (c.y > canvas.height) {
+        c.y = -10;
+        c.x = Math.random() * canvas.width;
+      }
+    });
+    
+    frames++;
+    if (frames < maxFrames) {
+      requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  
+  animate();
+}
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('musicBtn').addEventListener('click', function() {
+  initAudio();
+  musicOn = !musicOn;
+  this.textContent = musicOn ? '🎵 Music: ON' : '🎵 Music: OFF';
+  this.classList.toggle('active', musicOn);
+  if (musicOn) {
+    startBackgroundMusic();
+  } else {
+    stopBackgroundMusic();
+  }
+  playClickSound();
+});
+
+document.getElementById('soundBtn').addEventListener('click', function() {
+  initAudio();
+  soundOn = !soundOn;
+  this.textContent = soundOn ? '🔊 Sound: ON' : '🔊 Sound: OFF';
+  this.classList.toggle('active', soundOn);
+  playClickSound();
+});
+
+// Initialize audio on first user interaction
+document.addEventListener('click', function initOnClick() {
+  initAudio();
+  if (musicOn && !bgMusicInterval) {
+    startBackgroundMusic();
+  }
+  document.removeEventListener('click', initOnClick);
+}, { once: true });
+
+// Handle window resize for confetti canvas
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// ==================== INITIALIZATION ====================
+window.addEventListener('load', () => {
+  createParticles();
+  loadQuestion();
+});
+</script>
+
+</body>
+</html>
