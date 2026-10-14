@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Our Heroes – Exercises</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+<style>
+:root{--ink:#1d2b53;--p:#7b2ff7;--ok:#06d6a0;--bad:#ef476f}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,#ffe29f,#ffa99f 45%,#a1c4fd);background-attachment:fixed;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{display:flex;justify-content:center;align-items:center;gap:14px;padding:14px}
+h1{margin:0;font-size:clamp(24px,4vw,42px);color:#fff;text-shadow:0 3px 8px #0005}
+#mus{border:0;border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;background:#fff;box-shadow:0 4px 0 #0003}
+#reset{border:0;border-radius:50px;padding:10px 18px;font:inherit;font-weight:800;cursor:pointer;background:#fff;box-shadow:0 4px 0 #0003;color:var(--ink)}
+section{max-width:1000px;margin:0 auto 28px;background:#fffdf5;border-radius:28px;padding:clamp(16px,3vw,32px);box-shadow:0 14px 40px #0003;width:calc(100% - 24px)}
+h2{margin:0 0 12px;font-size:clamp(20px,3vw,30px)}
+.bank{display:flex;flex-wrap:wrap;gap:10px;padding:14px;border:3px dashed var(--p);border-radius:20px;background:#f3ebff;min-height:64px;margin-bottom:16px}
+.tag{cursor:grab;user-select:none;padding:9px 18px;border-radius:50px;font-weight:800;font-size:clamp(15px,2.2vw,20px);color:#fff;background:linear-gradient(135deg,#7b2ff7,#f107a3);box-shadow:0 4px 0 #0003;touch-action:none}
+.tag:active{cursor:grabbing}.tag.sel{outline:4px solid #ffd166;transform:scale(1.08)}
+.tag.bad{background:var(--bad)}.tag.ok{background:#04a77d}
+.s{font-size:clamp(17px,2.6vw,24px);line-height:2.4;margin:4px 0}
+.blank{display:inline-block;min-width:200px;min-height:42px;vertical-align:middle;border-bottom:4px solid var(--p);border-radius:12px 12px 0 0;background:#f3ebff;text-align:center;line-height:42px;font-weight:800;padding:0 10px;transition:.2s}
+.blank.over,.col.over,.bank.over{background:#ffe9a8;transform:scale(1.03)}
+.blank.filled{background:#e5d4ff;color:var(--p)}.blank.ok{background:var(--ok);color:#fff;border-color:#048a68}.blank.bad{background:var(--bad);color:#fff;border-color:#a9244a}
+button.go{border:0;border-radius:50px;padding:12px 34px;margin-top:14px;font:inherit;font-size:20px;font-weight:900;color:#fff;background:var(--ink);cursor:pointer;box-shadow:0 5px 0 #0004}
+button.go:active{transform:translateY(3px);box-shadow:none}
+.res{display:inline-block;margin-left:16px;font-size:26px;font-weight:900}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:10px;transition:transform .6s}
+table.win{animation:win 1s ease 2}
+@keyframes win{50%{transform:scale(1.08) rotate(-1deg)}}
+th{background:linear-gradient(135deg,#ff9a3c,#ff4e50);color:#fff;border-radius:16px;padding:12px;font-size:clamp(15px,2.4vw,22px)}
+.col{vertical-align:top;height:200px;min-width:150px;background:#fff1d6;border:3px dashed #ff9a3c;border-radius:16px;padding:8px;transition:.2s}
+.col .tag{display:block;margin:6px 0;text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body>
+<header><h1>Our Heroes: exercises</h1><button id="reset" type="button">Reset</button><button id="mus" aria-label="Music">🎵</button></header>
+
+<section><h2>Exercise 1. Complete the sentences</h2>
+<div class="bank" id="b1" data-g="1"></div><div id="ss"></div>
+<button class="go" id="c1">Check answers</button><span class="res" id="r1"></span></section>
+
+<section><h2>Exercise 2. Write the jobs for each person</h2>
+<div class="bank" id="b2" data-g="2"></div>
+<div class="tw"><table id="tb"><tr><th>Toktar Aubakirov</th><th>Roza Baglanova</th><th>Abilkhan Kasteev</th></tr><tr><td class="col" data-g="2" data-p="0"></td><td class="col" data-g="2" data-p="1"></td><td class="col" data-g="2" data-p="2"></td></tr></table></div>
+<button class="go" id="c2">Finish</button><span class="res" id="r2"></span></section>
+
+<script>
+const N=["Toktar Aubakirov","Roza Baglanova","Abilkhan Kasteev"];
+const S=[["travelled to lots of countries.",1],["has a lot of experience flying planes.",0],["painted over two thousand pictures.",2],["trains young people.",0,"Today, "],["worked in the countryside.",2],["started work at 19 years old.",1]];
+const J=[["farm worker",2],["test pilot",0],["singer",1],["painter",2],["trainer",0],["performer",1],["cosmonaut",0],["soloist",1],["railway worker",2]];
+const tags1=[],tags2=[];
+let AC,musOn=true,timer,step=0,sel=null;
+const ctx=()=>{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.state=='suspended'&&AC.resume();return AC};
+function tone(f,t,d,type='sine',v=.15){try{const c=ctx(),o=c.createOscillator(),g=c.createGain(),s=c.currentTime+t;o.type=type;o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.02);g.gain.exponentialRampToValueAtTime(.001,s+d);o.start(s);o.stop(s+d+.05)}catch(e){}}
+const sc=[261.6,293.7,329.6,392,440,523.3,587.3,659.3],pat=[0,2,4,5,4,2,3,1,0,2,4,7,5,4,2,3];
+function music(){clearInterval(timer);if(!musOn)return;timer=setInterval(()=>{const i=step++%pat.length;tone(sc[pat[i]],0,.45,'triangle',.05);if(i%4==0)tone(sc[pat[i]]/2,0,.9,'sine',.06)},280)}
+const pop=()=>{tone(600,0,.08,'sine',.2);tone(900,.05,.1,'sine',.15)},win=()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,i*.1,.35,'triangle',.18)),lose=()=>{tone(220,0,.25,'sawtooth',.1);tone(150,.2,.35,'sawtooth',.1)};
+function start(){if(!timer)music()}
+document.addEventListener('pointerdown',start,{once:true});
+document.getElementById('mus').onclick=e=>{musOn=!musOn;e.target.textContent=musOn?'🎵':'🔇';music()};
+const $=id=>document.getElementById(id);
+const mk=(txt,g,v)=>{const t=document.createElement('span');t.className='tag';t.draggable=true;t.textContent=txt;t.dataset.g=g;t.dataset.v=v;t.onclick=()=>{ctx();document.querySelectorAll('.tag.sel').forEach(x=>x.classList.remove('sel'));sel=t;t.classList.add('sel')};t.ondragstart=()=>{sel=t};return t};
+N.forEach((n,i)=>{const tag=mk(n,1,i);tags1.push(tag);$('b1').append(tag)});
+J.forEach(([j,p])=>{const tag=mk(j,2,p);tags2.push(tag);$('b2').append(tag)});
+S.forEach(([t,a,pre],i)=>{const d=document.createElement('div');d.className='s';const z=document.createElement('span');z.className='blank';z.dataset.g=1;z.dataset.a=a;d.append(document.createTextNode((i+1)+'. '+(pre||'')),z,' '+t);$('ss').append(d)});
+function place(z){if(!sel||sel.dataset.g!=z.dataset.g)return;ctx();pop();
+if(z.classList.contains('blank')){z.textContent=sel.textContent;z.dataset.v=sel.dataset.v;z.className='blank filled'}
+else z.appendChild(sel);
+sel.classList.remove('sel','ok','bad');sel=null}
+document.querySelectorAll('.blank,.col,#b2').forEach(z=>{z.ondragover=e=>{e.preventDefault();z.classList.add('over')};z.ondragleave=()=>z.classList.remove('over');z.ondrop=e=>{e.preventDefault();z.classList.remove('over');place(z)};z.onclick=e=>{if(e.target==z)place(z)}});
+$('c1').onclick=()=>{ctx();let n=0;document.querySelectorAll('.blank').forEach(z=>{const ok=z.dataset.v==z.dataset.a;n+=ok;z.classList.remove('filled','ok','bad');z.classList.add(z.dataset.v===undefined?'bad':ok?'ok':'bad')});
+$('r1').textContent=n+'/6';$('r1').style.color=n==6?'#048a68':'#c0304f';
+if(n==6){win();confetti({particleCount:200,spread:100,origin:{y:.5},zIndex:99})}else lose()};
+$('c2').onclick=()=>{ctx();const tags=[...document.querySelectorAll('#b2 .tag,.col .tag')];let n=0;
+tags.forEach(t=>{t.classList.remove('ok','bad');const c=t.closest('.col');if(c){const ok=c.dataset.p==t.dataset.v;n+=ok;t.classList.add(ok?'ok':'bad')}});
+$('r2').textContent=n+'/9';$('r2').style.color=n==9?'#048a68':'#c0304f';
+if(n==9){const t=$('tb');t.classList.remove('win');t.offsetWidth;t.classList.add('win');win();
+const e=Date.now()+2500;(function f(){confetti({particleCount:8,angle:60,spread:70,origin:{x:0},zIndex:99});confetti({particleCount:8,angle:120,spread:70,origin:{x:1},zIndex:99});Date.now()<e&&requestAnimationFrame(f)})()}
+else lose()};
+$('reset').onclick=()=>{sel=null;document.querySelectorAll('.tag.sel').forEach(t=>t.classList.remove('sel'));tags1.forEach(t=>$('b1').append(t));tags2.forEach(t=>$('b2').append(t));document.querySelectorAll('.blank').forEach(z=>{z.textContent='';delete z.dataset.v;z.className='blank'});document.querySelectorAll('.col').forEach(c=>c.replaceChildren());['r1','r2'].forEach(id=>{$(id).textContent='';$(id).style.color=''});$('tb').classList.remove('win')};
+</script></body></html>
