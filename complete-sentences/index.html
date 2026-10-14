@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bullying Prevention Quiz</title>
+<style>
+  /* ============ RESET & BASE ============ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a40;
+    background: linear-gradient(135deg, #4facfe 0%, #7b68ee 40%, #c471f5 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    padding: 20px;
+    line-height: 1.5;
+  }
+
+  /* ============ ANIMATED BACKGROUND ============ */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.55;
+    animation: floatOrb 18s ease-in-out infinite;
+  }
+  .orb.o1 { width: 380px; height: 380px; background: #00d4ff; top: -80px; left: -80px; }
+  .orb.o2 { width: 320px; height: 320px; background: #a855f7; bottom: -60px; right: -60px; animation-delay: -6s; }
+  .orb.o3 { width: 260px; height: 260px; background: #f472b6; top: 40%; left: 50%; animation-delay: -12s; }
+  .orb.o4 { width: 220px; height: 220px; background: #22d3ee; bottom: 20%; left: 10%; animation-delay: -3s; }
+  @keyframes floatOrb {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(40px,-30px) scale(1.1); }
+    66% { transform: translate(-30px,40px) scale(0.95); }
+  }
+
+  /* Floating decorative icons */
+  .floaters { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .floater {
+    position: absolute;
+    font-size: 2.2rem;
+    opacity: 0.75;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+    animation: floatUp 20s linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* Sparkle particles */
+  .sparkle-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .sparkle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px white, 0 0 16px #fff;
+    animation: sparkle 4s linear infinite;
+  }
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ============ LAYOUT ============ */
+  .app {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ============ HEADER ============ */
+  .header {
+    text-align: center;
+    padding: 30px 20px 20px;
+    color: white;
+  }
+  .header h1 {
+    font-size: clamp(1.8rem, 4.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    background: linear-gradient(90deg, #fff, #fef08a, #fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+  }
+  .header .subtitle {
+    margin-top: 10px;
+    font-size: clamp(1rem, 2.2vw, 1.3rem);
+    font-weight: 500;
+    color: #fef9c3;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  }
+  .header .instructions {
+    margin-top: 14px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 14px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  /* ============ CONTROLS ============ */
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px auto;
+  }
+  .ctrl-btn {
+    background: rgba(255,255,255,0.22);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.25s ease;
+    font-weight: 600;
+  }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.35); transform: translateY(-2px); }
+  .ctrl-btn.active { background: rgba(255,255,255,0.45); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+
+  /* ============ GLASS CARD ============ */
+  .glass {
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(31,38,135,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+
+  /* ============ QUESTION CARD ============ */
+  .question-card {
+    padding: 28px;
+    color: #1a1a40;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-width: 820px;
+    margin: 10px auto 0;
+  }
+
+  .q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .q-number {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 6px 16px rgba(99,102,241,0.4);
+  }
+  .q-score {
+    background: rgba(255,255,255,0.5);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #4c1d95;
+  }
+
+  .sentence {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    line-height: 1.8;
+    color: #1e1b4b;
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+  .options-list {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .option-btn {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid rgba(124,58,237,0.25);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.66);
+    color: #1e1b4b;
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: #7c3aed;
+    background: rgba(255,255,255,0.9);
+    transform: translateY(-1px);
+  }
+  .option-btn.selected {
+    border-color: #7c3aed;
+    background: rgba(196,181,253,0.5);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+  }
+  .option-btn.correct {
+    border-color: #10b981;
+    background: rgba(16,185,129,0.18);
+  }
+  .option-btn.wrong {
+    border-color: #f59e0b;
+    background: rgba(245,158,11,0.16);
+  }
+  .option-btn:disabled { cursor: default; }
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .btn {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.2); }
+  .btn:active:not(:disabled) { transform: translateY(0); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .btn-next { background: linear-gradient(135deg, #3b82f6, #1d4ed8); margin-left: auto; }
+  .btn-restart { background: linear-gradient(135deg, #ec4899, #be185d); font-size: 1.05rem; padding: 14px 28px; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-weight: 600;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.success {
+    background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.15));
+    border: 1px solid rgba(16,185,129,0.5);
+    color: #065f46;
+  }
+  .feedback.warn {
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.15));
+    border: 1px solid rgba(245,158,11,0.5);
+    color: #78350f;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-top: 18px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 999px;
+    height: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #22d3ee, #a855f7, #ec4899);
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 999px;
+    box-shadow: 0 0 10px rgba(168,85,247,0.6);
+  }
+
+  .stars-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .star {
+    font-size: 1.6rem;
+    opacity: 0.3;
+    filter: grayscale(1);
+    transition: all 0.4s ease;
+  }
+  .star.earned {
+    opacity: 1;
+    filter: grayscale(0) drop-shadow(0 0 8px #fbbf24);
+    animation: popIn 0.5s ease;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.3) rotate(20deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  /* ============ RESULTS SCREEN ============ */
+  .results {
+    padding: 40px 28px;
+    text-align: center;
+    color: #1a1a40;
+    display: none;
+  }
+  .results.show { display: block; animation: fadeIn 0.6s ease; }
+  .results h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+    font-weight: 800;
+  }
+  .trophy {
+    font-size: clamp(4rem, 10vw, 6rem);
+    display: inline-block;
+    animation: trophyBounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 20px rgba(251,191,36,0.5));
+  }
+  @keyframes trophyBounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+  }
+  .score-display {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: #4c1d95;
+    margin: 16px 0;
+  }
+  .score-display .big { font-size: 1.4em; color: #7c3aed; }
+  .accuracy {
+    font-size: 1.1rem;
+    color: #6d28d9;
+    margin-bottom: 10px;
+  }
+  .label {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 999px;
+    display: inline-block;
+    margin: 12px 0 20px;
+    background: linear-gradient(135deg, #fef08a, #fbbf24);
+    color: #78350f;
+    box-shadow: 0 6px 18px rgba(251,191,36,0.4);
+  }
+  .feedback-text {
+    font-size: 1rem;
+    color: #1e1b4b;
+    max-width: 560px;
+    margin: 0 auto 24px;
+  }
+
+  /* Confetti canvas */
+  #confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Screen management */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.5s ease; }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    .question-card { padding: 20px; }
+    .btn { padding: 10px 16px; font-size: 0.9rem; }
+  }
+
+  /* Accessibility */
+  button:focus-visible {
+    outline: 3px solid #fef08a;
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="orb o4"></div>
+</div>
+
+<div class="floaters" id="floaters" aria-hidden="true"></div>
+<div class="sparkle-layer" id="sparkles" aria-hidden="true"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <h1>BULLYING PREVENTION QUIZ</h1>
+    <div class="subtitle">🛡️ Choose the correct answer</div>
+    <div class="instructions">
+      Answer each question by selecting one of the options.
+    </div>
+  </header>
+
+  <!-- CONTROLS -->
+  <div class="controls" role="toolbar" aria-label="Audio controls">
+    <button class="ctrl-btn active" id="musicBtn" aria-pressed="true">🎵 Music: ON</button>
+    <button class="ctrl-btn active" id="sfxBtn" aria-pressed="true">🔊 Sounds: ON</button>
+  </div>
+
+  <!-- MAIN SCREEN -->
+  <section class="screen active" id="mainScreen">
+    <article class="glass question-card" id="questionCard">
+      <div class="q-header">
+        <div class="q-number" id="qNumber">Question 1 of 7</div>
+        <div class="q-score" id="qScore">⭐ 0 / 7</div>
+      </div>
+
+      <div class="sentence" id="sentenceText"></div>
+      <div class="options-list" id="optionsList" role="group" aria-label="Answer options"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-next" id="nextBtn">NEXT ➡</button>
+      </div>
+
+      <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+      <div class="progress-wrap" aria-label="Overall progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="stars-row" id="starsRow" aria-label="Stars earned"></div>
+    </article>
+  </section>
+
+  <!-- RESULTS SCREEN -->
+  <section class="screen" id="resultsScreen">
+    <div class="glass results">
+      <div class="trophy" aria-hidden="true">🏆</div>
+      <h2>MISSION COMPLETED!</h2>
+      <div class="score-display">
+        <span class="big" id="finalScore">0</span> / <span id="finalTotal">7</span>
+      </div>
+      <div class="accuracy" id="finalAccuracy">Accuracy: 0%</div>
+      <div class="label" id="finalLabel">KEEP PRACTISING!</div>
+      <p class="feedback-text" id="finalFeedback">Great effort! Try again to improve your score.</p>
+      <button class="btn btn-restart" id="restartBtn">🔄 RESTART ACTIVITY</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+const QUESTIONS = [
+  {
+    question: "How can children who are bullied often feel?",
+    options: ["Confident and popular", "Rejected and isolated", "Bored and restless", "Angry at their teachers"],
+    correct: 1
+  },
+  {
+    question: "What can the whole school work together to develop?",
+    options: ["A stricter homework policy", "A competitive sports program", "An anti-bullying school environment", "A new set of school uniforms"],
+    correct: 2
+  },
+  {
+    question: "What is the goal of proactive strategies?",
+    options: ["To punish students after every incident", "To prevent bullying before it happens", "To help students fight back", "To remove all classroom discussions"],
+    correct: 1
+  },
+  {
+    question: "How can videos, lectures and written materials help?",
+    options: ["They engage students in discussions about bullying", "They replace the need for teachers", "They teach students to avoid all group work", "They make school rules unnecessary"],
+    correct: 0
+  },
+  {
+    question: "What can proactive strategies help children learn to do?",
+    options: ["Ignore everyone around them", "Make better decisions", "Avoid telling adults about problems", "Set other students' punishments"],
+    correct: 1
+  },
+  {
+    question: "What is the goal of reactive strategies?",
+    options: ["To defuse the situation and keep children safe", "To delay responding to bullying", "To encourage children to fight back", "To stop students from speaking to adults"],
+    correct: 0
+  },
+  {
+    question: "What should children not be encouraged to do when bullied?",
+    options: ["Ask for help", "Follow a safety plan", "Fight back", "Talk to a trusted adult"],
+    correct: 2
+  }
+];
+
+/* =========================================================
+   STATE
+========================================================= */
+let currentIndex = 0;
+let score = 0;
+let answered = new Array(QUESTIONS.length).fill(false); // true = point awarded
+let selectedOption = null;
+
+/* =========================================================
+   DOM
+========================================================= */
+const $ = (id) => document.getElementById(id);
+const sentenceText = $("sentenceText");
+const optionsList = $("optionsList");
+const feedback = $("feedback");
+const qNumber = $("qNumber");
+const qScore = $("qScore");
+const progressBar = $("progressBar");
+const starsRow = $("starsRow");
+const mainScreen = $("mainScreen");
+const resultsScreen = $("resultsScreen");
+
+/* =========================================================
+   AUDIO (Web Audio API)
+========================================================= */
+let audioCtx = null;
+let musicEnabled = true;
+let sfxEnabled = true;
+let musicNodes = [];
+let musicInterval = null;
+
+function ensureAudio() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) { audioCtx = null; }
+  }
+  if (audioCtx && audioCtx.state === "suspended") {
+    audioCtx.resume().catch(()=>{});
+  }
+}
+
+function playTone({freq=440, dur=0.2, type="sine", vol=0.15, delay=0, attack=0.01, release=0.05} = {}) {
+  if (!sfxEnabled || !audioCtx) return;
+  const t0 = audioCtx.currentTime + delay;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + attack);
+  gain.gain.linearRampToValueAtTime(0, t0 + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+function sfxClick() {
+  playTone({freq: 600, dur: 0.08, type: "triangle", vol: 0.08});
+}
+function sfxCorrect() {
+  playTone({freq: 523, dur: 0.12, type: "sine", vol: 0.18});
+  playTone({freq: 659, dur: 0.12, type: "sine", vol: 0.18, delay: 0.1});
+  playTone({freq: 784, dur: 0.2, type: "sine", vol: 0.18, delay: 0.2});
+  playTone({freq: 1047, dur: 0.3, type: "triangle", vol: 0.15, delay: 0.35});
+}
+function sfxWrong() {
+  playTone({freq: 300, dur: 0.15, type: "sawtooth", vol: 0.1});
+  playTone({freq: 220, dur: 0.2, type: "sawtooth", vol: 0.1, delay: 0.12});
+}
+function sfxAchievement() {
+  [523, 659, 784, 1047, 1319].forEach((f, i) => {
+    playTone({freq: f, dur: 0.15, type: "triangle", vol: 0.15, delay: i * 0.08});
+  });
+}
+function sfxVictory() {
+  const notes = [523, 659, 784, 1047, 784, 1047, 1319, 1568];
+  notes.forEach((f, i) => {
+    playTone({freq: f, dur: 0.2, type: "triangle", vol: 0.18, delay: i * 0.12});
+  });
+}
+
+// Gentle background music loop using soft arpeggios
+function startMusic() {
+  if (!audioCtx) return;
+  stopMusic();
+  const scale = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // C major arpeggio
+  let i = 0;
+  const playNote = () => {
+    if (!musicEnabled) return;
+    const freq = scale[i % scale.length];
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(0.04, t0 + 0.1);
+    gain.gain.linearRampToValueAtTime(0, t0 + 0.8);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.9);
+    i++;
+  };
+  musicInterval = setInterval(playNote, 700);
+}
+function stopMusic() {
+  if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+}
+
+/* =========================================================
+   DECORATIVE ELEMENTS
+========================================================= */
+function createFloaters() {
+  const container = $("floaters");
+  const icons = ["📚","✏️","⭐","🛡️","💬","🎓","📖","✨","🏆","💡"];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement("div");
+    el.className = "floater";
+    el.textContent = icons[i % icons.length];
+    el.style.left = Math.random() * 100 + "%";
+    el.style.animationDuration = (15 + Math.random() * 15) + "s";
+    el.style.animationDelay = (-Math.random() * 20) + "s";
+    el.style.fontSize = (1.5 + Math.random() * 1.5) + "rem";
+    container.appendChild(el);
+  }
+}
+function createSparkles() {
+  const container = $("sparkles");
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = (-Math.random() * 4) + "s";
+    s.style.animationDuration = (3 + Math.random() * 3) + "s";
+    container.appendChild(s);
+  }
+}
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+const confettiCanvas = $("confetti");
+const ctx = confettiCanvas.getContext("2d");
+let confettiPieces = [];
+let confettiRunning = false;
+
+function resizeCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function launchConfetti({count=120, duration=3500} = {}) {
+  confettiPieces = [];
+  const colors = ["#22d3ee","#a855f7","#ec4899","#fbbf24","#10b981","#3b82f6","#f472b6"];
+  for (let i = 0; i < count; i++) {
+    confettiPieces.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -20 - Math.random() * 200,
+      w: 6 + Math.random() * 6,
+      h: 10 + Math.random() * 8,
+      vx: -2 + Math.random() * 4,
+      vy: 2 + Math.random() * 4,
+      rot: Math.random() * Math.PI * 2,
+      vr: -0.2 + Math.random() * 0.4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      life: duration
+    });
+  }
+  if (!confettiRunning) {
+    confettiRunning = true;
+    requestAnimationFrame(drawConfetti);
+  }
+}
+function drawConfetti() {
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiPieces = confettiPieces.filter(p => p.life > 0 && p.y < confettiCanvas.height + 40);
+  confettiPieces.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.rot += p.vr;
+    p.life -= 16;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.restore();
+  });
+  if (confettiPieces.length > 0) {
+    requestAnimationFrame(drawConfetti);
+  } else {
+    confettiRunning = false;
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+/* =========================================================
+   RENDER
+========================================================= */
+function renderStars() {
+  starsRow.innerHTML = "";
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const s = document.createElement("span");
+    s.className = "star" + (answered[i] ? " earned" : "");
+    s.textContent = "⭐";
+    s.setAttribute("aria-label", answered[i] ? `Star ${i+1} earned` : `Star ${i+1} not yet earned`);
+    starsRow.appendChild(s);
+  }
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentIndex];
+  qNumber.textContent = `Question ${currentIndex + 1} of ${QUESTIONS.length}`;
+  qScore.textContent = `⭐ ${score} / ${QUESTIONS.length}`;
+  sentenceText.textContent = q.question;
+  selectedOption = null;
+  optionsList.innerHTML = "";
+  q.options.forEach((option, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "option-btn";
+    button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+    button.setAttribute("aria-pressed", "false");
+    button.dataset.optionIndex = String(index);
+    optionsList.appendChild(button);
+  });
+  feedback.className = "feedback";
+  feedback.textContent = "";
+
+  // Progress
+  const progress = ((currentIndex) / QUESTIONS.length) * 100;
+  progressBar.style.width = progress + "%";
+
+  renderStars();
+}
+
+function showFeedback(type, text) {
+  feedback.className = "feedback show " + type;
+  feedback.textContent = text;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+function handleOptionSelection(option) {
+  ensureAudio();
+  if (!option || option.disabled) return;
+
+  selectedOption = Number(option.dataset.optionIndex);
+  const options = optionsList.querySelectorAll(".option-btn");
+  options.forEach((button, index) => {
+    button.classList.toggle("selected", index === selectedOption);
+    button.classList.remove("wrong");
+    button.setAttribute("aria-pressed", String(index === selectedOption));
+  });
+
+  if (selectedOption === QUESTIONS[currentIndex].correct) {
+    option.classList.add("correct");
+    options.forEach(option => { option.disabled = true; });
+    if (!answered[currentIndex]) {
+      answered[currentIndex] = true;
+      score++;
+      renderStars();
+      qScore.textContent = `⭐ ${score} / ${QUESTIONS.length}`;
+      sfxCorrect();
+      launchConfetti({count: 50, duration: 2000});
+    } else {
+      sfxClick();
+    }
+
+    showFeedback("success", "🌟 EXCELLENT! CORRECT ANSWER!");
+  } else {
+    option.classList.add("wrong");
+    sfxWrong();
+    showFeedback("warn", "🤔 Not quite. Choose another option and try again.");
+  }
+}
+
+function handleNext() {
+  ensureAudio();
+  sfxClick();
+  if (currentIndex < QUESTIONS.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  mainScreen.classList.remove("active");
+  resultsScreen.classList.add("active");
+  resultsScreen.querySelector(".results").classList.add("show");
+  const pct = Math.round((score / QUESTIONS.length) * 100);
+  $("finalScore").textContent = score;
+  $("finalTotal").textContent = QUESTIONS.length;
+  $("finalAccuracy").textContent = `Accuracy: ${pct}%`;
+
+  let label, feedbackText;
+  if (score === QUESTIONS.length) {
+    label = "🏆 PERFECT SCORE!";
+    feedbackText = "Outstanding! You answered every question correctly.";
+  } else if (score >= 5) {
+    label = "🌟 EXCELLENT WORK!";
+    feedbackText = "Fantastic job! Keep up the great work!";
+  } else if (score >= 3) {
+    label = "👍 GOOD PROGRESS!";
+    feedbackText = "Well done! You're making solid progress. Try again to improve your score.";
+  } else {
+    label = "💪 KEEP PRACTISING!";
+    feedbackText = "Don't give up! Try again — you'll improve!";
+  }
+  $("finalLabel").textContent = label;
+  $("finalFeedback").textContent = feedbackText;
+  progressBar.style.width = "100%";
+
+  sfxVictory();
+  launchConfetti({count: 200, duration: 4500});
+  setTimeout(() => launchConfetti({count: 120, duration: 3000}), 1500);
+}
+
+function handleRestart() {
+  ensureAudio();
+  sfxClick();
+  currentIndex = 0;
+  score = 0;
+  answered = new Array(QUESTIONS.length).fill(false);
+  selectedOption = null;
+  resultsScreen.classList.remove("active");
+  resultsScreen.querySelector(".results").classList.remove("show");
+  mainScreen.classList.add("active");
+  renderQuestion();
+}
+
+/* =========================================================
+   MUSIC / SFX TOGGLES
+========================================================= */
+function toggleMusic() {
+  ensureAudio();
+  musicEnabled = !musicEnabled;
+  const btn = $("musicBtn");
+  btn.textContent = musicEnabled ? "🎵 Music: ON" : "🎵 Music: OFF";
+  btn.classList.toggle("active", musicEnabled);
+  btn.setAttribute("aria-pressed", String(musicEnabled));
+  if (musicEnabled) startMusic(); else stopMusic();
+  sfxClick();
+}
+function toggleSfx() {
+  ensureAudio();
+  sfxEnabled = !sfxEnabled;
+  const btn = $("sfxBtn");
+  btn.textContent = sfxEnabled ? "🔊 Sounds: ON" : "🔊 Sounds: OFF";
+  btn.classList.toggle("active", sfxEnabled);
+  btn.setAttribute("aria-pressed", String(sfxEnabled));
+  if (sfxEnabled) sfxClick();
+}
+
+/* =========================================================
+   EVENT BINDINGS
+========================================================= */
+$("nextBtn").addEventListener("click", handleNext);
+$("restartBtn").addEventListener("click", handleRestart);
+$("musicBtn").addEventListener("click", toggleMusic);
+$("sfxBtn").addEventListener("click", toggleSfx);
+
+optionsList.addEventListener("click", (event) => {
+  const option = event.target.closest(".option-btn");
+  handleOptionSelection(option);
+});
+
+// Start audio on first interaction (respect autoplay policy)
+document.addEventListener("click", function initAudio() {
+  ensureAudio();
+  if (musicEnabled) startMusic();
+  document.removeEventListener("click", initAudio);
+}, { once: true });
+
+/* =========================================================
+   INIT
+========================================================= */
+createFloaters();
+createSparkles();
+renderQuestion();
+</script>
+</body>
+</html>
