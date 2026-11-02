@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Adjective Detective</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --bg1:#1b1347; --bg2:#4b2a85; --bg3:#7a3fbf;
+    --gold:#ffd84d; --gold2:#ffae2b;
+    --green:#2ecc71; --red:#ff5a6e;
+    --card:#ffffff;
+    --ink:#2a1b55;
+  }
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI','Trebuchet MS',system-ui,sans-serif;
+    color:#fff;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, #6a3ac7 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 110%, #2a1b6b 0%, transparent 60%),
+      linear-gradient(135deg,#1b1347 0%,#3b1f7a 50%,#5b2aa8 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* Floating stars */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .star{position:absolute;width:6px;height:6px;background:#fff;border-radius:50%;
+        opacity:.7;box-shadow:0 0 8px #fff,0 0 16px #b79bff;animation:twinkle 3s infinite ease-in-out;}
+  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+  .app{
+    position:relative;z-index:2;
+    max-width:960px;margin:0 auto;padding:20px;
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+
+  /* Top bar */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:10px 14px;border-radius:18px;
+    background:rgba(255,255,255,.08);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.15);
+  }
+  .badge{
+    display:flex;align-items:center;gap:10px;font-weight:700;
+    padding:8px 14px;border-radius:14px;
+    background:linear-gradient(135deg,#ffd84d,#ffae2b);
+    color:#4b2a00;box-shadow:0 6px 18px rgba(255,174,43,.45), inset 0 2px 0 #fff3;
+  }
+  .badge .dot{width:10px;height:10px;border-radius:50%;background:#4b2a00;}
+  .sound-btn{
+    display:flex;align-items:center;gap:8px;cursor:pointer;
+    padding:10px 14px;border-radius:14px;border:none;
+    background:linear-gradient(135deg,#ffffff22,#ffffff11);
+    color:#fff;font-weight:700;font-size:14px;
+    border:1px solid #ffffff33;transition:transform .15s;
+  }
+  .sound-btn:hover{transform:translateY(-2px);}
+  .sound-btn .ico{font-size:18px;}
+
+  /* Screens */
+  .screen{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+  .screen.active{display:flex;animation:fadeIn .5s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Start screen */
+  .title{
+    font-size:clamp(36px,7vw,64px);font-weight:900;letter-spacing:2px;text-align:center;
+    background:linear-gradient(180deg,#fff 0%,#ffe9a0 60%,#ffae2b 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 0 #3a1a7a,0 8px 24px rgba(0,0,0,.35);
+    line-height:1;
+  }
+  .subtitle{
+    text-align:center;font-size:clamp(14px,2.4vw,20px);
+    color:#e9dcff;max-width:640px;
+  }
+  .detective-hero{
+    width:clamp(180px,30vw,260px);aspect-ratio:1;
+    position:relative;animation:floaty 4s ease-in-out infinite;
+    filter:drop-shadow(0 18px 24px rgba(0,0,0,.4));
+  }
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+
+  .start-btn{
+    margin-top:8px;cursor:pointer;border:none;
+    padding:18px 38px;border-radius:999px;
+    font-size:clamp(16px,2.6vw,22px);font-weight:900;letter-spacing:1.5px;
+    color:#3a1a00;
+    background:linear-gradient(180deg,#fff4b8 0%,#ffd84d 50%,#ffae2b 100%);
+    box-shadow:0 10px 0 #a36300, 0 18px 30px rgba(0,0,0,.35), inset 0 2px 0 #fff;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .start-btn:hover{transform:translateY(-3px);box-shadow:0 13px 0 #a36300, 0 22px 34px rgba(0,0,0,.4), inset 0 2px 0 #fff;}
+  .start-btn:active{transform:translateY(4px);box-shadow:0 4px 0 #a36300, 0 8px 18px rgba(0,0,0,.3), inset 0 2px 0 #fff;}
+
+  /* Quiz */
+  .quiz-head{
+    width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 16px;border-radius:16px;
+    background:rgba(255,255,255,.08);border:1px solid #ffffff22;
+  }
+  .qnum{font-weight:800;font-size:18px;}
+  .qscore{font-weight:800;color:#ffe9a0;}
+  .progress{
+    width:100%;height:12px;border-radius:999px;background:#0006;
+    overflow:hidden;border:1px solid #ffffff22;
+  }
+  .progress > div{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,#2ecc71,#7cffb2);
+    transition:width .5s cubic-bezier(.2,.9,.2,1);
+    box-shadow:0 0 12px #2ecc71;
+  }
+
+  .card{
+    width:100%;margin-top:14px;
+    background:linear-gradient(180deg,#ffffff 0%,#f5eeff 100%);
+    border-radius:26px;color:var(--ink);
+    padding:22px;
+    box-shadow:0 30px 60px rgba(0,0,0,.4), inset 0 2px 0 #fff;
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;inset:-2px;border-radius:28px;
+    background:linear-gradient(135deg,#ffd84d,#ff66a8,#66d2ff,#2ecc71);
+    z-index:-1;filter:blur(12px);opacity:.55;
+  }
+  .scene{
+    width:100%;aspect-ratio:16/10;border-radius:20px;
+    background:linear-gradient(180deg,#bfe8ff 0%,#e9f8ff 60%,#c9f0d8 100%);
+    position:relative;overflow:hidden;
+    box-shadow:inset 0 0 0 3px #fff, 0 10px 24px rgba(0,0,0,.15);
+  }
+  .scene svg{width:100%;height:100%;display:block;}
+
+  .clue{
+    margin-top:14px;text-align:center;font-weight:800;font-size:clamp(16px,2.6vw,22px);
+    color:var(--ink);
+  }
+  .clue small{display:block;font-weight:600;color:#5a4a88;margin-top:4px;font-size:.85em;}
+
+  .options{
+    margin-top:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+  }
+  .opt{
+    cursor:pointer;border:none;
+    padding:16px;border-radius:16px;
+    font-size:clamp(15px,2.2vw,20px);font-weight:800;letter-spacing:.5px;
+    color:#2a1b55;
+    background:linear-gradient(180deg,#fff,#f1e7ff);
+    border:2px solid #d8c8ff;
+    box-shadow:0 6px 0 #c8b4ff, 0 10px 18px rgba(0,0,0,.12);
+    transition:transform .15s, box-shadow .15s, background .2s, color .2s, border-color .2s;
+  }
+  .opt:hover{transform:translateY(-3px);box-shadow:0 9px 0 #c8b4ff, 0 14px 22px rgba(0,0,0,.18);}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #c8b4ff;}
+  .opt.correct{background:linear-gradient(180deg,#b8f5c9,#2ecc71);color:#0b3b1a;border-color:#1f8f4d;box-shadow:0 6px 0 #1f8f4d,0 0 24px #2ecc71;animation:pop .5s;}
+  .opt.wrong{background:linear-gradient(180deg,#ffc2cb,#ff5a6e);color:#4a0d18;border-color:#c0324a;box-shadow:0 6px 0 #c0324a;animation:shake .4s;}
+  .opt.dim{opacity:.55;}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+  .next-btn{
+    margin-top:14px;align-self:center;cursor:pointer;border:none;
+    padding:14px 30px;border-radius:999px;font-weight:900;font-size:16px;letter-spacing:1px;
+    color:#1b1347;background:linear-gradient(180deg,#fff,#ffd84d);
+    box-shadow:0 8px 0 #a36300, 0 14px 24px rgba(0,0,0,.3);
+    display:none;
+  }
+  .next-btn.show{display:inline-block;animation:fadeIn .3s ease;}
+  .next-btn:hover{transform:translateY(-2px);}
+
+  /* Feedback toast */
+  .toast{
+    position:fixed;left:50%;top:18%;transform:translate(-50%,-20px);
+    padding:12px 22px;border-radius:999px;font-weight:900;letter-spacing:1px;
+    background:#fff;color:#2a1b55;box-shadow:0 14px 30px rgba(0,0,0,.35);
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:20;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  .toast.good{background:linear-gradient(180deg,#b8f5c9,#2ecc71);color:#0b3b1a;}
+  .toast.bad{background:linear-gradient(180deg,#ffc2cb,#ff5a6e);color:#4a0d18;}
+
+  /* Results */
+  .result-card{
+    width:100%;max-width:720px;margin:0 auto;
+    background:linear-gradient(180deg,#fff,#f5eeff);color:var(--ink);
+    border-radius:28px;padding:28px;text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,.45);
+    position:relative;overflow:hidden;
+  }
+  .trophy{
+    width:clamp(140px,24vw,200px);aspect-ratio:1;margin:0 auto 6px;
+    animation:trophySpin 3s ease-in-out infinite;
+    filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));
+  }
+  @keyframes trophySpin{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.05)}}
+  .case-solved{
+    font-size:clamp(32px,6vw,56px);font-weight:900;letter-spacing:2px;
+    background:linear-gradient(180deg,#fff 0%,#ffe9a0 60%,#ffae2b 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 4px 0 #3a1a7a;
+  }
+  .final-score{font-size:clamp(22px,4vw,34px);font-weight:900;color:#3a1a7a;margin:8px 0;}
+  .rank{
+    display:inline-block;padding:10px 22px;border-radius:999px;font-weight:900;letter-spacing:1.5px;
+    background:linear-gradient(135deg,#ffd84d,#ffae2b);color:#4b2a00;
+    box-shadow:0 8px 0 #a36300, 0 14px 24px rgba(0,0,0,.3);
+    margin:10px 0 18px;
+  }
+  .motiv{font-size:clamp(14px,2vw,18px);color:#5a4a88;font-weight:700;}
+
+  /* Confetti canvas */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:30;}
+
+  @media (max-width:560px){
+    .options{grid-template-columns:1fr;}
+    .card{padding:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<canvas id="confetti"></canvas>
+
+<div class="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="badge"><span class="dot"></span><span id="scoreBadge">Score: 0/11</span></div>
+    <button class="sound-btn" id="soundBtn" aria-label="Toggle sound">
+      <span class="ico" id="soundIco">🔊</span><span id="soundLabel">Sound ON</span>
+    </button>
+  </div>
+
+  <!-- START SCREEN -->
+  <section class="screen active" id="startScreen">
+    <div class="detective-hero">
+      <!-- 3D detective character -->
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="faceG" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#ffe3b8"/>
+            <stop offset="100%" stop-color="#e9a86a"/>
+          </radialGradient>
+          <linearGradient id="coatG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#8b5a2b"/>
+            <stop offset="100%" stop-color="#5a3a18"/>
+          </linearGradient>
+          <linearGradient id="hatG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3b2a1a"/>
+            <stop offset="100%" stop-color="#1e130a"/>
+          </linearGradient>
+          <radialGradient id="lensG" cx="40%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#eaf6ff" stop-opacity=".9"/>
+            <stop offset="60%" stop-color="#9fd6ff" stop-opacity=".7"/>
+            <stop offset="100%" stop-color="#4aa3ff" stop-opacity=".5"/>
+          </radialGradient>
+          <linearGradient id="goldG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffe27a"/>
+            <stop offset="100%" stop-color="#c98a12"/>
+          </linearGradient>
+        </defs>
+        <!-- coat body -->
+        <path d="M40 180 C 40 130, 70 110, 100 110 C 130 110, 160 130, 160 180 Z" fill="url(#coatG)"/>
+        <path d="M70 120 L100 140 L130 120 L125 175 L75 175 Z" fill="#3a2410" opacity=".5"/>
+        <!-- tie -->
+        <path d="M95 125 L105 125 L108 150 L100 165 L92 150 Z" fill="#c0392b"/>
+        <!-- head -->
+        <circle cx="100" cy="80" r="36" fill="url(#faceG)"/>
+        <!-- hat -->
+        <ellipse cx="100" cy="56" rx="46" ry="10" fill="#1e130a"/>
+        <path d="M62 56 C 62 30, 138 30, 138 56 Z" fill="url(#hatG)"/>
+        <rect x="62" y="52" width="76" height="6" fill="#2a1a0c"/>
+        <!-- eyes -->
+        <circle cx="88" cy="80" r="4" fill="#2a1b55"/>
+        <circle cx="112" cy="80" r="4" fill="#2a1b55"/>
+        <circle cx="89" cy="79" r="1.2" fill="#fff"/>
+        <circle cx="113" cy="79" r="1.2" fill="#fff"/>
+        <!-- mustache -->
+        <path d="M82 94 Q 92 100 100 96 Q 108 100 118 94 Q 110 104 100 100 Q 90 104 82 94 Z" fill="#3a2410"/>
+        <!-- smile -->
+        <path d="M92 102 Q 100 108 108 102" stroke="#6b3a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- magnifying glass -->
+        <g transform="translate(130 120) rotate(25)">
+          <rect x="-4" y="0" width="8" height="40" rx="3" fill="url(#goldG)"/>
+          <circle cx="0" cy="-20" r="28" fill="url(#goldG)"/>
+          <circle cx="0" cy="-20" r="22" fill="url(#lensG)"/>
+          <circle cx="-6" cy="-26" r="6" fill="#ffffff" opacity=".6"/>
+        </g>
+      </svg>
+    </div>
+    <h1 class="title">ADJECTIVE DETECTIVE</h1>
+    <p class="subtitle">Look at the picture. Find the correct adjective!</p>
+    <button class="start-btn" id="startBtn">🔍 START INVESTIGATION</button>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section class="screen" id="quizScreen">
+    <div class="quiz-head">
+      <div class="qnum" id="qnum">Question 1/11</div>
+      <div class="qscore" id="qscore">Score: 0/11</div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+
+    <div class="card">
+      <div class="scene" id="scene"></div>
+      <div class="clue" id="clue"></div>
+      <div class="options" id="options"></div>
+      <button class="next-btn" id="nextBtn">NEXT CLUE →</button>
+    </div>
+  </section>
+
+  <!-- RESULTS SCREEN -->
+  <section class="screen" id="resultScreen">
+    <div class="result-card">
+      <div class="trophy">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fff3a0"/>
+              <stop offset="50%" stop-color="#ffd84d"/>
+              <stop offset="100%" stop-color="#c98a12"/>
+            </linearGradient>
+            <linearGradient id="tBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8b5a2b"/>
+              <stop offset="100%" stop-color="#3a2410"/>
+            </linearGradient>
+          </defs>
+          <!-- base -->
+          <rect x="55" y="160" width="90" height="22" rx="4" fill="url(#tBase)"/>
+          <rect x="70" y="150" width="60" height="12" rx="3" fill="#5a3a18"/>
+          <!-- stem -->
+          <rect x="92" y="120" width="16" height="34" fill="url(#tG)"/>
+          <!-- cup -->
+          <path d="M50 40 Q 50 110 100 120 Q 150 110 150 40 Z" fill="url(#tG)"/>
+          <ellipse cx="100" cy="40" rx="50" ry="10" fill="#fff3a0"/>
+          <ellipse cx="100" cy="40" rx="44" ry="7" fill="#c98a12"/>
+          <!-- handles -->
+          <path d="M50 50 Q 20 55 25 85 Q 30 105 55 95" stroke="url(#tG)" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <path d="M150 50 Q 180 55 175 85 Q 170 105 145 95" stroke="url(#tG)" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <!-- star -->
+          <path d="M100 60 L107 78 L126 80 L112 92 L116 110 L100 100 L84 110 L88 92 L74 80 L93 78 Z" fill="#fff" stroke="#c98a12" stroke-width="1.5"/>
+          <!-- shine -->
+          <path d="M62 55 Q 68 85 80 105" stroke="#fff" stroke-width="3" fill="none" opacity=".6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="case-solved">CASE SOLVED!</div>
+      <div class="final-score" id="finalScore">Final Score: 0 / 11</div>
+      <div class="rank" id="rank">ADJECTIVE MASTER!</div>
+      <div class="motiv" id="motiv">Excellent work, detective!</div>
+      <button class="start-btn" id="playAgain" style="margin-top:18px;">🔁 PLAY AGAIN</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== STARS BACKGROUND ===================== */
+(function(){
+  const host = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    s.style.transform = `scale(${0.4+Math.random()*1.2})`;
+    host.appendChild(s);
+  }
+})();
+
+/* ===================== SOUND ENGINE (Web Audio API) ===================== */
+const Sound = (function(){
+  let ctx = null;
+  let enabled = true;
+  function ensure(){
+    if(!ctx){ try{ ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    if(ctx && ctx.state === 'suspended') ctx.resume();
+  }
+  function tone(freq, dur=0.15, type='sine', vol=0.18, delay=0){
+    if(!enabled) return;
+    ensure(); if(!ctx) return;
+    const t0 = ctx.currentTime + delay;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+  function sweep(f1,f2,dur=0.2,type='sine',vol=0.15){
+    if(!enabled) return;
+    ensure(); if(!ctx) return;
+    const t0 = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f1,t0);
+    o.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+  return {
+    click(){ tone(880,0.06,'square',0.12); },
+    correct(){ tone(660,0.12,'triangle',0.2); tone(880,0.14,'triangle',0.2,0.1); tone(1100,0.18,'triangle',0.22,0.22); },
+    wrong(){ tone(260,0.18,'sawtooth',0.15); tone(180,0.22,'sawtooth',0.15,0.12); },
+    transition(){ sweep(300,900,0.25,'sine',0.12); },
+    victory(){
+      const notes=[523,659,784,1046,1318];
+      notes.forEach((n,i)=>tone(n,0.2,'triangle',0.2,i*0.12));
+    },
+    confetti(){
+      for(let i=0;i<10;i++){
+        tone(1200+Math.random()*1200,0.05,'sine',0.05,i*0.06);
+      }
+    },
+    setEnabled(v){ enabled = v; },
+    isEnabled(){ return enabled; }
+  };
+})();
+
+/* ===================== SVG SCENES ===================== */
+const scenes = {
+  exciting: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#ff7aa8"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyE)"/>
+      <circle cx="330" cy="60" r="30" fill="#fff2a8" opacity=".8"/>
+      <!-- coaster track -->
+      <path d="M0 180 Q 80 60 160 160 Q 240 260 320 140 Q 380 60 420 120" stroke="#3a1a7a" stroke-width="8" fill="none"/>
+      <path d="M0 190 Q 80 70 160 170 Q 240 270 320 150 Q 380 70 420 130" stroke="#7a3fbf" stroke-width="4" fill="none" opacity=".6"/>
+      <!-- supports -->
+      <line x1="80" y1="120" x2="80" y2="250" stroke="#3a1a7a" stroke-width="4"/>
+      <line x1="240" y1="210" x2="240" y2="250" stroke="#3a1a7a" stroke-width="4"/>
+      <!-- car -->
+      <g transform="translate(150 150) rotate(-20)">
+        <rect x="-30" y="-15" width="60" height="25" rx="8" fill="#ff3b6b"/>
+        <rect x="-25" y="-12" width="50" height="10" rx="4" fill="#ffd84d"/>
+        <circle cx="-18" cy="12" r="6" fill="#222"/><circle cx="18" cy="12" r="6" fill="#222"/>
+        <!-- person -->
+        <circle cx="0" cy="-22" r="8" fill="#ffd9a8"/>
+        <path d="M-4 -30 Q 0 -36 4 -30" stroke="#3a1a00" stroke-width="2" fill="none"/>
+        <path d="M-10 -15 L-18 -30 M10 -15 L18 -30" stroke="#ffd9a8" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- motion lines -->
+      <path d="M100 140 l-20 -4 M100 160 l-20 4" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+  fun: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0e9ff"/><stop offset="1" stop-color="#c9f7c5"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyF)"/>
+      <ellipse cx="200" cy="230" rx="220" ry="30" fill="#7ed38a"/>
+      <!-- kids -->
+      <g transform="translate(120 150)">
+        <circle cx="0" cy="0" r="18" fill="#ffd9a8"/>
+        <path d="M-14 -10 Q 0 -28 14 -10" fill="#c0392b"/>
+        <circle cx="-5" cy="2" r="2" fill="#222"/><circle cx="5" cy="2" r="2" fill="#222"/>
+        <path d="M-6 10 Q 0 16 6 10" stroke="#222" stroke-width="2" fill="none"/>
+        <rect x="-14" y="16" width="28" height="30" rx="6" fill="#3498db"/>
+        <rect x="-10" y="46" width="8" height="20" fill="#2c3e50"/>
+        <rect x="2" y="46" width="8" height="20" fill="#2c3e50"/>
+      </g>
+      <g transform="translate(200 140)">
+        <circle cx="0" cy="0" r="20" fill="#f1c27d"/>
+        <path d="M-16 -12 Q 0 -32 16 -12" fill="#f39c12"/>
+        <circle cx="-6" cy="2" r="2" fill="#222"/><circle cx="6" cy="2" r="2" fill="#222"/>
+        <path d="M-8 10 Q 0 20 8 10" stroke="#222" stroke-width="2" fill="none"/>
+        <rect x="-16" y="18" width="32" height="34" rx="6" fill="#e74c3c"/>
+        <rect x="-12" y="52" width="10" height="22" fill="#2c3e50"/>
+        <rect x="2" y="52" width="10" height="22" fill="#2c3e50"/>
+        <!-- arms up -->
+        <path d="M-16 22 L-28 4 M16 22 L28 4" stroke="#f1c27d" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(280 150)">
+        <circle cx="0" cy="0" r="18" fill="#ffd9a8"/>
+        <path d="M-14 -10 Q 0 -28 14 -10" fill="#8e44ad"/>
+        <circle cx="-5" cy="2" r="2" fill="#222"/><circle cx="5" cy="2" r="2" fill="#222"/>
+        <path d="M-6 10 Q 0 16 6 10" stroke="#222" stroke-width="2" fill="none"/>
+        <rect x="-14" y="16" width="28" height="30" rx="6" fill="#2ecc71"/>
+        <rect x="-10" y="46" width="8" height="20" fill="#2c3e50"/>
+        <rect x="2" y="46" width="8" height="20" fill="#2c3e50"/>
+      </g>
+      <!-- balloons -->
+      <g>
+        <circle cx="60" cy="70" r="14" fill="#ff5a6e"/>
+        <line x1="60" y1="84" x2="60" y2="130" stroke="#888" stroke-width="1"/>
+        <circle cx="340" cy="60" r="14" fill="#ffd84d"/>
+        <line x1="340" y1="74" x2="340" y2="120" stroke="#888" stroke-width="1"/>
+      </g>
+      <!-- laugh bubbles -->
+      <text x="230" y="100" font-family="Arial" font-size="22" font-weight="900" fill="#ff5a6e">HA!</text>
+      <text x="100" y="90" font-family="Arial" font-size="18" font-weight="900" fill="#3498db">HO!</text>
+    </svg>`,
+  difficult: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8c6ff"/><stop offset="1" stop-color="#e9d8ff"/></linearGradient>
+        <linearGradient id="mtn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a6b9a"/><stop offset="1" stop-color="#3a2a5a"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyD)"/>
+      <!-- mountain -->
+      <polygon points="0,250 120,80 200,160 280,60 400,250" fill="url(#mtn)"/>
+      <polygon points="120,80 140,110 100,110" fill="#fff"/>
+      <polygon points="280,60 300,90 260,90" fill="#fff"/>
+      <!-- climber -->
+      <g transform="translate(210 150)">
+        <circle cx="0" cy="0" r="10" fill="#ffd9a8"/>
+        <rect x="-10" y="8" width="20" height="22" rx="4" fill="#e67e22"/>
+        <rect x="-8" y="28" width="6" height="14" fill="#2c3e50"/>
+        <rect x="2" y="28" width="6" height="14" fill="#2c3e50"/>
+        <!-- arms gripping -->
+        <path d="M-10 12 L-22 -4 M10 12 L22 -4" stroke="#ffd9a8" stroke-width="4" stroke-linecap="round"/>
+        <!-- sweat -->
+        <path d="M14 -4 q 2 -4 0 -8" stroke="#66d2ff" stroke-width="2" fill="none"/>
+      </g>
+      <!-- rope -->
+      <path d="M210 170 Q 180 200 160 220" stroke="#c0392b" stroke-width="2" fill="none"/>
+    </svg>`,
+  tiring: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#ff9a6b"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyT)"/>
+      <rect y="200" width="400" height="50" fill="#c9a878"/>
+      <!-- finish line -->
+      <g>
+        <rect x="300" y="120" width="8" height="80" fill="#222"/>
+        <rect x="260" y="120" width="48" height="30" fill="#fff"/>
+        <rect x="260" y="120" width="12" height="10" fill="#222"/><rect x="284" y="120" width="12" height="10" fill="#222"/>
+        <rect x="272" y="130" width="12" height="10" fill="#222"/><rect x="296" y="130" width="12" height="10" fill="#222"/>
+        <rect x="260" y="140" width="12" height="10" fill="#222"/><rect x="284" y="140" width="12" height="10" fill="#222"/>
+      </g>
+      <!-- runner exhausted -->
+      <g transform="translate(160 170)">
+        <circle cx="0" cy="-10" r="14" fill="#ffd9a8"/>
+        <path d="M-10 -18 Q 0 -28 10 -18" fill="#3a2410"/>
+        <!-- tired eyes -->
+        <path d="M-6 -10 l 4 0 M2 -10 l 4 0" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+        <!-- tongue out -->
+        <path d="M-4 -2 Q 0 4 4 -2" stroke="#222" stroke-width="1.5" fill="none"/>
+        <circle cx="0" cy="2" r="3" fill="#ff5a6e"/>
+        <!-- body bent -->
+        <path d="M-10 4 Q -18 30 -6 40 L 10 40 Q 18 30 10 4 Z" fill="#3498db"/>
+        <!-- legs bent -->
+        <path d="M-6 40 L -10 60 L -4 60 M6 40 L 10 60 L 4 60" stroke="#2c3e50" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <!-- arms on knees -->
+        <path d="M-10 10 L -16 30 M10 10 L 16 30" stroke="#ffd9a8" stroke-width="5" stroke-linecap="round"/>
+        <!-- sweat drops -->
+        <path d="M18 -14 q 3 -5 0 -10" stroke="#66d2ff" stroke-width="2" fill="none"/>
+        <path d="M-18 -14 q -3 -5 0 -10" stroke="#66d2ff" stroke-width="2" fill="none"/>
+      </g>
+    </svg>`,
+  risky: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a6b"/><stop offset="1" stop-color="#c0392b"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyR)"/>
+      <!-- cliff -->
+      <polygon points="0,250 0,140 120,140 160,250" fill="#5a3a18"/>
+      <polygon points="120,140 160,250 200,250 180,160" fill="#3a2410"/>
+      <!-- gap -->
+      <rect x="160" y="200" width="240" height="50" fill="#2a1b55"/>
+      <!-- other side -->
+      <polygon points="260,250 260,180 400,180 400,250" fill="#5a3a18"/>
+      <!-- person on edge -->
+      <g transform="translate(130 120)">
+        <circle cx="0" cy="0" r="12" fill="#ffd9a8"/>
+        <rect x="-12" y="10" width="24" height="26" rx="4" fill="#e74c3c"/>
+        <rect x="-10" y="36" width="8" height="16" fill="#2c3e50"/>
+        <rect x="2" y="36" width="8" height="16" fill="#2c3e50"/>
+        <!-- helmet -->
+        <path d="M-12 -4 Q 0 -16 12 -4" fill="#f1c40f"/>
+        <!-- arms forward -->
+        <path d="M-12 14 L -22 24 M12 14 L 22 24" stroke="#ffd9a8" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- warning sign -->
+      <g transform="translate(300 100)">
+        <polygon points="0,-30 26,15 -26,15" fill="#ffd84d" stroke="#222" stroke-width="2"/>
+        <text x="0" y="8" font-family="Arial" font-size="24" font-weight="900" fill="#222" text-anchor="middle">!</text>
+      </g>
+    </svg>`,
+  interesting: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyI" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9f7c5"/><stop offset="1" stop-color="#a0e9ff"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyI)"/>
+      <rect y="180" width="400" height="70" fill="#8b5a2b"/>
+      <!-- student -->
+      <g transform="translate(120 140)">
+        <circle cx="0" cy="0" r="16" fill="#ffd9a8"/>
+        <path d="M-14 -8 Q 0 -24 14 -8" fill="#2c3e50"/>
+        <!-- glasses -->
+        <circle cx="-6" cy="2" r="5" fill="#fff" stroke="#222" stroke-width="1.5"/>
+        <circle cx="6" cy="2" r="5" fill="#fff" stroke="#222" stroke-width="1.5"/>
+        <circle cx="-6" cy="2" r="2" fill="#222"/><circle cx="6" cy="2" r="2" fill="#222"/>
+        <path d="M-4 10 Q 0 14 4 10" stroke="#222" stroke-width="1.5" fill="none"/>
+        <rect x="-14" y="14" width="28" height="30" rx="4" fill="#3498db"/>
+        <rect x="-10" y="44" width="8" height="16" fill="#2c3e50"/>
+        <rect x="2" y="44" width="8" height="16" fill="#2c3e50"/>
+        <!-- arm reaching -->
+        <path d="M14 20 L 50 30" stroke="#ffd9a8" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <!-- unusual discovery: glowing crystal -->
+      <g transform="translate(260 170)">
+        <polygon points="0,-40 20,-10 12,20 -12,20 -20,-10" fill="#9b59b6" stroke="#6a2c91" stroke-width="2"/>
+        <polygon points="0,-40 20,-10 0,0" fill="#c39bd3" opacity=".7"/>
+        <circle cx="0" cy="-10" r="30" fill="#c39bd3" opacity=".3"/>
+        <circle cx="0" cy="-10" r="50" fill="#c39bd3" opacity=".15"/>
+      </g>
+      <!-- sparkles -->
+      <text x="220" y="110" font-size="18" fill="#ffd84d">✦</text>
+      <text x="300" y="100" font-size="14" fill="#ffd84d">✦</text>
+      <text x="280" y="220" font-size="16" fill="#ffd84d">✦</text>
+    </svg>`,
+  amazing: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#66d2ff"/><stop offset="1" stop-color="#bfe8ff"/></linearGradient>
+        <linearGradient id="waterfall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9fd6ff"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyA)"/>
+      <!-- mountains -->
+      <polygon points="0,250 0,120 80,80 140,140 140,250" fill="#4a7a5a"/>
+      <polygon points="260,250 260,140 320,80 400,120 400,250" fill="#4a7a5a"/>
+      <!-- waterfall -->
+      <rect x="140" y="60" width="120" height="160" fill="url(#waterfall)"/>
+      <path d="M140 60 Q 200 50 260 60" fill="#9fd6ff"/>
+      <!-- mist -->
+      <ellipse cx="200" cy="220" rx="100" ry="20" fill="#fff" opacity=".7"/>
+      <ellipse cx="200" cy="210" rx="70" ry="12" fill="#fff" opacity=".5"/>
+      <!-- rainbow -->
+      <path d="M60 100 Q 200 0 340 100" stroke="#ff5a6e" stroke-width="6" fill="none"/>
+      <path d="M60 108 Q 200 8 340 108" stroke="#ffd84d" stroke-width="6" fill="none"/>
+      <path d="M60 116 Q 200 16 340 116" stroke="#2ecc71" stroke-width="6" fill="none"/>
+      <path d="M60 124 Q 200 24 340 124" stroke="#66d2ff" stroke-width="6" fill="none"/>
+      <!-- sun -->
+      <circle cx="330" cy="50" r="22" fill="#fff2a8"/>
+    </svg>`,
+  challenging: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0e9ff"/><stop offset="1" stop-color="#e9d8ff"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyC)"/>
+      <!-- obstacle course -->
+      <rect y="200" width="400" height="50" fill="#7ed38a"/>
+      <!-- hurdles -->
+      <g fill="#e67e22" stroke="#a3570a" stroke-width="2">
+        <rect x="60" y="160" width="10" height="40"/>
+        <rect x="100" y="160" width="10" height="40"/>
+        <rect x="60" y="160" width="50" height="6"/>
+      </g>
+      <g fill="#e67e22" stroke="#a3570a" stroke-width="2">
+        <rect x="180" y="140" width="10" height="60"/>
+        <rect x="220" y="140" width="10" height="60"/>
+        <rect x="180" y="140" width="50" height="6"/>
+      </g>
+      <g fill="#e67e22" stroke="#a3570a" stroke-width="2">
+        <rect x="300" y="120" width="10" height="80"/>
+        <rect x="340" y="120" width="10" height="80"/>
+        <rect x="300" y="120" width="50" height="6"/>
+      </g>
+      <!-- person jumping -->
+      <g transform="translate(130 130)">
+        <circle cx="0" cy="0" r="12" fill="#ffd9a8"/>
+        <path d="M-10 -6 Q 0 -18 10 -6" fill="#8e44ad"/>
+        <circle cx="-4" cy="2" r="1.5" fill="#222"/><circle cx="4" cy="2" r="1.5" fill="#222"/>
+        <path d="M-3 8 Q 0 11 3 8" stroke="#222" stroke-width="1.5" fill="none"/>
+        <rect x="-10" y="10" width="20" height="22" rx="3" fill="#2ecc71"/>
+        <!-- legs mid-jump -->
+        <path d="M-6 32 L -10 44 M6 32 L 10 44" stroke="#2c3e50" stroke-width="5" stroke-linecap="round"/>
+        <!-- arms up -->
+        <path d="M-10 14 L -18 4 M10 14 L 18 4" stroke="#ffd9a8" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- motion lines -->
+      <path d="M100 120 l -14 -4 M100 140 l -14 4" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+  beautiful: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb3c6"/><stop offset="0.5" stop-color="#ffd9a8"/><stop offset="1" stop-color="#a0e9ff"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyB)"/>
+      <!-- sun -->
+      <circle cx="320" cy="70" r="28" fill="#fff2a8"/>
+      <circle cx="320" cy="70" r="40" fill="#fff2a8" opacity=".3"/>
+      <!-- mountains -->
+      <polygon points="0,200 80,100 160,180 220,120 320,200" fill="#6a4a9a"/>
+      <polygon points="200,200 280,130 400,200" fill="#4a2a7a"/>
+      <polygon points="80,100 100,130 60,130" fill="#fff"/>
+      <polygon points="280,130 300,160 260,160" fill="#fff"/>
+      <!-- lake -->
+      <ellipse cx="200" cy="220" rx="220" ry="30" fill="#66d2ff"/>
+      <ellipse cx="200" cy="215" rx="180" ry="8" fill="#fff" opacity=".5"/>
+      <!-- flowers -->
+      <g transform="translate(40 210)">
+        <circle cx="0" cy="0" r="4" fill="#ff5a6e"/>
+        <circle cx="0" cy="0" r="1.5" fill="#ffd84d"/>
+      </g>
+      <g transform="translate(70 215)">
+        <circle cx="0" cy="0" r="4" fill="#c39bd3"/>
+        <circle cx="0" cy="0" r="1.5" fill="#ffd84d"/>
+      </g>
+      <g transform="translate(350 215)">
+        <circle cx="0" cy="0" r="4" fill="#ffd84d"/>
+        <circle cx="0" cy="0" r="1.5" fill="#ff5a6e"/>
+      </g>
+      <!-- trees -->
+      <g transform="translate(100 180)">
+        <rect x="-3" y="0" width="6" height="20" fill="#5a3a18"/>
+        <circle cx="0" cy="-5" r="14" fill="#2ecc71"/>
+      </g>
+      <g transform="translate(300 185)">
+        <rect x="-3" y="0" width="6" height="18" fill="#5a3a18"/>
+        <circle cx="0" cy="-5" r="12" fill="#2ecc71"/>
+      </g>
+    </svg>`,
+  mysterious: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyM" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1b55"/><stop offset="1" stop-color="#4b2a85"/></linearGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyM)"/>
+      <!-- moon -->
+      <circle cx="320" cy="60" r="26" fill="#fff3a0"/>
+      <circle cx="310" cy="55" r="22" fill="#2a1b55"/>
+      <!-- stars -->
+      <circle cx="50" cy="40" r="1.5" fill="#fff"/>
+      <circle cx="120" cy="70" r="1.2" fill="#fff"/>
+      <circle cx="200" cy="30" r="1.8" fill="#fff"/>
+      <circle cx="260" cy="80" r="1.2" fill="#fff"/>
+      <!-- temple -->
+      <g transform="translate(200 170)">
+        <polygon points="-60,0 -40,-50 40,-50 60,0" fill="#5a3a18"/>
+        <rect x="-40" y="-50" width="80" height="10" fill="#3a2410"/>
+        <polygon points="-30,-50 0,-80 30,-50" fill="#3a2410"/>
+        <!-- columns -->
+        <rect x="-30" y="-40" width="8" height="40" fill="#8b5a2b"/>
+        <rect x="-10" y="-40" width="8" height="40" fill="#8b5a2b"/>
+        <rect x="10" y="-40" width="8" height="40" fill="#8b5a2b"/>
+        <rect x="22" y="-40" width="8" height="40" fill="#8b5a2b"/>
+        <!-- door -->
+        <rect x="-8" y="-20" width="16" height="20" fill="#1a0a00"/>
+      </g>
+      <!-- mist -->
+      <ellipse cx="200" cy="200" rx="180" ry="25" fill="#fff" opacity=".25"/>
+      <ellipse cx="120" cy="210" rx="80" ry="15" fill="#fff" opacity=".2"/>
+      <ellipse cx="300" cy="215" rx="80" ry="15" fill="#fff" opacity=".2"/>
+      <!-- vines -->
+      <path d="M140 120 Q 150 150 145 180" stroke="#2ecc71" stroke-width="3" fill="none"/>
+      <path d="M260 120 Q 250 150 255 180" stroke="#2ecc71" stroke-width="3" fill="none"/>
+      <!-- question marks floating -->
+      <text x="80" y="100" font-size="28" font-weight="900" fill="#c39bd3" opacity=".7">?</text>
+      <text x="340" y="130" font-size="22" font-weight="900" fill="#c39bd3" opacity=".6">?</text>
+    </svg>`,
+  unique: `
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyU" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c39bd3"/><stop offset="1" stop-color="#ffd27a"/></linearGradient>
+        <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#fff"/>
+          <stop offset="0.5" stop-color="#66d2ff"/>
+          <stop offset="1" stop-color="#9b59b6"/>
+        </radialGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#skyU)"/>
+      <!-- pedestal -->
+      <rect x="160" y="180" width="80" height="50" fill="#5a3a18"/>
+      <rect x="150" y="175" width="100" height="10" fill="#3a2410"/>
+      <!-- unusual object: glowing multi-colored orb with spikes -->
+      <g transform="translate(200 140)">
+        <circle cx="0" cy="0" r="40" fill="url(#orb)" opacity=".4"/>
+        <circle cx="0" cy="0" r="28" fill="url(#orb)"/>
+        <!-- spikes -->
+        <polygon points="0,-40 6,-28 -6,-28" fill="#ffd84d"/>
+        <polygon points="40,0 28,6 28,-6" fill="#ff5a6e"/>
+        <polygon points="-40,0 -28,6 -28,-6" fill="#2ecc71"/>
+        <polygon points="0,40 6,28 -6,28" fill="#66d2ff"/>
+        <polygon points="28,-28 20,-20 22,-14" fill="#c39bd3"/>
+        <polygon points="-28,-28 -20,-20 -22,-14" fill="#ffae2b"/>
+        <polygon points="28,28 20,20 22,14" fill="#ff5a6e"/>
+        <polygon points="-28,28 -20,20 -22,14" fill="#2ecc71"/>
+        <!-- shine -->
+        <circle cx="-8" cy="-10" r="6" fill="#fff" opacity=".8"/>
+      </g>
+      <!-- sparkles -->
+      <text x="80" y="80" font-size="20" fill="#ffd84d">✦</text>
+      <text x="320" y="70" font-size="18" fill="#ff5a6e">✦</text>
+      <text x="60" y="200" font-size="16" fill="#66d2ff">✦</text>
+      <text x="340" y="210" font-size="18" fill="#c39bd3">✦</text>
+    </svg>`
+};
+
+/* ===================== QUESTIONS ===================== */
+const questions = [
+  { adj:'exciting',    clue:'A wild ride on a roller coaster!',           small:'What is the roller coaster ride?' },
+  { adj:'fun',         clue:'Children laughing and playing together.',    small:'The game the children are playing is...' },
+  { adj:'difficult',   clue:'Climbing a steep, rocky mountain.',          small:'The mountain climb is...' },
+  { adj:'tiring',      clue:'A runner exhausted after a long race.',      small:'The long race was...' },
+  { adj:'risky',       clue:'A dangerous jump across a deep gap.',        small:'This adventure is very...' },
+  { adj:'interesting', clue:'A student discovers a glowing crystal.',     small:'The discovery is really...' },
+  { adj:'amazing',     clue:'A spectacular waterfall with a rainbow.',    small:'The natural wonder looks...' },
+  { adj:'challenging', clue:'Jumping over tall hurdles in a race.',       small:'The obstacle course is...' },
+  { adj:'beautiful',   clue:'A stunning sunset landscape with a lake.',   small:'The landscape is absolutely...' },
+  { adj:'mysterious',  clue:'An ancient temple hidden in misty darkness.',small:'The hidden temple feels...' },
+  { adj:'unique',      clue:'A strange, glowing, one-of-a-kind object.',  small:'This unusual object is truly...' }
+];
+
+const allAdjectives = ['exciting','fun','difficult','tiring','risky','interesting','amazing','challenging','beautiful','mysterious','unique'];
+
+/* ===================== STATE ===================== */
+let current = 0;
+let score = 0;
+let answered = false;
+let shuffledQuestions = [];
+
+/* ===================== UTILS ===================== */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function $(id){return document.getElementById(id);}
+
+/* ===================== SCREENS ===================== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+/* ===================== SCORE UI ===================== */
+function updateScoreUI(){
+  $('scoreBadge').textContent = `Score: ${score}/11`;
+  $('qscore').textContent = `Score: ${score}/11`;
+}
+
+/* ===================== RENDER QUESTION ===================== */
+function renderQuestion(){
+  answered = false;
+  const q = shuffledQuestions[current];
+  $('qnum').textContent = `Question ${current+1}/11`;
+  $('progressBar').style.width = ((current)/11*100)+'%';
+  $('scene').innerHTML = scenes[q.adj];
+  $('clue').innerHTML = `${q.clue}<small>${q.small}</small>`;
+
+  // Build options: correct + 3 random distractors
+  const distractors = allAdjectives.filter(a=>a!==q.adj);
+  const picks = shuffle(distractors).slice(0,3);
+  const options = shuffle([q.adj, ...picks]);
+
+  const host = $('options');
+  host.innerHTML = '';
+  options.forEach(adj=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = adj.toUpperCase();
+    b.dataset.adj = adj;
+    b.addEventListener('click', ()=>onAnswer(b, adj, q.adj));
+    host.appendChild(b);
+  });
+
+  $('nextBtn').classList.remove('show');
+  updateScoreUI();
+}
+
+/* ===================== ANSWER LOGIC ===================== */
+function onAnswer(btn, chosen, correct){
+  if(answered) return;
+  answered = true;
+  Sound.click();
+
+  const allBtns = [...document.querySelectorAll('#options .opt')];
+
+  if(chosen === correct){
+    btn.classList.add('correct');
+    score++;
+    Sound.correct();
+    showToast('✓ CORRECT! +1','good');
+  } else {
+    btn.classList.add('wrong');
+    // highlight correct one
+    allBtns.forEach(b=>{
+      if(b.dataset.adj === correct) b.classList.add('correct');
+      else if(b !== btn) b.classList.add('dim');
+    });
+    Sound.wrong();
+    showToast(`✗ The answer was: ${correct.toUpperCase()}`,'bad');
+  }
+  allBtns.forEach(b=>b.disabled = true);
+  updateScoreUI();
+
+  // Show next button
+  setTimeout(()=>$('nextBtn').classList.add('show'), 700);
+}
+
+/* ===================== TOAST ===================== */
+let toastTimer;
+function showToast(msg, kind){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (kind||'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+
+/* ===================== NEXT / FINISH ===================== */
+$('nextBtn').addEventListener('click', ()=>{
+  Sound.transition();
+  current++;
+  if(current >= 11){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+});
+
+function finishQuiz(){
+  $('progressBar').style.width = '100%';
+  $('finalScore').textContent = `Final Score: ${score} / 11`;
+  let rank='', motiv='';
+  if(score >= 10){ rank='ADJECTIVE MASTER!'; motiv='Outstanding! You solved every case!'; }
+  else if(score >= 8){ rank='GREAT DETECTIVE!'; motiv='Excellent work, detective!'; }
+  else if(score >= 5){ rank='GOOD INVESTIGATION!'; motiv='Nice job! Keep practising your clues.'; }
+  else { rank='KEEP PRACTISING!'; motiv='Every detective starts somewhere. Try again!'; }
+  $('rank').textContent = rank;
+  $('motiv').textContent = motiv;
+  showScreen('resultScreen');
+  Sound.victory();
+  setTimeout(()=>{ Sound.confetti(); launchConfetti(); }, 400);
+}
+
+/* ===================== CONFETTI ===================== */
+const confettiCanvas = $('confetti');
+const cctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiRunning = false;
+function resizeCanvas(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+addEventListener('resize', resizeCanvas); resizeCanvas();
+
+function launchConfetti(){
+  confettiPieces = [];
+  const colors = ['#ffd84d','#ff5a6e','#2ecc71','#66d2ff','#c39bd3','#ffae2b'];
+  for(let i=0;i<160;i++){
+    confettiPieces.push({
+      x: innerWidth/2 + (Math.random()-0.5)*200,
+      y: innerHeight/2,
+      vx: (Math.random()-0.5)*10,
+      vy: -Math.random()*12 - 4,
+      g: 0.25 + Math.random()*0.15,
+      size: 6+Math.random()*6,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: Math.random()*Math.PI*2,
+      vr: (Math.random()-0.5)*0.3,
+      life: 0
+    });
+  }
+  if(!confettiRunning){ confettiRunning = true; animateConfetti(); }
+}
+function animateConfetti(){
+  cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  let alive = 0;
+  confettiPieces.forEach(p=>{
+    p.vy += p.g;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vr;
+    p.life++;
+    if(p.y < innerHeight + 40) alive++;
+    cctx.save();
+    cctx.translate(p.x,p.y);
+    cctx.rotate(p.rot);
+    cctx.fillStyle = p.color;
+    cctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+    cctx.restore();
+  });
+  if(alive>0 && confettiPieces.length){
+    requestAnimationFrame(animateConfetti);
+  } else {
+    confettiRunning = false;
+    cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  }
+}
+
+/* ===================== START / RESTART ===================== */
+function startQuiz(){
+  Sound.click();
+  current = 0; score = 0;
+  shuffledQuestions = shuffle(questions);
+  showScreen('quizScreen');
+  Sound.transition();
+  renderQuestion();
+}
+$('startBtn').addEventListener('click', startQuiz);
+$('playAgain').addEventListener('click', ()=>{
+  Sound.click();
+  startQuiz();
+});
+
+/* ===================== SOUND TOGGLE ===================== */
+$('soundBtn').addEventListener('click', ()=>{
+  const on = !Sound.isEnabled();
+  Sound.setEnabled(on);
+  $('soundIco').textContent = on ? '🔊' : '🔇';
+  $('soundLabel').textContent = on ? 'Sound ON' : 'Sound OFF';
+  if(on) Sound.click();
+});
+
+/* initial score UI */
+updateScoreUI();
+</script>
+</body>
+</html>

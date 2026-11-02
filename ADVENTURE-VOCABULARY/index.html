@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adventure Vocabulary – Flip Cards</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; font-family: 'Trebuchet MS', 'Segoe UI', sans-serif; }
+  body {
+    background: linear-gradient(180deg, #ff9a56 0%, #ff6b9d 35%, #c471ed 65%, #4a90e2 100%);
+    min-height: 100vh;
+    position: relative;
+    color: #fff;
+  }
+  /* Background scenery */
+  .bg-scene {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .bg-scene svg { width: 100%; height: 100%; display: block; }
+  .cloud {
+    position: absolute; opacity: 0.7; animation: drift 40s linear infinite;
+  }
+  .cloud.c1 { top: 8%; left: -10%; animation-duration: 60s; }
+  .cloud.c2 { top: 18%; left: -15%; animation-duration: 80s; animation-delay: -20s; }
+  .cloud.c3 { top: 30%; left: -20%; animation-duration: 70s; animation-delay: -40s; }
+  @keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+  .sun {
+    position: absolute; top: 6%; right: 8%; width: 120px; height: 120px;
+    background: radial-gradient(circle, #fff5a0 0%, #ffd93d 60%, rgba(255,217,61,0) 75%);
+    border-radius: 50%; filter: blur(1px);
+    animation: pulse 4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.9; } }
+
+  /* Container */
+  .wrap {
+    position: relative; z-index: 2; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px;
+  }
+
+  /* Sound toggle */
+  .sound-btn {
+    position: fixed; top: 16px; right: 16px; z-index: 50;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.4);
+    color: #fff; font-size: 24px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .sound-btn:hover { transform: scale(1.1); }
+  .sound-btn:active { transform: scale(0.95); }
+
+  /* Screens */
+  .screen { display: none; width: 100%; max-width: 1200px; animation: fadeIn 0.6s ease; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* START SCREEN */
+  .start-title {
+    font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 900;
+    text-align: center; margin-top: 40px;
+    background: linear-gradient(135deg, #fff 0%, #fff5a0 50%, #ffd93d 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+  }
+  .start-subtitle {
+    font-size: clamp(1rem, 2.2vw, 1.4rem); margin-top: 8px;
+    text-align: center; color: #fff; opacity: 0.95;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .hero-illu {
+    width: min(420px, 90vw); height: auto; margin: 20px 0;
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.35));
+    animation: floatY 4s ease-in-out infinite;
+  }
+  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+  .start-card {
+    background: rgba(255,255,255,0.18); backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 28px; padding: 30px 40px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    text-align: center; margin-top: 10px;
+  }
+  .progress-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.25); padding: 10px 22px;
+    border-radius: 50px; font-weight: 700; font-size: 1.1rem;
+    border: 2px solid rgba(255,255,255,0.4);
+  }
+  .progress-pill .dot { width: 10px; height: 10px; border-radius: 50%; background: #ffd93d; box-shadow: 0 0 10px #ffd93d; }
+
+  .btn {
+    display: inline-block; padding: 16px 48px; margin-top: 22px;
+    font-size: 1.3rem; font-weight: 800; letter-spacing: 1.5px;
+    color: #fff; background: linear-gradient(135deg, #ff6b9d 0%, #ff9a56 100%);
+    border: none; border-radius: 50px; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255,107,157,0.5), inset 0 -4px 0 rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 36px rgba(255,107,157,0.6), inset 0 -4px 0 rgba(0,0,0,0.15); }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+  .btn.green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); box-shadow: 0 10px 30px rgba(67,233,123,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); }
+
+  /* GAME SCREEN */
+  .game-header {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 8px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .game-title { font-size: clamp(1.3rem, 3vw, 2rem); font-weight: 900; text-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+  .game-progress {
+    background: rgba(255,255,255,0.22); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.35);
+    padding: 8px 18px; border-radius: 50px; font-weight: 700;
+  }
+  .progress-bar {
+    width: 100%; height: 10px; background: rgba(255,255,255,0.25);
+    border-radius: 10px; overflow: hidden; margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #ffd93d, #ff6b9d, #c471ed);
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 12px rgba(255,217,61,0.8);
+  }
+
+  .cards-grid {
+    display: grid; width: 100%;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  @media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .cards-grid { grid-template-columns: 1fr; gap: 16px; } }
+
+  .card {
+    perspective: 1400px; aspect-ratio: 3 / 4; cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .card:hover { transform: translateY(-6px); }
+  .card.explored .card-inner { box-shadow: 0 0 0 4px #43e97b, 0 15px 40px rgba(67,233,123,0.5); }
+  .card-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(.4,.2,.2,1);
+    border-radius: 22px;
+  }
+  .card.flipped .card-inner { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; inset: 0; border-radius: 22px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 16px; overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255,255,255,0.4);
+  }
+  .card-front {
+    background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  }
+  .card-front .illu { width: 75%; height: 60%; display: flex; align-items: center; justify-content: center; }
+  .card-front .illu svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.3)); }
+  .flip-hint {
+    margin-top: 10px; font-weight: 800; font-size: 1rem;
+    background: rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 20px;
+    letter-spacing: 1px;
+  }
+  .qmark {
+    position: absolute; top: 12px; right: 14px;
+    font-size: 1.6rem; font-weight: 900; color: #ffd93d;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .card-badge {
+    position: absolute; top: 12px; left: 12px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9rem;
+  }
+
+  .card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(145deg, #ffffff 0%, #f0f4ff 100%);
+    color: #2a2a4a;
+    justify-content: space-between;
+  }
+  .card-back .phrase {
+    font-size: clamp(1rem, 2vw, 1.35rem); font-weight: 900;
+    text-align: center; color: #3a3a6a; margin-top: 10px;
+    line-height: 1.2;
+  }
+  .card-back .meaning {
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem); text-align: center;
+    color: #5a5a8a; padding: 0 6px; line-height: 1.35;
+  }
+  .card-back .back-icon {
+    width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #ffd93d, #ff9a56);
+    border-radius: 50%; box-shadow: 0 6px 15px rgba(255,154,86,0.5);
+  }
+  .card-back .back-icon svg { width: 70%; height: 70%; }
+  .check-mark {
+    position: absolute; top: 10px; right: 10px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #43e97b; color: #fff; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: scale(0);
+    transition: all 0.4s cubic-bezier(.3,1.5,.5,1);
+  }
+  .card.explored .check-mark { opacity: 1; transform: scale(1); }
+
+  /* FINAL SCREEN */
+  .final-card {
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 30px; padding: 40px; text-align: center;
+    margin-top: 40px; max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .trophy {
+    width: 180px; height: 180px; margin: 0 auto 20px;
+    animation: trophyBounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 15px 25px rgba(255,217,61,0.6));
+  }
+  @keyframes trophyBounce {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-15px) rotate(3deg); }
+  }
+  .final-title {
+    font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff6b9d 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 10px;
+  }
+  .final-score {
+    font-size: 1.3rem; font-weight: 700; margin: 10px 0 20px;
+  }
+
+  /* Confetti */
+  .confetti { position: fixed; top: -20px; width: 10px; height: 14px; z-index: 100; pointer-events: none; opacity: 0.9; }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Restart button area */
+  .restart-area { margin-top: 16px; display: flex; justify-content: center; width: 100%; }
+  .restart-btn {
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.4);
+    color: #fff; padding: 10px 22px; border-radius: 50px;
+    font-weight: 700; cursor: pointer; font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .restart-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Background scenery -->
+<div class="bg-scene">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ff9a56" stop-opacity="0.4"/>
+        <stop offset="50%" stop-color="#c471ed" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#4a90e2" stop-opacity="0.4"/>
+      </linearGradient>
+      <linearGradient id="mountGrad1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6a5acd" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="#483d8b" stop-opacity="0.9"/>
+      </linearGradient>
+      <linearGradient id="mountGrad2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8b7cc8" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#5a4a9d" stop-opacity="0.8"/>
+      </linearGradient>
+      <linearGradient id="oceanGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#4a90e2" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0.8"/>
+      </linearGradient>
+    </defs>
+    <rect width="1200" height="800" fill="url(#skyGrad)"/>
+    <!-- Far mountains -->
+    <path d="M0,500 L150,350 L300,420 L450,300 L600,380 L750,320 L900,400 L1050,340 L1200,420 L1200,800 L0,800 Z" fill="url(#mountGrad2)"/>
+    <!-- Near mountains -->
+    <path d="M0,600 L100,480 L250,540 L400,450 L550,520 L700,460 L850,540 L1000,480 L1200,550 L1200,800 L0,800 Z" fill="url(#mountGrad1)"/>
+    <!-- Ocean -->
+    <path d="M0,650 Q300,620 600,650 T1200,650 L1200,800 L0,800 Z" fill="url(#oceanGrad)"/>
+    <!-- Snow caps -->
+    <path d="M440,300 L450,300 L460,320 L440,320 Z" fill="#fff" opacity="0.8"/>
+    <path d="M740,320 L750,320 L760,340 L740,340 Z" fill="#fff" opacity="0.8"/>
+  </svg>
+  <div class="sun"></div>
+  <!-- Clouds -->
+  <svg class="cloud c1" width="140" height="60" viewBox="0 0 140 60">
+    <ellipse cx="35" cy="40" rx="30" ry="18" fill="#fff"/>
+    <ellipse cx="70" cy="30" rx="35" ry="22" fill="#fff"/>
+    <ellipse cx="105" cy="40" rx="28" ry="16" fill="#fff"/>
+  </svg>
+  <svg class="cloud c2" width="180" height="70" viewBox="0 0 180 70">
+    <ellipse cx="45" cy="45" rx="35" ry="20" fill="#fff"/>
+    <ellipse cx="90" cy="35" rx="45" ry="25" fill="#fff"/>
+    <ellipse cx="135" cy="45" rx="35" ry="20" fill="#fff"/>
+  </svg>
+  <svg class="cloud c3" width="120" height="50" viewBox="0 0 120 50">
+    <ellipse cx="30" cy="32" rx="25" ry="15" fill="#fff"/>
+    <ellipse cx="60" cy="25" rx="30" ry="18" fill="#fff"/>
+    <ellipse cx="90" cy="32" rx="25" ry="15" fill="#fff"/>
+  </svg>
+</div>
+
+<button class="sound-btn" id="soundBtn" title="Toggle sound">🔊</button>
+
+<div class="wrap">
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="startScreen">
+    <h1 class="start-title">ADVENTURE VOCABULARY</h1>
+    <p class="start-subtitle">Discover 9 amazing activities!</p>
+
+    <!-- Hero illustration -->
+    <svg class="hero-illu" viewBox="0 0 400 320">
+      <defs>
+        <linearGradient id="heroBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd93d"/>
+          <stop offset="100%" stop-color="#ff6b9d"/>
+        </linearGradient>
+        <radialGradient id="heroGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stop-color="#fff5a0" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#fff5a0" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- Glow -->
+      <circle cx="200" cy="160" r="150" fill="url(#heroGlow)"/>
+      <!-- Compass -->
+      <circle cx="200" cy="160" r="110" fill="url(#heroBg)" stroke="#fff" stroke-width="4"/>
+      <circle cx="200" cy="160" r="95" fill="#fff" opacity="0.2"/>
+      <!-- Compass points -->
+      <text x="200" y="85" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">N</text>
+      <text x="200" y="245" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">S</text>
+      <text x="285" y="168" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">E</text>
+      <text x="115" y="168" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">W</text>
+      <!-- Needle -->
+      <polygon points="200,80 210,160 200,170 190,160" fill="#ff3b5c"/>
+      <polygon points="200,240 210,160 200,150 190,160" fill="#fff"/>
+      <circle cx="200" cy="160" r="10" fill="#fff" stroke="#ff3b5c" stroke-width="3"/>
+      <!-- Decorative icons around -->
+      <!-- Mountain -->
+      <g transform="translate(40,40)">
+        <polygon points="0,50 25,10 50,50" fill="#6a5acd" stroke="#fff" stroke-width="2"/>
+        <polygon points="20,25 25,10 30,25" fill="#fff"/>
+      </g>
+      <!-- Palm tree -->
+      <g transform="translate(320,50)">
+        <rect x="18" y="25" width="6" height="30" fill="#8b4513"/>
+        <path d="M21,25 Q5,15 0,25 Q10,20 21,25" fill="#43e97b"/>
+        <path d="M21,25 Q37,15 42,25 Q32,20 21,25" fill="#43e97b"/>
+        <path d="M21,25 Q15,5 21,0 Q27,5 21,25" fill="#43e97b"/>
+      </g>
+      <!-- Airplane -->
+      <g transform="translate(60,230)">
+        <path d="M0,15 L40,10 L55,5 L60,10 L55,15 L40,20 Z" fill="#fff"/>
+        <path d="M20,10 L25,0 L35,5 L30,12" fill="#fff"/>
+        <circle cx="45" cy="13" r="2" fill="#4a90e2"/>
+      </g>
+      <!-- Dolphin -->
+      <g transform="translate(300,240)">
+        <path d="M0,20 Q15,0 40,10 Q60,15 55,25 Q40,30 20,28 Q5,30 0,20 Z" fill="#4a90e2" stroke="#fff" stroke-width="2"/>
+        <path d="M55,18 L65,10 L62,22 Z" fill="#4a90e2"/>
+        <circle cx="12" cy="18" r="2" fill="#fff"/>
+      </g>
+      <!-- Stars -->
+      <g fill="#fff">
+        <polygon points="100,100 103,108 112,108 105,113 108,122 100,117 92,122 95,113 88,108 97,108"/>
+        <polygon points="310,130 313,138 322,138 315,143 318,152 310,147 302,152 305,143 298,138 307,138" transform="scale(0.7) translate(140,60)"/>
+      </g>
+    </svg>
+
+    <div class="start-card">
+      <div class="progress-pill">
+        <span class="dot"></span>
+        <span id="startProgress">0 / 9 cards explored</span>
+      </div>
+      <br>
+      <button class="btn" id="startBtn">▶ START</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <div class="game-title">🌍 ADVENTURE VOCABULARY</div>
+      <div class="game-progress" id="gameProgress">0 / 9</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="cards-grid" id="cardsGrid"></div>
+    <div class="restart-area">
+      <button class="restart-btn" id="restartBtn">↻ Restart</button>
+    </div>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div class="screen" id="finalScreen">
+    <div class="final-card">
+      <svg class="trophy" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="trophyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff5a0"/>
+            <stop offset="50%" stop-color="#ffd93d"/>
+            <stop offset="100%" stop-color="#ff9a56"/>
+          </linearGradient>
+        </defs>
+        <!-- Base -->
+        <rect x="60" y="170" width="80" height="15" rx="3" fill="#8b4513"/>
+        <rect x="50" y="180" width="100" height="10" rx="3" fill="#6b3410"/>
+        <!-- Stem -->
+        <rect x="90" y="140" width="20" height="35" fill="#ffd93d"/>
+        <!-- Cup -->
+        <path d="M50,50 Q50,130 100,140 Q150,130 150,50 Z" fill="url(#trophyGrad)" stroke="#ff9a56" stroke-width="3"/>
+        <!-- Handles -->
+        <path d="M50,60 Q20,60 20,90 Q20,115 50,115" fill="none" stroke="#ffd93d" stroke-width="8"/>
+        <path d="M150,60 Q180,60 180,90 Q180,115 150,115" fill="none" stroke="#ffd93d" stroke-width="8"/>
+        <!-- Star -->
+        <polygon points="100,70 107,90 128,90 111,103 118,123 100,111 82,123 89,103 72,90 93,90" fill="#fff" stroke="#ff6b9d" stroke-width="2"/>
+        <!-- Shine -->
+        <path d="M65,60 Q70,80 75,100" stroke="#fff" stroke-width="3" fill="none" opacity="0.7"/>
+      </svg>
+      <h2 class="final-title">GREAT JOB, ADVENTURE EXPLORER!</h2>
+      <p class="final-score">🏆 9 / 9 cards explored</p>
+      <button class="btn green" id="replayBtn">↻ REPLAY</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============ DATA ============ */
+const VOCAB = [
+  {
+    phrase: "do a bungee jump",
+    meaning: "Jump from a high place with a rope tied to your legs!",
+    color: ["#ff6b9d","#ff9a56"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="20" fill="#6a5acd"/><line x1="50" y1="20" x2="50" y2="55" stroke="#333" stroke-width="2"/><circle cx="50" cy="65" r="10" fill="#ffd93d"/><rect x="44" y="72" width="12" height="18" fill="#ff6b9d" rx="3"/><line x1="44" y1="78" x2="35" y2="70" stroke="#ffd93d" stroke-width="3"/><line x1="56" y1="78" x2="65" y2="70" stroke="#ffd93d" stroke-width="3"/><line x1="46" y1="90" x2="42" y2="100" stroke="#333" stroke-width="3"/><line x1="54" y1="90" x2="58" y2="100" stroke="#333" stroke-width="3"/></svg>`
+  },
+  {
+    phrase: "volunteer overseas",
+    meaning: "Travel to another country to help people there.",
+    color: ["#43e97b","#38f9d7"],
+    icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="40" r="28" fill="#4a90e2"/><path d="M22,40 Q50,10 78,40 Q50,70 22,40" fill="#43e97b" opacity="0.6"/><path d="M30,40 Q50,25 70,40" stroke="#fff" stroke-width="2" fill="none"/><path d="M50,12 L50,68" stroke="#fff" stroke-width="2"/><path d="M25,40 L75,40" stroke="#fff" stroke-width="2"/><path d="M50,70 Q35,80 35,92 L65,92 Q65,80 50,70" fill="#ff6b9d"/><path d="M50,78 C45,72 35,72 35,80 C35,88 50,95 50,95 C50,95 65,88 65,80 C65,72 55,72 50,78" fill="#ff3b5c"/></svg>`
+  },
+  {
+    phrase: "ride an elephant",
+    meaning: "Sit on an elephant's back and go for a ride.",
+    color: ["#a8a8a8","#6a5acd"],
+    icon: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="65" rx="30" ry="22" fill="#8b8b9d"/><circle cx="25" cy="55" r="15" fill="#8b8b9d"/><path d="M15,55 Q8,60 10,75 Q12,78 15,75 Q14,65 20,60" fill="#8b8b9d"/><circle cx="22" cy="52" r="2" fill="#000"/><rect x="35" y="82" width="6" height="12" fill="#6a5acd"/><rect x="55" y="82" width="6" height="12" fill="#6a5acd"/><path d="M78,55 Q85,50 82,60" stroke="#8b8b9d" stroke-width="4" fill="none"/><rect x="40" y="35" width="20" height="15" fill="#ff6b9d" rx="3"/><circle cx="50" cy="30" r="6" fill="#ffd93d"/></svg>`
+  },
+  {
+    phrase: "swim with dolphins",
+    meaning: "Swim in the sea next to friendly dolphins.",
+    color: ["#4a90e2","#38f9d7"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="60" width="100" height="40" fill="#4a90e2"/><path d="M0,60 Q25,55 50,60 T100,60" fill="#38f9d7" opacity="0.5"/><path d="M10,75 Q30,70 50,75 T90,75" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.7"/><path d="M20,45 Q40,25 65,35 Q80,40 75,50 Q60,55 40,52 Q25,55 20,45 Z" fill="#6a7a9d" stroke="#fff" stroke-width="1.5"/><path d="M75,42 L85,35 L82,48 Z" fill="#6a7a9d"/><circle cx="30" cy="42" r="2" fill="#fff"/><circle cx="55" cy="20" r="5" fill="#ffd93d"/><rect x="52" y="22" width="6" height="15" fill="#ff6b9d" rx="2"/><path d="M55,37 Q50,45 55,55" stroke="#ffd93d" stroke-width="3" fill="none"/></svg>`
+  },
+  {
+    phrase: "take pictures underwater",
+    meaning: "Use a camera to take photos while diving.",
+    color: ["#38f9d7","#4a90e2"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="#4a90e2"/><path d="M0,20 Q25,15 50,20 T100,20" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.6"/><path d="M0,40 Q25,35 50,40 T100,40" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.6"/><circle cx="30" cy="55" r="12" fill="#333" stroke="#fff" stroke-width="2"/><circle cx="30" cy="55" r="7" fill="#38f9d7"/><rect x="38" y="50" width="15" height="10" fill="#333" rx="2"/><circle cx="55" cy="30" r="8" fill="#ffd93d"/><rect x="51" y="36" width="8" height="14" fill="#ff6b9d" rx="2"/><path d="M55,50 L55,60" stroke="#ffd93d" stroke-width="2"/><circle cx="75" cy="75" r="3" fill="#fff" opacity="0.8"/><circle cx="80" cy="85" r="2" fill="#fff" opacity="0.8"/><circle cx="15" cy="80" r="2" fill="#fff" opacity="0.8"/></svg>`
+  },
+  {
+    phrase: "run a marathon",
+    meaning: "Run a very long race — 42 kilometres!",
+    color: ["#ff9a56","#ffd93d"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="85" width="100" height="15" fill="#43e97b"/><line x1="10" y1="85" x2="10" y2="30" stroke="#333" stroke-width="2"/><line x1="90" y1="85" x2="90" y2="30" stroke="#333" stroke-width="2"/><rect x="5" y="30" width="10" height="15" fill="#ff3b5c"/><rect x="85" y="30" width="10" height="15" fill="#ff3b5c"/><text x="50" y="42" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">FINISH</text><circle cx="50" cy="55" r="6" fill="#ffd93d"/><rect x="46" y="60" width="8" height="14" fill="#ff6b9d" rx="2"/><line x1="46" y1="65" x2="38" y2="58" stroke="#ffd93d" stroke-width="3"/><line x1="54" y1="65" x2="62" y2="58" stroke="#ffd93d" stroke-width="3"/><line x1="48" y1="74" x2="42" y2="85" stroke="#333" stroke-width="3"/><line x1="52" y1="74" x2="58" y2="85" stroke="#333" stroke-width="3"/></svg>`
+  },
+  {
+    phrase: "drive a racing car",
+    meaning: "Drive a super-fast car on a race track.",
+    color: ["#ff3b5c","#ff6b9d"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="75" width="100" height="15" fill="#555"/><line x1="0" y1="82" x2="100" y2="82" stroke="#ffd93d" stroke-width="2" stroke-dasharray="8,6"/><path d="M15,70 L25,50 L60,45 L80,55 L85,70 Z" fill="#ff3b5c" stroke="#fff" stroke-width="1.5"/><path d="M30,52 L55,48 L60,55 L35,58 Z" fill="#38f9d7" opacity="0.8"/><circle cx="30" cy="72" r="8" fill="#222"/><circle cx="30" cy="72" r="4" fill="#888"/><circle cx="70" cy="72" r="8" fill="#222"/><circle cx="70" cy="72" r="4" fill="#888"/><text x="50" y="65" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">7</text><path d="M5,60 L15,58 M5,65 L15,63" stroke="#fff" stroke-width="2"/></svg>`
+  },
+  {
+    phrase: "play rugby in an international match",
+    meaning: "Play rugby for your country against another country.",
+    color: ["#43e97b","#4a90e2"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="80" width="100" height="20" fill="#43e97b"/><line x1="50" y1="20" x2="50" y2="80" stroke="#fff" stroke-width="2"/><line x1="20" y1="40" x2="80" y2="40" stroke="#fff" stroke-width="2"/><circle cx="35" cy="55" r="7" fill="#ffd93d"/><rect x="31" y="60" width="8" height="14" fill="#ff3b5c" rx="2"/><line x1="31" y1="65" x2="22" y2="58" stroke="#ffd93d" stroke-width="3"/><line x1="39" y1="65" x2="48" y2="58" stroke="#ffd93d" stroke-width="3"/><ellipse cx="55" cy="55" rx="7" ry="5" fill="#8b4513" transform="rotate(30 55 55)"/><line x1="52" y1="53" x2="58" y2="57" stroke="#fff" stroke-width="1"/><circle cx="70" cy="60" r="6" fill="#ffd93d"/><rect x="67" y="64" width="6" height="12" fill="#4a90e2" rx="2"/></svg>`
+  },
+  {
+    phrase: "run with bulls",
+    meaning: "Run in front of big bulls in a famous festival!",
+    color: ["#ff3b5c","#ffd93d"],
+    icon: `<svg viewBox="0 0 100 100"><rect x="0" y="80" width="100" height="20" fill="#d4a574"/><path d="M15,55 Q10,40 20,35 L25,40 L22,48 Q30,45 35,50 Q40,55 38,65 Q30,70 20,68 Q10,65 15,55 Z" fill="#333"/><path d="M20,35 L15,25 L22,32" fill="#fff"/><path d="M28,35 L33,25 L26,32" fill="#fff"/><circle cx="22" cy="45" r="1.5" fill="#ff3b5c"/><circle cx="55" cy="50" r="7" fill="#ffd93d"/><rect x="51" y="55" width="8" height="14" fill="#fff" rx="2"/><line x1="51" y1="60" x2="42" y2="52" stroke="#ffd93d" stroke-width="3"/><line x1="59" y1="60" x2="68" y2="52" stroke="#ffd93d" stroke-width="3"/><line x1="53" y1="69" x2="48" y2="80" stroke="#333" stroke-width="3"/><line x1="57" y1="69" x2="65" y2="80" stroke="#333" stroke-width="3"/><path d="M75,60 L80,55 M78,65 L85,62" stroke="#ff3b5c" stroke-width="2"/></svg>`
+  }
+];
+
+/* ============ SOUND ENGINE (Web Audio API) ============ */
+let audioCtx = null;
+let soundOn = true;
+
+function ensureAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { audioCtx = null; }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playTone(freq, duration, type='sine', vol=0.2, slideTo=null) {
+  if (!soundOn) return;
+  ensureAudio(); if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, audioCtx.currentTime + duration);
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+
+function playNoise(duration, vol=0.15, filterFreq=1000) {
+  if (!soundOn) return;
+  ensureAudio(); if (!audioCtx) return;
+  const bufferSize = audioCtx.sampleRate * duration;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random()*2-1) * (1 - i/bufferSize);
+  const src = audioCtx.createBufferSource();
+  src.buffer = buffer;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass'; filter.frequency.value = filterFreq;
+  const gain = audioCtx.createGain();
+  gain.gain.value = vol;
+  src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+  src.start();
+}
+
+const sfx = {
+  click: () => { playTone(800, 0.06, 'square', 0.1); },
+  flip: () => {
+    playTone(400, 0.15, 'sine', 0.15, 600);
+    setTimeout(()=> playNoise(0.1, 0.05, 2000), 40);
+  },
+  reveal: () => {
+    playTone(600, 0.1, 'sine', 0.18);
+    setTimeout(()=> playTone(900, 0.12, 'sine', 0.18), 70);
+    setTimeout(()=> playTone(1200, 0.18, 'triangle', 0.15), 140);
+  },
+  complete: () => {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((n,i)=> setTimeout(()=> playTone(n, 0.25, 'triangle', 0.2), i*120));
+  },
+  applause: () => {
+    playNoise(2.5, 0.25, 3500);
+    setTimeout(()=> playNoise(1.5, 0.2, 4000), 300);
+    const cheer = [523, 659, 784, 1047, 1319];
+    cheer.forEach((n,i)=> setTimeout(()=> playTone(n, 0.3, 'triangle', 0.15), 200 + i*100));
+  }
+};
+
+/* ============ STATE ============ */
+let explored = new Set();
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const finalScreen = document.getElementById('finalScreen');
+const cardsGrid = document.getElementById('cardsGrid');
+const gameProgress = document.getElementById('gameProgress');
+const progressFill = document.getElementById('progressFill');
+const startProgress = document.getElementById('startProgress');
+const soundBtn = document.getElementById('soundBtn');
+
+/* ============ RENDER CARDS ============ */
+function renderCards() {
+  cardsGrid.innerHTML = '';
+  VOCAB.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.idx = idx;
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-face card-front" style="background: linear-gradient(145deg, ${item.color[0]}55, ${item.color[1]}44);">
+          <div class="card-badge">${idx+1}</div>
+          <div class="qmark">?</div>
+          <div class="illu">${item.icon}</div>
+          <div class="flip-hint">FLIP ME!</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="check-mark">✓</div>
+          <div class="back-icon">${item.icon}</div>
+          <div class="phrase">${item.phrase}</div>
+          <div class="meaning">${item.meaning}</div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => handleCardClick(card, idx));
+    cardsGrid.appendChild(card);
+  });
+}
+
+function handleCardClick(card, idx) {
+  sfx.flip();
+  card.classList.toggle('flipped');
+  if (card.classList.contains('flipped')) {
+    setTimeout(()=> sfx.reveal(), 400);
+    if (!explored.has(idx)) {
+      explored.add(idx);
+      card.classList.add('explored');
+      updateProgress();
+      if (explored.size === VOCAB.length) {
+        setTimeout(showFinal, 1200);
+      }
+    }
+  }
+}
+
+function updateProgress() {
+  const n = explored.size;
+  gameProgress.textContent = `${n} / 9`;
+  startProgress.textContent = `${n} / 9 cards explored`;
+  progressFill.style.width = `${(n/9)*100}%`;
+}
+
+/* ============ CONFETTI ============ */
+function launchConfetti() {
+  const colors = ['#ff6b9d','#ffd93d','#43e97b','#4a90e2','#c471ed','#ff9a56'];
+  for (let i = 0; i < 120; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration = (2 + Math.random()*2) + 's';
+    c.style.animationDelay = (Math.random()*0.8) + 's';
+    c.style.animation = `confettiFall ${2+Math.random()*2}s linear ${Math.random()*0.8}s forwards`;
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    if (Math.random() > 0.5) {
+      c.style.width = '12px'; c.style.height = '8px';
+      c.style.borderRadius = '2px';
+    } else {
+      c.style.borderRadius = '50%';
+    }
+    document.body.appendChild(c);
+    setTimeout(()=> c.remove(), 5000);
+  }
+}
+
+/* ============ SCREENS ============ */
+function showScreen(screen) {
+  [startScreen, gameScreen, finalScreen].forEach(s => s.classList.remove('active'));
+  screen.classList.add('active');
+}
+
+function startGame() {
+  sfx.click();
+  renderCards();
+  explored.clear();
+  updateProgress();
+  showScreen(gameScreen);
+}
+
+function showFinal() {
+  sfx.complete();
+  setTimeout(()=> {
+    sfx.applause();
+    launchConfetti();
+    setTimeout(launchConfetti, 800);
+  }, 600);
+  showScreen(finalScreen);
+}
+
+function restart() {
+  sfx.click();
+  explored.clear();
+  updateProgress();
+  renderCards();
+  showScreen(gameScreen);
+}
+
+function replay() {
+  sfx.click();
+  explored.clear();
+  updateProgress();
+  renderCards();
+  showScreen(gameScreen);
+}
+
+/* ============ EVENTS ============ */
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('restartBtn').addEventListener('click', restart);
+document.getElementById('replayBtn').addEventListener('click', replay);
+
+soundBtn.addEventListener('click', () => {
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? '🔊' : '🔇';
+  if (soundOn) sfx.click();
+});
+
+// Init
+renderCards();
+updateProgress();
+
+// Unlock audio on first interaction
+document.addEventListener('click', () => ensureAudio(), { once: true });
+document.addEventListener('touchstart', () => ensureAudio(), { once: true });
+</script>
+</body>
+</html>
