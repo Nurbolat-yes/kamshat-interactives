@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 дверей знаний — Собачье сердце</title>
+<style>
+    /* ========== БАЗОВЫЕ СТИЛИ ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --burgundy: #4a0e0e;
+        --burgundy-dark: #2d0808;
+        --burgundy-light: #6b1818;
+        --blue: #1a3a5c;
+        --blue-dark: #0f2440;
+        --gold: #c9a961;
+        --gold-light: #e4c97a;
+        --gold-dark: #8a7239;
+        --paper: #f4e8d0;
+        --paper-dark: #d4b896;
+        --paper-darker: #b89968;
+        --ink: #2a1810;
+    }
+
+    html, body {
+        min-height: 100vh;
+        font-family: 'Georgia', 'Times New Roman', serif;
+        color: var(--ink);
+        overflow-x: hidden;
+    }
+
+    body {
+        background:
+            radial-gradient(ellipse at top, rgba(201, 169, 97, 0.15), transparent 60%),
+            radial-gradient(ellipse at bottom, rgba(74, 14, 14, 0.25), transparent 60%),
+            repeating-linear-gradient(45deg, rgba(139, 90, 43, 0.03) 0px, rgba(139, 90, 43, 0.03) 2px, transparent 2px, transparent 6px),
+            linear-gradient(135deg, #e8d5a8 0%, #d4b896 50%, #b89968 100%);
+        background-attachment: fixed;
+        position: relative;
+    }
+
+    /* Текстура старой бумаги поверх */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 30%, rgba(74, 14, 14, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(26, 58, 92, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Зернистость */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.15 0 0 0 0 0.1 0 0 0 0.15 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 2;
+        mix-blend-mode: multiply;
+    }
+
+    /* ========== ВЕРХНЯЯ ПАНЕЛЬ ========== */
+    .top-bar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: linear-gradient(180deg, var(--burgundy-dark) 0%, var(--burgundy) 100%);
+        border-bottom: 3px double var(--gold);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        padding: 14px 20px;
+        color: var(--paper);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .top-bar h1 {
+        font-size: 1.4em;
+        letter-spacing: 3px;
+        color: var(--gold-light);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+        font-variant: small-caps;
+    }
+
+    .stats {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        align-items: center;
+        font-size: 0.95em;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 12px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--gold-dark);
+        border-radius: 6px;
+        min-width: 90px;
+    }
+
+    .stat-label {
+        font-size: 0.7em;
+        color: var(--paper-dark);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-size: 1.2em;
+        color: var(--gold-light);
+        font-weight: bold;
+    }
+
+    .progress-wrap {
+        width: 100%;
+        height: 6px;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 3px;
+        overflow: hidden;
+        border: 1px solid var(--gold-dark);
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold));
+        transition: width 0.6s ease;
+        box-shadow: 0 0 10px var(--gold);
+    }
+
+    .sound-toggle {
+        background: var(--gold-dark);
+        color: var(--paper);
+        border: 1px solid var(--gold);
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.85em;
+        transition: all 0.3s;
+    }
+
+    .sound-toggle:hover {
+        background: var(--gold);
+        color: var(--burgundy-dark);
+    }
+
+    /* ========== ЗАГОЛОВОК ========== */
+    .hero {
+        text-align: center;
+        padding: 40px 20px 30px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .hero h1 {
+        font-size: clamp(1.8em, 5vw, 3.2em);
+        color: var(--burgundy-dark);
+        letter-spacing: 4px;
+        font-variant: small-caps;
+        text-shadow: 2px 2px 0 var(--gold), 4px 4px 8px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+    }
+
+    .hero .ornament {
+        color: var(--gold-dark);
+        font-size: 1.4em;
+        letter-spacing: 10px;
+        margin: 10px 0;
+    }
+
+    .hero p {
+        font-style: italic;
+        color: var(--blue-dark);
+        font-size: clamp(0.95em, 2vw, 1.15em);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.5;
+    }
+
+    /* ========== СЕТКА ДВЕРЕЙ ========== */
+    .doors-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 28px;
+        padding: 30px 40px 60px;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 3;
+    }
+
+    @media (max-width: 1024px) {
+        .doors-grid { grid-template-columns: repeat(3, 1fr); gap: 22px; padding: 20px; }
+    }
+
+    @media (max-width: 600px) {
+        .doors-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 15px; }
+        .top-bar h1 { font-size: 1em; letter-spacing: 1px; }
+        .stats { gap: 8px; font-size: 0.8em; }
+        .stat-item { min-width: 70px; padding: 3px 8px; }
+    }
+
+    /* ========== ДВЕРЬ ========== */
+    .door-container {
+        perspective: 1000px;
+        aspect-ratio: 3 / 4;
+        position: relative;
+    }
+
+    .door {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transform-origin: left center;
+        transition: transform 1s cubic-bezier(0.65, 0.05, 0.36, 1);
+        cursor: pointer;
+    }
+
+    .door.opened {
+        transform: rotateY(-115deg);
+        cursor: default;
+    }
+
+    .door-face {
+        position: absolute;
+        inset: 0;
+        border-radius: 8px 8px 4px 4px;
+        backface-visibility: hidden;
+        overflow: hidden;
+    }
+
+    /* Лицевая сторона двери */
+    .door-front {
+        background:
+            linear-gradient(180deg, var(--burgundy-light) 0%, var(--burgundy) 50%, var(--burgundy-dark) 100%);
+        border: 3px solid var(--gold-dark);
+        box-shadow:
+            inset 0 0 30px rgba(0, 0, 0, 0.5),
+            inset 0 0 0 6px var(--burgundy-light),
+            inset 0 0 0 8px var(--gold-dark),
+            0 8px 20px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 8px;
+        transition: box-shadow 0.3s, transform 0.3s;
+    }
+
+    /* Текстура дерева */
+    .door-front::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            repeating-linear-gradient(90deg,
+                rgba(0, 0, 0, 0.08) 0px,
+                rgba(0, 0, 0, 0.08) 1px,
+                transparent 1px,
+                transparent 8px),
+            repeating-linear-gradient(0deg,
+                rgba(255, 220, 150, 0.04) 0px,
+                rgba(255, 220, 150, 0.04) 1px,
+                transparent 1px,
+                transparent 20px);
+        pointer-events: none;
+    }
+
+    .door-container:hover .door:not(.opened) .door-front {
+        box-shadow:
+            inset 0 0 30px rgba(0, 0, 0, 0.5),
+            inset 0 0 0 6px var(--burgundy-light),
+            inset 0 0 0 8px var(--gold),
+            0 0 25px var(--gold),
+            0 8px 20px rgba(0, 0, 0, 0.5);
+        transform: translateZ(10px);
+    }
+
+    .door-number {
+        font-size: clamp(1.8em, 4vw, 2.8em);
+        color: var(--gold-light);
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(201, 169, 97, 0.5);
+        font-variant: small-caps;
+        letter-spacing: 2px;
+        z-index: 2;
+        margin-top: 8px;
+    }
+
+    .door-ornament {
+        width: 70%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        margin: 4px 0;
+        z-index: 2;
+    }
+
+    .door-panel {
+        width: 75%;
+        flex: 1;
+        border: 2px solid var(--gold-dark);
+        border-radius: 4px;
+        background:
+            linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.35)),
+            linear-gradient(135deg, var(--burgundy-light), var(--burgundy-dark));
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+        margin: 6px 0;
+        z-index: 2;
+        position: relative;
+    }
+
+    .door-panel::before {
+        content: '✦';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--gold);
+        font-size: 1.8em;
+        text-shadow: 0 0 10px var(--gold);
+        opacity: 0.6;
+    }
+
+    .door-handle {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, var(--gold-light), var(--gold-dark));
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 0 3px rgba(0, 0, 0, 0.4);
+        position: absolute;
+        right: 12%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+    }
+
+    .door-label {
+        font-size: 0.7em;
+        color: var(--gold);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        z-index: 2;
+        margin-bottom: 4px;
+    }
+
+    /* Задняя сторона (видна при открытии) */
+    .door-back {
+        background: linear-gradient(135deg, #3a2817, #1f1408);
+        border: 3px solid var(--gold-dark);
+        transform: rotateY(180deg);
+    }
+
+    /* Стена за дверью */
+    .door-wall {
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at center, var(--paper) 0%, var(--paper-dark) 70%, var(--paper-darker) 100%);
+        border-radius: 8px;
+        border: 3px solid var(--gold-dark);
+        box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        color: var(--gold-dark);
+    }
+
+    /* Состояние "пройдено" */
+    .door-container.completed .door-front {
+        background: linear-gradient(180deg, #2d5a3d 0%, #1a3d28 50%, #0f2818 100%);
+        border-color: var(--gold);
+    }
+
+    .door-container.completed .door-number {
+        color: var(--gold-light);
+    }
+
+    .door-container.completed::after {
+        content: '✓';
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: var(--burgundy-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1em;
+        font-weight: bold;
+        z-index: 10;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        animation: popIn 0.5s ease;
+    }
+
+    @keyframes popIn {
+        0% { transform: scale(0) rotate(-180deg); }
+        70% { transform: scale(1.2) rotate(10deg); }
+        100% { transform: scale(1) rotate(0); }
+    }
+
+    /* ========== МОДАЛЬНОЕ ОКНО ВОПРОСА ========== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 10, 5, 0.85);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 20px;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .question-card {
+        background:
+            linear-gradient(135deg, var(--paper) 0%, var(--paper-dark) 100%);
+        border: 4px double var(--gold);
+        border-radius: 12px;
+        padding: 30px 28px;
+        max-width: 650px;
+        width: 100%;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.6),
+            inset 0 0 40px rgba(139, 90, 43, 0.15);
+        position: relative;
+        animation: slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(40px) scale(0.9); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .question-card::before {
+        content: '';
+        position: absolute;
+        top: 10px; left: 10px; right: 10px; bottom: 10px;
+        border: 1px solid var(--gold-dark);
+        border-radius: 8px;
+        pointer-events: none;
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--gold-dark);
+    }
+
+    .question-number {
+        font-size: 1.1em;
+        color: var(--burgundy);
+        font-variant: small-caps;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+
+    .close-btn {
+        background: var(--burgundy);
+        color: var(--paper);
+        border: 1px solid var(--gold);
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .close-btn:hover {
+        background: var(--gold);
+        color: var(--burgundy-dark);
+        transform: rotate(90deg);
+    }
+
+    .question-text {
+        font-size: clamp(1.05em, 2.5vw, 1.3em);
+        color: var(--ink);
+        line-height: 1.5;
+        margin-bottom: 24px;
+        font-style: italic;
+        text-align: center;
+    }
+
+    .answers {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .answer-btn {
+        background: linear-gradient(135deg, var(--paper) 0%, var(--paper-dark) 100%);
+        border: 2px solid var(--gold-dark);
+        padding: 14px 20px;
+        font-family: inherit;
+        font-size: clamp(0.95em, 2vw, 1.1em);
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .answer-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+        border-color: var(--burgundy);
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(201, 169, 97, 0.4);
+    }
+
+    .answer-letter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: var(--burgundy);
+        color: var(--gold-light);
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 1.1em;
+        flex-shrink: 0;
+        border: 2px solid var(--gold);
+    }
+
+    .answer-btn.correct {
+        background: linear-gradient(135deg, #4a8a5a 0%, #2d5a3d 100%);
+        color: var(--paper);
+        border-color: var(--gold);
+        animation: correctPulse 0.6s ease;
+    }
+
+    .answer-btn.correct .answer-letter {
+        background: var(--gold);
+        color: var(--burgundy-dark);
+    }
+
+    @keyframes correctPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+    }
+
+    .answer-btn.wrong {
+        background: linear-gradient(135deg, #8a2a2a 0%, #5a1a1a 100%);
+        color: var(--paper);
+        border-color: #c9a961;
+        animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+
+    .feedback {
+        margin-top: 20px;
+        padding: 14px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.15em;
+        font-weight: bold;
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .feedback.show { display: block; }
+
+    .feedback.correct {
+        background: linear-gradient(135deg, #4a8a5a, #2d5a3d);
+        color: var(--paper);
+        border: 2px solid var(--gold);
+    }
+
+    .feedback.wrong {
+        background: linear-gradient(135deg, #8a2a2a, #5a1a1a);
+        color: var(--paper);
+        border: 2px solid var(--gold);
+    }
+
+    /* ========== ЗВЁЗДЫ ПРИ ПРАВИЛЬНОМ ОТВЕТЕ ========== */
+    .stars-container {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 200;
+    }
+
+    .star {
+        position: absolute;
+        color: var(--gold-light);
+        font-size: 2em;
+        text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
+        animation: starFall 1.5s ease-out forwards;
+    }
+
+    @keyframes starFall {
+        0% { opacity: 1; transform: translateY(-50px) rotate(0) scale(0); }
+        30% { opacity: 1; transform: translateY(0) rotate(180deg) scale(1.3); }
+        100% { opacity: 0; transform: translateY(150px) rotate(360deg) scale(0.5); }
+    }
+
+    /* ========== ФИНАЛЬНЫЙ ЭКРАН ========== */
+    .final-screen {
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse at center, var(--burgundy-light) 0%, var(--burgundy-dark) 100%);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 150;
+        padding: 20px;
+    }
+
+    .final-screen.active {
+        display: flex;
+        animation: fadeIn 0.8s ease;
+    }
+
+    .final-content {
+        background: linear-gradient(135deg, var(--paper) 0%, var(--paper-dark) 100%);
+        border: 5px double var(--gold);
+        border-radius: 16px;
+        padding: 40px 30px;
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        position: relative;
+        z-index: 2;
+        animation: slideIn 0.8s ease;
+    }
+
+    .final-content h2 {
+        color: var(--burgundy-dark);
+        font-size: clamp(1.4em, 4vw, 2.2em);
+        margin-bottom: 10px;
+        font-variant: small-caps;
+        letter-spacing: 2px;
+    }
+
+    .final-ornament {
+        color: var(--gold-dark);
+        font-size: 1.5em;
+        letter-spacing: 8px;
+        margin: 15px 0;
+    }
+
+    .final-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 25px 0;
+    }
+
+    .final-stat {
+        background: var(--burgundy-dark);
+        color: var(--paper);
+        padding: 15px 10px;
+        border-radius: 8px;
+        border: 2px solid var(--gold);
+    }
+
+    .final-stat-value {
+        font-size: clamp(1.5em, 4vw, 2.2em);
+        color: var(--gold-light);
+        font-weight: bold;
+        display: block;
+    }
+
+    .final-stat-label {
+        font-size: 0.8em;
+        color: var(--paper-dark);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .final-quote {
+        font-style: italic;
+        color: var(--blue-dark);
+        font-size: 1.05em;
+        margin: 20px 0;
+        padding: 15px;
+        border-top: 1px solid var(--gold-dark);
+        border-bottom: 1px solid var(--gold-dark);
+        line-height: 1.5;
+    }
+
+    .restart-btn {
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+        color: var(--burgundy-dark);
+        border: 2px solid var(--burgundy);
+        padding: 14px 30px;
+        font-family: inherit;
+        font-size: 1.1em;
+        font-weight: bold;
+        letter-spacing: 2px;
+        cursor: pointer;
+        border-radius: 8px;
+        margin-top: 15px;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        font-variant: small-caps;
+    }
+
+    .restart-btn:hover {
+        background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(201, 169, 97, 0.5);
+    }
+
+    /* ========== КОНФЕТТИ ========== */
+    #confetti-canvas {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* ========== СКРОЛЛБАР ========== */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--paper-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+    /* Адаптив для финального экрана */
+    @media (max-width: 500px) {
+        .final-stats { grid-template-columns: 1fr; }
+        .question-card { padding: 20px 15px; }
+        .answer-btn { padding: 10px 14px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ========== ВЕРХНЯЯ ПАНЕЛЬ ========== -->
+<div class="top-bar">
+    <h1>15 ДВЕРЕЙ ЗНАНИЙ</h1>
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-label">Пройдено</span>
+            <span class="stat-value" id="stat-doors">0/15</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Верно</span>
+            <span class="stat-value" id="stat-correct">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Баллы</span>
+            <span class="stat-value" id="stat-score">0/15</span>
+        </div>
+        <button class="sound-toggle" id="sound-toggle">🔊 Звук</button>
+    </div>
+    <div class="progress-wrap">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+</div>
+
+<!-- ========== ЗАГОЛОВОК ========== -->
+<div class="hero">
+    <h1>15 Дверей Знаний</h1>
+    <div class="ornament">❦ ✦ ❦</div>
+    <p>Проверь свои знания по повести М.&nbsp;А.&nbsp;Булгакова «Собачье сердце». Открой все 15 дверей и докажи, что ты настоящий знаток литературы!</p>
+</div>
+
+<!-- ========== СЕТКА ДВЕРЕЙ ========== -->
+<div class="doors-grid" id="doors-grid"></div>
+
+<!-- ========== МОДАЛЬНОЕ ОКНО ========== -->
+<div class="modal-overlay" id="modal">
+    <div class="question-card">
+        <div class="question-header">
+            <span class="question-number" id="q-number">Дверь I</span>
+            <button class="close-btn" id="close-btn">✕</button>
+        </div>
+        <div class="question-text" id="q-text"></div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+</div>
+
+<!-- ========== ФИНАЛЬНЫЙ ЭКРАН ========== -->
+<div class="final-screen" id="final-screen">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="final-content">
+        <h2>Поздравляем!</h2>
+        <div class="final-ornament">❦ ✦ ❦</div>
+        <p style="font-size: 1.1em; color: var(--blue-dark);">Вы прошли все 15 дверей знаний!</p>
+        <div class="final-stats">
+            <div class="final-stat">
+                <span class="final-stat-value" id="final-score">0</span>
+                <span class="final-stat-label">Баллов из 15</span>
+            </div>
+            <div class="final-stat">
+                <span class="final-stat-value" id="final-correct">0</span>
+                <span class="final-stat-label">Верных ответов</span>
+            </div>
+            <div class="final-stat">
+                <span class="final-stat-value" id="final-percent">0%</span>
+                <span class="final-stat-label">Успешность</span>
+            </div>
+        </div>
+        <div class="final-quote">
+            «Настоящее знание начинается с умения задавать вопросы!»
+        </div>
+        <button class="restart-btn" id="restart-btn">Пройти заново</button>
+    </div>
+</div>
+
+<!-- ========== КОНТЕЙНЕР ДЛЯ ЗВЁЗД ========== -->
+<div class="stars-container" id="stars-container"></div>
+
+<script>
+/* =========================================================
+   ДАННЫЕ ВОПРОСОВ
+   ========================================================= */
+const questions = [
+    { q: "Кто является автором повести «Собачье сердце»?",
+      a: ["А. П. Чехов", "М. А. Булгаков", "Ф. М. Достоевский"], correct: 1 },
+    { q: "В каком году была написана повесть «Собачье сердце»?",
+      a: ["1925", "1930", "1917"], correct: 0 },
+    { q: "Где происходят основные события повести?",
+      a: ["В Санкт-Петербурге", "В Киеве", "В Москве"], correct: 2 },
+    { q: "Как звали собаку, которую профессор подобрал на улице?",
+      a: ["Тузик", "Шарик", "Бобик"], correct: 1 },
+    { q: "Как звали профессора, проводившего эксперимент?",
+      a: ["Преображенский", "Борменталь", "Швондер"], correct: 0 },
+    { q: "Кто помогал профессору во время эксперимента?",
+      a: ["Швондер", "Зина", "Доктор Борменталь"], correct: 2 },
+    { q: "Какую операцию провёл профессор над Шариком?",
+      a: ["Пересадил сердце другого животного",
+          "Пересадил гипофиз и половые железы человека",
+          "Провёл операцию на лапах"], correct: 1 },
+    { q: "В кого превратился Шарик после операции?",
+      a: ["В Полиграфа Полиграфовича Шарикова",
+          "В доктора Борменталя",
+          "В профессора Преображенского"], correct: 0 },
+    { q: "Какую фамилию получил Шариков?",
+      a: ["Преображенский", "Борменталь", "Шариков"], correct: 2 },
+    { q: "Кто такой Швондер?",
+      a: ["Сосед профессора",
+          "Председатель домового комитета",
+          "Врач"], correct: 1 },
+    { q: "Какую проблему раскрывает Булгаков через образ Шарикова?",
+      a: ["Проблему путешествий",
+          "Проблему образования детей",
+          "Проблему духовного и нравственного развития человека"], correct: 2 },
+    { q: "Какой художественный приём основан на необычном сочетании реального и фантастического?",
+      a: ["Гротеск", "Эпитет", "Метафора"], correct: 0 },
+    { q: "К какому литературному жанру относится произведение?",
+      a: ["Роман", "Повесть", "Басня"], correct: 1 },
+    { q: "Почему профессор решил вернуть Шарикова в первоначальное состояние?",
+      a: ["Он захотел провести новый эксперимент",
+          "Он понял, что Шариков стал опасен для окружающих, и осознал последствия своего эксперимента",
+          "Он решил продать собаку"], correct: 1 },
+    { q: "Какую главную мысль поднимает произведение?",
+      a: ["Наука должна развиваться без ограничений",
+          "Человеку не нужно образование",
+          "Научный прогресс должен сопровождаться нравственной ответственностью"], correct: 2 }
+];
+
+const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+
+/* =========================================================
+   СОСТОЯНИЕ ИГРЫ
+   ========================================================= */
+let state = {
+    completed: new Array(15).fill(false),   // дверь пройдена
+    answered: new Array(15).fill(false),    // получен правильный ответ
+    score: 0,
+    correctCount: 0,
+    currentQuestion: null,
+    soundOn: true
+};
+
+/* =========================================================
+   ЗВУК (Web Audio API)
+   ========================================================= */
+let audioCtx = null;
+function getAudio() {
+    if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch(e) { return null; }
+    }
+    return audioCtx;
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.2, delay = 0) {
+    if (!state.soundOn) return;
+    const ctx = getAudio();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const start = ctx.currentTime + delay;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(volume, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration);
+}
+
+function playDoorOpen() {
+    if (!state.soundOn) return;
+    const ctx = getAudio();
+    if (!ctx) return;
+    // Скрип двери — шум с фильтром
+    const bufferSize = ctx.sampleRate * 0.8;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 400;
+    filter.Q.value = 5;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start();
+    // Низкий тон — "дверной" звук
+    playTone(120, 0.5, 'sawtooth', 0.08);
+    playTone(90, 0.6, 'sine', 0.06, 0.1);
+}
+
+function playCorrect() {
+    if (!state.soundOn) return;
+    // Восходящее мажорное трезвучие
+    playTone(523.25, 0.2, 'sine', 0.25, 0);      // C5
+    playTone(659.25, 0.2, 'sine', 0.25, 0.15);   // E5
+    playTone(783.99, 0.3, 'sine', 0.25, 0.3);    // G5
+    playTone(1046.5, 0.4, 'triangle', 0.2, 0.45); // C6
+}
+
+function playWrong() {
+    if (!state.soundOn) return;
+    // Низкий диссонанс
+    playTone(180, 0.25, 'sawtooth', 0.15, 0);
+    playTone(155, 0.3, 'sawtooth', 0.12, 0.1);
+}
+
+function playVictory() {
+    if (!state.soundOn) return;
+    // Фанфары
+    const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5];
+    notes.forEach((f, i) => {
+        playTone(f, 0.3, 'triangle', 0.22, i * 0.15);
+        playTone(f * 0.5, 0.3, 'sine', 0.1, i * 0.15);
+    });
+}
+
+function playClick() {
+    if (!state.soundOn) return;
+    playTone(800, 0.05, 'square', 0.08);
+}
+
+/* =========================================================
+   СОЗДАНИЕ ДВЕРЕЙ
+   ========================================================= */
+const grid = document.getElementById('doors-grid');
+questions.forEach((_, i) => {
+    const container = document.createElement('div');
+    container.className = 'door-container';
+    container.dataset.index = i;
+    container.innerHTML = `
+        <div class="door-wall">✦</div>
+        <div class="door" data-index="${i}">
+            <div class="door-face door-front">
+                <div class="door-label">Дверь</div>
+                <div class="door-number">${romanNumerals[i]}</div>
+                <div class="door-ornament"></div>
+                <div class="door-panel"></div>
+                <div class="door-ornament"></div>
+                <div class="door-handle"></div>
+            </div>
+            <div class="door-face door-back"></div>
+        </div>
+    `;
+    grid.appendChild(container);
+});
+
+/* =========================================================
+   ОБРАБОТКА КЛИКОВ ПО ДВЕРЯМ
+   ========================================================= */
+document.querySelectorAll('.door').forEach(door => {
+    door.addEventListener('click', () => {
+        const idx = parseInt(door.dataset.index);
+        if (state.answered[idx]) return; // уже отвечено верно
+        openQuestion(idx);
+    });
+});
+
+function openQuestion(idx) {
+    state.currentQuestion = idx;
+    playDoorOpen();
+
+    // Анимация открытия двери
+    const door = document.querySelector(`.door[data-index="${idx}"]`);
+    door.classList.add('opened');
+
+    // Через время показываем модалку
+    setTimeout(() => {
+        showModal(idx);
+    }, 700);
+}
+
+function closeQuestion() {
+    const idx = state.currentQuestion;
+    if (idx === null) return;
+    const door = document.querySelector(`.door[data-index="${idx}"]`);
+    door.classList.remove('opened');
+    document.getElementById('modal').classList.remove('active');
+    state.currentQuestion = null;
+    playClick();
+}
+
+document.getElementById('close-btn').addEventListener('click', closeQuestion);
+document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeQuestion();
+});
+
+/* =========================================================
+   МОДАЛЬНОЕ ОКНО
+   ========================================================= */
+function showModal(idx) {
+    const q = questions[idx];
+    document.getElementById('q-number').textContent = `Дверь ${romanNumerals[idx]}`;
+    document.getElementById('q-text').textContent = q.q;
+
+    const answersEl = document.getElementById('answers');
+    answersEl.innerHTML = '';
+    const letters = ['А', 'Б', 'В'];
+    q.a.forEach((text, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.innerHTML = `<span class="answer-letter">${letters[i]}</span><span>${text}</span>`;
+        btn.addEventListener('click', () => handleAnswer(idx, i, btn));
+        answersEl.appendChild(btn);
+    });
+
+    document.getElementById('feedback').classList.remove('show', 'correct', 'wrong');
+    document.getElementById('modal').classList.add('active');
+}
+
+function handleAnswer(qIdx, aIdx, btn) {
+    const q = questions[qIdx];
+    const feedback = document.getElementById('feedback');
+    const allBtns = document.querySelectorAll('.answer-btn');
+
+    if (aIdx === q.correct) {
+        // Правильный ответ
+        btn.classList.add('correct');
+        allBtns.forEach(b => b.disabled = true);
+        feedback.textContent = '✓ Правильно!';
+        feedback.className = 'feedback show correct';
+        playCorrect();
+        showStars();
+
+        // Начисляем баллы (только один раз)
+        if (!state.answered[qIdx]) {
+            state.answered[qIdx] = true;
+            state.completed[qIdx] = true;
+            state.score++;
+            state.correctCount++;
+            updateStats();
+
+            // Дверь становится "пройденной"
+            const container = document.querySelector(`.door-container[data-index="${qIdx}"]`);
+            container.classList.add('completed');
+        }
+
+        // Автозакрытие через 1.8с
+        setTimeout(() => {
+            closeQuestion();
+            // Проверка завершения
+            if (state.completed.every(x => x)) {
+                setTimeout(showFinalScreen, 600);
+            }
+        }, 1800);
+    } else {
+        // Неправильный ответ
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        feedback.textContent = '✗ Попробуй ещё раз!';
+        feedback.className = 'feedback show wrong';
+        playWrong();
+
+        // Сброс класса wrong через анимацию
+        setTimeout(() => {
+            btn.classList.remove('wrong');
+        }, 600);
+
+        // Скрываем feedback через 1.5с
+        setTimeout(() => {
+            feedback.classList.remove('show');
+        }, 1500);
+    }
+}
+
+/* =========================================================
+   ЗВЁЗДЫ ПРИ ПРАВИЛЬНОМ ОТВЕТЕ
+   ========================================================= */
+function showStars() {
+    const container = document.getElementById('stars-container');
+    const symbols = ['✦', '★', '✧', '✶', '❋'];
+    for (let i = 0; i < 15; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        star.style.left = (Math.random() * 100) + '%';
+        star.style.top = (30 + Math.random() * 40) + '%';
+        star.style.animationDelay = (Math.random() * 0.5) + 's';
+        star.style.fontSize = (1.5 + Math.random() * 1.5) + 'em';
+        container.appendChild(star);
+        setTimeout(() => star.remove(), 2000);
+    }
+}
+
+/* =========================================================
+   ОБНОВЛЕНИЕ СТАТИСТИКИ
+   ========================================================= */
+function updateStats() {
+    document.getElementById('stat-doors').textContent = `${state.completed.filter(x => x).length}/15`;
+    document.getElementById('stat-correct').textContent = state.correctCount;
+    document.getElementById('stat-score').textContent = `${state.score}/15`;
+    const percent = (state.completed.filter(x => x).length / 15) * 100;
+    document.getElementById('progress-fill').style.width = percent + '%';
+}
+
+/* =========================================================
+   ФИНАЛЬНЫЙ ЭКРАН
+   ========================================================= */
+function showFinalScreen() {
+    playVictory();
+    document.getElementById('final-score').textContent = state.score;
+    document.getElementById('final-correct').textContent = state.correctCount;
+    const percent = Math.round((state.score / 15) * 100);
+    document.getElementById('final-percent').textContent = percent + '%';
+    document.getElementById('final-screen').classList.add('active');
+    startConfetti();
+}
+
+document.getElementById('restart-btn').addEventListener('click', () => {
+    // Сброс состояния
+    state = {
+        completed: new Array(15).fill(false),
+        answered: new Array(15).fill(false),
+        score: 0,
+        correctCount: 0,
+        currentQuestion: null,
+        soundOn: state.soundOn
+    };
+    document.querySelectorAll('.door-container').forEach(c => c.classList.remove('completed'));
+    document.querySelectorAll('.door').forEach(d => d.classList.remove('opened'));
+    document.getElementById('final-screen').classList.remove('active');
+    stopConfetti();
+    updateStats();
+    playClick();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* =========================================================
+   КОНФЕТТИ
+   ========================================================= */
+const confettiCanvas = document.getElementById('confetti-canvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiAnimId = null;
+
+function resizeCanvas() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function startConfetti() {
+    confettiPieces = [];
+    const colors = ['#c9a961', '#e4c97a', '#4a0e0e', '#1a3a5c', '#f4e8d0', '#8a7239'];
+    for (let i = 0; i < 150; i++) {
+        confettiPieces.push({
+            x: Math.random() * confettiCanvas.width,
+            y: Math.random() * -confettiCanvas.height,
+            w: 6 + Math.random() * 8,
+            h: 10 + Math.random() * 12,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            vx: -1 + Math.random() * 2,
+            vy: 2 + Math.random() * 3,
+            rot: Math.random() * Math.PI * 2,
+            vr: -0.1 + Math.random() * 0.2
+        });
+    }
+    animateConfetti();
+}
+
+function animateConfetti() {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiPieces.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        if (p.y > confettiCanvas.height + 20) {
+            p.y = -20;
+            p.x = Math.random() * confettiCanvas.width;
+        }
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rot);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        confettiCtx.restore();
+    });
+    confettiAnimId = requestAnimationFrame(animateConfetti);
+}
+
+function stopConfetti() {
+    if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiPieces = [];
+}
+
+/* =========================================================
+   КНОПКА ЗВУКА
+   ========================================================= */
+document.getElementById('sound-toggle').addEventListener('click', () => {
+    state.soundOn = !state.soundOn;
+    document.getElementById('sound-toggle').textContent = state.soundOn ? '🔊 Звук' : '🔇 Звук';
+    if (state.soundOn) playClick();
+});
+
+/* =========================================================
+   ИНИЦИАЛИЗАЦИЯ AUDIO CONTEXT ПО КЛИКУ (политика браузеров)
+   ========================================================= */
+document.addEventListener('click', () => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}, { once: false });
+
+// Первоначальная отрисовка статистики
+updateStats();
+</script>
+
+</body>
+</html>

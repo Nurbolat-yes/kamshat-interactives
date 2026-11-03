@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MISSION: SAVE PLANET EARTH!</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root{
+    --navy:#030716;
+    --navy-2:#06122b;
+    --green:#29ffa3;
+    --turq:#28e7ff;
+    --glow: 0 0 20px rgba(41,255,163,.55), 0 0 40px rgba(40,231,255,.35);
+  }
+  html,body{
+    width:100%; height:100%;
+    background: radial-gradient(ellipse at 50% 30%, #0a1f44 0%, #030716 60%, #000 100%);
+    color:#e8fff6;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    overflow:hidden;
+  }
+  #particles{
+    position:fixed; inset:0; z-index:0;
+  }
+  .screen{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:20px;
+    z-index:2;
+    opacity:0; pointer-events:none;
+    transition: opacity .8s ease;
+  }
+  .screen.active{ opacity:1; pointer-events:auto; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:fixed; top:18px; left:18px; right:18px;
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:10;
+    font-size:13px; letter-spacing:2px;
+    color:#9fe7d4;
+    text-transform:uppercase;
+  }
+  .topbar .brand{
+    display:flex; align-items:center; gap:10px;
+  }
+  .topbar .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 1.6s infinite;
+  }
+  .sound-toggle{
+    background: rgba(255,255,255,.05);
+    border:1px solid rgba(41,255,163,.35);
+    color:#c9fff0;
+    padding:8px 14px;
+    border-radius:30px;
+    cursor:pointer;
+    font-size:12px; letter-spacing:2px;
+    backdrop-filter: blur(8px);
+    transition: all .3s;
+  }
+  .sound-toggle:hover{
+    background: rgba(41,255,163,.15);
+    box-shadow: var(--glow);
+  }
+
+  /* ---------- EARTH ---------- */
+  .earth-wrap{
+    position:relative;
+    width: min(62vmin, 460px);
+    aspect-ratio:1/1;
+    perspective: 1200px;
+    margin-bottom: 20px;
+  }
+  .earth{
+    position:absolute; inset:0;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, #6ef0c4 0%, #1e9a7a 25%, #0b4a6b 55%, #031a33 85%);
+    box-shadow:
+      inset -30px -30px 80px rgba(0,0,0,.7),
+      inset 20px 20px 60px rgba(120,255,220,.25),
+      0 0 60px rgba(41,255,163,.35),
+      0 0 120px rgba(40,231,255,.25);
+    animation: rotateEarth 24s linear infinite;
+    overflow:hidden;
+  }
+  .earth::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:50%;
+    background:
+      radial-gradient(ellipse 40% 20% at 25% 35%, rgba(60,200,130,.7), transparent 60%),
+      radial-gradient(ellipse 30% 25% at 60% 55%, rgba(50,180,120,.6), transparent 60%),
+      radial-gradient(ellipse 25% 15% at 70% 30%, rgba(70,210,140,.5), transparent 60%),
+      radial-gradient(ellipse 20% 30% at 35% 70%, rgba(55,190,125,.55), transparent 60%),
+      radial-gradient(ellipse 15% 10% at 80% 70%, rgba(60,200,130,.5), transparent 60%);
+    mix-blend-mode: screen;
+    animation: rotateEarth 24s linear infinite reverse;
+  }
+  .earth::after{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:50%;
+    background:
+      radial-gradient(ellipse 50% 15% at 40% 45%, rgba(255,255,255,.35), transparent 70%),
+      radial-gradient(ellipse 30% 10% at 65% 25%, rgba(255,255,255,.25), transparent 70%);
+    animation: rotateEarth 18s linear infinite;
+  }
+  .atmosphere{
+    position:absolute; inset:-8%;
+    border-radius:50%;
+    background: radial-gradient(circle, transparent 55%, rgba(41,255,163,.25) 70%, transparent 80%);
+    filter: blur(6px);
+    pointer-events:none;
+    animation: pulseAtm 4s ease-in-out infinite;
+  }
+  .earth.glowing{
+    animation: rotateEarth 24s linear infinite, earthGlow 1.2s ease-in-out;
+  }
+  @keyframes rotateEarth {
+    from { transform: rotateY(0deg) rotateX(-10deg); }
+    to   { transform: rotateY(360deg) rotateX(-10deg); }
+  }
+  @keyframes earthGlow{
+    0%{ box-shadow: inset -30px -30px 80px rgba(0,0,0,.7), 0 0 60px rgba(41,255,163,.35); }
+    50%{ box-shadow: inset -30px -30px 80px rgba(0,0,0,.7), 0 0 180px rgba(41,255,163,.9), 0 0 300px rgba(40,231,255,.7); }
+    100%{ box-shadow: inset -30px -30px 80px rgba(0,0,0,.7), 0 0 60px rgba(41,255,163,.35); }
+  }
+  @keyframes pulseAtm{
+    0%,100%{ opacity:.8; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.03); }
+  }
+
+  /* ---------- TITLE ---------- */
+  .title{
+    font-size: clamp(28px, 5.5vw, 62px);
+    font-weight:900;
+    letter-spacing:4px;
+    text-align:center;
+    background: linear-gradient(90deg, #29ffa3, #28e7ff, #29ffa3);
+    background-size: 200% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation: shimmer 4s linear infinite;
+    text-shadow: 0 0 30px rgba(41,255,163,.2);
+    margin-bottom:10px;
+  }
+  @keyframes shimmer{
+    0%{ background-position: 0% 50%; }
+    100%{ background-position: 200% 50%; }
+  }
+  .subtitle{
+    font-size: clamp(14px, 1.6vw, 19px);
+    color:#a9f7e1;
+    letter-spacing:2px;
+    text-align:center;
+    margin-bottom:18px;
+    opacity:.9;
+  }
+
+  /* ---------- SOS ---------- */
+  .sos{
+    display:flex; gap:14px;
+    font-weight:900; letter-spacing:6px;
+    font-size: clamp(18px, 2.2vw, 26px);
+    color:#ff5a7a;
+    margin: 8px 0 22px;
+    text-shadow: 0 0 12px rgba(255,90,122,.8);
+  }
+  .sos span{
+    animation: sosBlink 1.2s infinite;
+  }
+  .sos span:nth-child(2){ animation-delay:.2s; }
+  .sos span:nth-child(3){ animation-delay:.4s; }
+  @keyframes sosBlink{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.3; transform:scale(.9); }
+  }
+
+  /* ---------- BUTTONS ---------- */
+  .btn-row{ display:flex; gap:18px; flex-wrap:wrap; justify-content:center; }
+  .btn{
+    position:relative;
+    padding: 14px 30px;
+    font-size: clamp(13px, 1.3vw, 16px);
+    font-weight:700;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:#eafff6;
+    background: linear-gradient(135deg, rgba(41,255,163,.15), rgba(40,231,255,.15));
+    border:1px solid rgba(41,255,163,.5);
+    border-radius: 50px;
+    cursor:pointer;
+    backdrop-filter: blur(10px);
+    transition: all .3s;
+    overflow:hidden;
+  }
+  .btn::before{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.25) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform .6s;
+  }
+  .btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(41,255,163,.6), 0 0 50px rgba(40,231,255,.35);
+    border-color: var(--green);
+  }
+  .btn:hover::before{ transform: translateX(100%); }
+  .btn.primary{
+    background: linear-gradient(135deg, rgba(41,255,163,.3), rgba(40,231,255,.3));
+    box-shadow: 0 0 20px rgba(41,255,163,.3);
+  }
+
+  /* ---------- MISSION INTRO ---------- */
+  .mission-card{
+    width: min(92vw, 900px);
+    padding: 36px 40px;
+    background: rgba(10,30,60,.55);
+    border:1px solid rgba(41,255,163,.35);
+    border-radius: 24px;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 0 40px rgba(41,255,163,.15), inset 0 0 40px rgba(40,231,255,.08);
+    text-align:center;
+  }
+  .mission-card h2{
+    font-size: clamp(22px, 3.2vw, 38px);
+    background: linear-gradient(90deg, #29ffa3, #28e7ff);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    letter-spacing:3px;
+    margin-bottom:14px;
+  }
+  .mission-card p{
+    font-size: clamp(14px, 1.5vw, 18px);
+    line-height:1.7;
+    color:#d4fff1;
+    margin-bottom: 10px;
+    max-width: 720px;
+    margin-left:auto; margin-right:auto;
+  }
+
+  /* stages */
+  .stages{
+    display:flex; flex-wrap:wrap; gap:10px;
+    justify-content:center;
+    margin: 26px 0 18px;
+  }
+  .stage{
+    padding: 10px 18px;
+    background: rgba(41,255,163,.08);
+    border:1px solid rgba(41,255,163,.35);
+    border-radius: 30px;
+    font-size: clamp(11px, 1.1vw, 14px);
+    letter-spacing:2px;
+    font-weight:700;
+    color:#c9fff0;
+    display:flex; align-items:center; gap:8px;
+    transition: all .4s;
+  }
+  .stage .num{
+    width:22px; height:22px;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--green), var(--turq));
+    color:#021a1a;
+    font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900;
+  }
+  .stage.active{
+    background: linear-gradient(135deg, rgba(41,255,163,.35), rgba(40,231,255,.35));
+    box-shadow: 0 0 20px rgba(41,255,163,.5);
+    transform: translateY(-3px);
+  }
+  .stage.done{
+    background: rgba(41,255,163,.2);
+    border-color: var(--green);
+  }
+
+  /* progress line */
+  .progress{
+    width:100%;
+    height:8px;
+    background: rgba(255,255,255,.08);
+    border-radius:20px;
+    overflow:hidden;
+    margin-top: 14px;
+    position:relative;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, #29ffa3, #28e7ff);
+    border-radius:20px;
+    box-shadow: 0 0 15px rgba(41,255,163,.8);
+    transition: width 1s ease;
+    position:relative;
+  }
+  .progress-fill::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+    animation: shine 2s infinite;
+  }
+  @keyframes shine{
+    0%{ transform: translateX(-100%); }
+    100%{ transform: translateX(100%); }
+  }
+
+  .mission-actions{
+    display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
+    margin-top: 22px;
+  }
+
+  /* ---------- EXPLORE SCREEN ---------- */
+  .explore-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+    width: min(92vw, 1000px);
+    margin-top: 20px;
+  }
+  .fact-card{
+    padding: 22px;
+    background: rgba(10,30,60,.5);
+    border:1px solid rgba(40,231,255,.3);
+    border-radius: 18px;
+    backdrop-filter: blur(12px);
+    transition: all .3s;
+    cursor:pointer;
+  }
+  .fact-card:hover{
+    transform: translateY(-4px);
+    border-color: var(--green);
+    box-shadow: 0 0 25px rgba(41,255,163,.4);
+  }
+  .fact-card .icon{
+    font-size: 34px; margin-bottom:10px;
+  }
+  .fact-card h3{
+    color: var(--green);
+    font-size: 16px;
+    letter-spacing:1.5px;
+    margin-bottom:8px;
+  }
+  .fact-card p{
+    font-size: 13px;
+    color:#c9f5e6;
+    line-height:1.5;
+  }
+
+  .back-btn{
+    margin-top: 22px;
+  }
+
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.5; transform:scale(1.3); }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px){
+    .earth-wrap{ width: 55vmin; }
+    .mission-card{ padding: 24px 20px; }
+    .btn{ padding: 12px 22px; letter-spacing:2px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="dot"></div>
+    <span>Eco Command • Grade 9 • Sustainability</span>
+  </div>
+  <button class="sound-toggle" id="soundToggle">🔊 SOUND ON</button>
+</div>
+
+<!-- MAIN SCREEN -->
+<section class="screen active" id="mainScreen">
+  <div class="earth-wrap">
+    <div class="atmosphere"></div>
+    <div class="earth" id="earth"></div>
+  </div>
+  <h1 class="title">MISSION: SAVE PLANET EARTH!</h1>
+  <p class="subtitle">The future of our planet is in your hands.</p>
+  <div class="sos"><span>S</span><span>O</span><span>S</span></div>
+  <div class="btn-row">
+    <button class="btn primary" id="startBtn">▶ START THE MISSION</button>
+    <button class="btn" id="exploreBtn">🌍 EXPLORE OUR PLANET</button>
+  </div>
+</section>
+
+<!-- MISSION INTRO SCREEN -->
+<section class="screen" id="missionScreen">
+  <div class="mission-card">
+    <h2>WELCOME, ECO DETECTIVES!</h2>
+    <p>Your mission is to investigate environmental problems, discover solutions, and protect our planet.</p>
+    <p style="font-size:13px; opacity:.75; letter-spacing:2px;">LESSON DURATION: 40 MINUTES • TEAM SIZE: 15 AGENTS</p>
+
+    <div class="stages" id="stages">
+      <div class="stage"><span class="num">1</span> WATCH</div>
+      <div class="stage"><span class="num">2</span> INVESTIGATE</div>
+      <div class="stage"><span class="num">3</span> READ</div>
+      <div class="stage"><span class="num">4</span> DISCOVER</div>
+      <div class="stage"><span class="num">5</span> WRITE</div>
+      <div class="stage"><span class="num">6</span> FINAL MISSION</div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="mission-actions">
+      <button class="btn" id="nextStageBtn">▶ ADVANCE STAGE</button>
+      <button class="btn" id="backMainBtn">◀ RETURN TO BASE</button>
+    </div>
+  </div>
+</section>
+
+<!-- EXPLORE SCREEN -->
+<section class="screen" id="exploreScreen">
+  <h1 class="title" style="font-size: clamp(22px, 4vw, 42px);">OUR PLANET • DATA FILE</h1>
+  <p class="subtitle">Tap a card to reveal Earth's vital signs.</p>
+  <div class="explore-grid" id="exploreGrid"></div>
+  <button class="btn back-btn" id="backFromExplore">◀ BACK</button>
+</section>
+
+<script>
+/* =================== AUDIO (Web Audio API) =================== */
+let audioCtx = null;
+let soundOn = true;
+
+function getCtx(){
+  if(!audioCtx){
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e){ audioCtx = null; }
+  }
+  return audioCtx;
+}
+
+function beep(freq=600, dur=0.08, type='sine', vol=0.15){
+  if(!soundOn) return;
+  const ctx = getCtx(); if(!ctx) return;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = 0;
+  o.connect(g); g.connect(ctx.destination);
+  const t = ctx.currentTime;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.start(t); o.stop(t+dur+0.02);
+}
+
+function clickSound(){ beep(880, 0.05, 'square', 0.08); }
+
+function activationSound(){
+  if(!soundOn) return;
+  const ctx = getCtx(); if(!ctx) return;
+  const notes = [440, 554, 659, 880];
+  notes.forEach((f,i)=>{
+    setTimeout(()=>beep(f, 0.22, 'sine', 0.14), i*110);
+  });
+}
+
+function successChime(){
+  if(!soundOn) return;
+  const ctx = getCtx(); if(!ctx) return;
+  [523, 659, 784, 1046].forEach((f,i)=>{
+    setTimeout(()=>beep(f, 0.35, 'triangle', 0.12), i*90);
+  });
+}
+
+function toggleSound(){
+  soundOn = !soundOn;
+  document.getElementById('soundToggle').textContent = soundOn ? '🔊 SOUND ON' : '🔇 SOUND OFF';
+  if(soundOn) beep(700, 0.08, 'sine', 0.12);
+}
+
+/* =================== PARTICLES =================== */
+const canvas = document.getElementById('particles');
+const pctx = canvas.getContext('2d');
+let particles = [];
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function initParticles(){
+  particles = [];
+  const count = Math.min(90, Math.floor(window.innerWidth/18));
+  for(let i=0;i<count;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.8 + 0.4,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.3,
+      hue: Math.random()<0.5 ? 160 : 190
+    });
+  }
+}
+initParticles();
+window.addEventListener('resize', initParticles);
+
+function drawParticles(){
+  pctx.clearRect(0,0,canvas.width, canvas.height);
+  particles.forEach(p=>{
+    p.x += p.vx; p.y += p.vy;
+    if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+    if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+    pctx.beginPath();
+    pctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    pctx.fillStyle = `hsla(${p.hue}, 100%, 70%, 0.7)`;
+    pctx.shadowBlur = 8;
+    pctx.shadowColor = `hsla(${p.hue}, 100%, 70%, 0.8)`;
+    pctx.fill();
+  });
+  pctx.shadowBlur = 0;
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+/* =================== SCREEN NAV =================== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* =================== MAIN BUTTONS =================== */
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  clickSound();
+  const earth = document.getElementById('earth');
+  earth.classList.add('glowing');
+  activationSound();
+  setTimeout(()=>{
+    earth.classList.remove('glowing');
+    showScreen('missionScreen');
+    animateProgress();
+  }, 900);
+});
+
+document.getElementById('exploreBtn').addEventListener('click', ()=>{
+  clickSound();
+  showScreen('exploreScreen');
+});
+
+document.getElementById('backMainBtn').addEventListener('click', ()=>{
+  clickSound();
+  showScreen('mainScreen');
+});
+
+document.getElementById('backFromExplore').addEventListener('click', ()=>{
+  clickSound();
+  showScreen('mainScreen');
+});
+
+document.getElementById('soundToggle').addEventListener('click', toggleSound);
+
+/* =================== STAGES / PROGRESS =================== */
+const stageEls = document.querySelectorAll('#stages .stage');
+let currentStage = 0;
+
+function updateStages(){
+  stageEls.forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i < currentStage) el.classList.add('done');
+    else if(i === currentStage) el.classList.add('active');
+  });
+  const pct = (currentStage / stageEls.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  if(currentStage >= stageEls.length){
+    successChime();
+  }
+}
+
+function animateProgress(){
+  currentStage = 0;
+  updateStages();
+}
+
+document.getElementById('nextStageBtn').addEventListener('click', ()=>{
+  clickSound();
+  if(currentStage < stageEls.length){
+    currentStage++;
+    updateStages();
+    if(currentStage === stageEls.length){
+      setTimeout(successChime, 300);
+    }
+  } else {
+    // reset
+    currentStage = 0;
+    updateStages();
+  }
+});
+
+/* =================== EXPLORE FACTS =================== */
+const facts = [
+  {icon:'🌳', title:'FORESTS', text:'Forests cover 31% of Earth and absorb 2.6 billion tonnes of CO₂ every year.'},
+  {icon:'🌊', title:'OCEANS', text:'Oceans produce over 50% of the oxygen we breathe and store 50 times more CO₂ than the atmosphere.'},
+  {icon:'♻️', title:'RECYCLING', text:'Recycling one aluminium can saves enough energy to run a TV for three hours.'},
+  {icon:'⚡', title:'ENERGY', text:'Renewable energy now provides nearly 30% of global electricity — and growing fast.'},
+  {icon:'🐝', title:'BIODIVERSITY', text:'One in four species faces extinction. Protecting habitats saves entire ecosystems.'},
+  {icon:'💧', title:'WATER', text:'Only 1% of Earth\'s water is drinkable. Every drop counts — turn off the tap!'}
+];
+const grid = document.getElementById('exploreGrid');
+facts.forEach(f=>{
+  const card = document.createElement('div');
+  card.className = 'fact-card';
+  card.innerHTML = `<div class="icon">${f.icon}</div><h3>${f.title}</h3><p>${f.text}</p>`;
+  card.addEventListener('click', ()=>{
+    clickSound();
+    card.style.transform = 'scale(1.03)';
+    setTimeout(()=>card.style.transform='', 200);
+  });
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
