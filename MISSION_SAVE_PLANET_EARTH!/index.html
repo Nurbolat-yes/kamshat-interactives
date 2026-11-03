@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Eco Detective — Reading Investigation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #eafff4;
+    background: radial-gradient(ellipse at top, #0b3d2e 0%, #04140f 55%, #000 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Floating leaves background */
+  .leaves { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .leaf {
+    position: absolute;
+    font-size: 28px;
+    opacity: 0.55;
+    animation: fall linear infinite;
+    filter: drop-shadow(0 0 6px rgba(46,204,113,0.6));
+  }
+  @keyframes fall {
+    0%   { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    100% { transform: translateY(110vh) translateX(80px) rotate(720deg); opacity: 0; }
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    z-index: 0;
+    animation: float 12s ease-in-out infinite;
+  }
+  .orb1 { width: 300px; height: 300px; background: #1abc9c; top: -80px; left: -80px; }
+  .orb2 { width: 350px; height: 350px; background: #f39c12; bottom: -100px; right: -100px; animation-delay: -4s; }
+  .orb3 { width: 250px; height: 250px; background: #2ecc71; top: 40%; right: -80px; animation-delay: -8s; }
+  @keyframes float {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(30px,-40px) scale(1.1); }
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 18px 60px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 18px 10px 10px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1abc9c, #2ecc71);
+    color: #04140f;
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-size: 12px;
+    box-shadow: 0 0 20px rgba(46,204,113,0.6);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #2ecc71, #1abc9c, #f1c40f, #f39c12);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 6s linear infinite;
+    text-shadow: 0 0 30px rgba(46,204,113,0.2);
+  }
+  @keyframes shine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+  .subtitle {
+    margin-top: 8px;
+    color: #b6f0d6;
+    font-style: italic;
+    font-size: 15px;
+    opacity: 0.9;
+  }
+
+  /* Controls top bar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .progress-wrap {
+    flex: 1;
+    min-width: 220px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(46,204,113,0.3);
+    border-radius: 999px;
+    padding: 6px;
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.4), 0 0 15px rgba(26,188,156,0.2);
+  }
+  .progress-bar {
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1abc9c, #2ecc71, #f1c40f, #f39c12);
+    background-size: 200% 100%;
+    width: 0%;
+    transition: width 0.6s cubic-bezier(.2,.8,.2,1);
+    animation: shine 4s linear infinite;
+    box-shadow: 0 0 10px rgba(46,204,113,0.7);
+  }
+  .progress-text {
+    font-size: 13px;
+    color: #a8e6cf;
+    margin-left: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .icon-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(241,196,15,0.4);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s;
+  }
+  .icon-btn:hover { transform: translateY(-2px); box-shadow: 0 0 15px rgba(241,196,15,0.5); }
+  .icon-btn.active { background: linear-gradient(90deg,#f39c12,#e67e22); border-color: #f39c12; }
+
+  /* Card */
+  .card-scene {
+    margin-top: 24px;
+    perspective: 1500px;
+  }
+  .card {
+    position: relative;
+    width: 100%;
+    min-height: 360px;
+    transition: transform 0.9s cubic-bezier(.2,.8,.2,1);
+    transform-style: preserve-3d;
+  }
+  .card.flip { transform: rotateY(180deg); }
+  .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 22px;
+    padding: 28px 24px;
+    background: linear-gradient(135deg, rgba(26,188,156,0.12), rgba(46,204,113,0.08));
+    border: 1px solid rgba(46,204,113,0.35);
+    backdrop-filter: blur(14px);
+    box-shadow:
+      0 10px 40px rgba(0,0,0,0.5),
+      inset 0 0 30px rgba(46,204,113,0.08),
+      0 0 0 1px rgba(255,255,255,0.03);
+    animation: glow 4s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(46,204,113,0.25), inset 0 0 30px rgba(46,204,113,0.08); }
+    to   { box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 35px rgba(241,196,15,0.35), inset 0 0 30px rgba(46,204,113,0.08); }
+  }
+  .face.back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .qnum {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: linear-gradient(90deg,#f39c12,#e67e22);
+    color: #04140f;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+  .qtext {
+    font-size: clamp(18px, 2.4vw, 24px);
+    line-height: 1.5;
+    color: #eafff4;
+    font-weight: 500;
+  }
+  .qicon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px rgba(46,204,113,0.6));
+  }
+
+  /* Buttons */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 22px;
+  }
+  .choice-btn {
+    padding: 18px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.25s;
+    color: #04140f;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn.true {
+    background: linear-gradient(135deg, #2ecc71, #1abc9c);
+    box-shadow: 0 6px 20px rgba(46,204,113,0.4);
+  }
+  .choice-btn.false {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    box-shadow: 0 6px 20px rgba(243,156,18,0.4);
+  }
+  .choice-btn:hover { transform: translateY(-3px) scale(1.02); }
+  .choice-btn.selected {
+    border-color: #fff;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 0 25px rgba(255,255,255,0.4);
+  }
+  .choice-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    padding: 12px 22px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.25s;
+    color: #04140f;
+  }
+  .btn-check {
+    background: linear-gradient(90deg, #1abc9c, #2ecc71);
+    box-shadow: 0 6px 20px rgba(46,204,113,0.5);
+  }
+  .btn-evidence {
+    background: linear-gradient(90deg, #f1c40f, #f39c12);
+    box-shadow: 0 6px 20px rgba(241,196,15,0.5);
+  }
+  .btn-next {
+    background: linear-gradient(90deg, #e67e22, #d35400);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(230,126,34,0.5);
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    text-align: center;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s;
+    min-height: 0;
+  }
+  .feedback.show { opacity: 1; transform: translateY(0); }
+  .feedback.correct {
+    background: linear-gradient(90deg, rgba(46,204,113,0.25), rgba(26,188,156,0.25));
+    border: 1px solid #2ecc71;
+    color: #a8e6cf;
+    box-shadow: 0 0 20px rgba(46,204,113,0.5);
+    animation: pulseGreen 1.2s ease;
+  }
+  .feedback.incorrect {
+    background: linear-gradient(90deg, rgba(243,156,18,0.22), rgba(230,126,34,0.22));
+    border: 1px solid #f39c12;
+    color: #ffd89b;
+    box-shadow: 0 0 20px rgba(243,156,18,0.4);
+    animation: pulseOrange 1.2s ease;
+  }
+  @keyframes pulseGreen {
+    0%,100% { box-shadow: 0 0 20px rgba(46,204,113,0.5); }
+    50%     { box-shadow: 0 0 35px rgba(46,204,113,0.9); }
+  }
+  @keyframes pulseOrange {
+    0%,100% { box-shadow: 0 0 20px rgba(243,156,18,0.4); }
+    50%     { box-shadow: 0 0 35px rgba(243,156,18,0.8); }
+  }
+  .evidence {
+    margin-top: 10px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(241,196,15,0.12);
+    border: 1px dashed rgba(241,196,15,0.5);
+    color: #ffe8a8;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+  }
+  .evidence.show { display: block; animation: fadeIn 0.5s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px);} to { opacity: 1; transform: translateY(0);} }
+
+  /* Final screen */
+  .final {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(46,204,113,0.15), rgba(241,196,15,0.1));
+    border: 1px solid rgba(46,204,113,0.4);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 0 40px rgba(46,204,113,0.4);
+    margin-top: 24px;
+  }
+  .final.show { display: block; animation: fadeIn 0.8s; }
+  .final h2 {
+    font-size: clamp(26px, 4vw, 40px);
+    background: linear-gradient(90deg, #2ecc71, #f1c40f, #f39c12);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+  .score {
+    font-size: clamp(50px, 10vw, 90px);
+    font-weight: 900;
+    background: linear-gradient(90deg, #1abc9c, #2ecc71);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 14px 0;
+    text-shadow: 0 0 30px rgba(46,204,113,0.5);
+  }
+  .final p { color: #b6f0d6; font-size: 16px; margin-bottom: 20px; }
+  .restart {
+    padding: 14px 30px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 0 6px 20px rgba(243,156,18,0.5);
+    transition: all 0.25s;
+  }
+  .restart:hover { transform: translateY(-3px); filter: brightness(1.1); }
+
+  /* Teacher answer key panel */
+  .key-panel {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(241,196,15,0.4);
+    backdrop-filter: blur(10px);
+    display: none;
+  }
+  .key-panel.show { display: block; animation: fadeIn 0.4s; }
+  .key-panel h3 {
+    color: #f1c40f;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    font-size: 16px;
+  }
+  .key-item {
+    padding: 8px 10px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .key-item:last-child { border-bottom: none; }
+  .key-item .ans {
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .key-item .ans.t { background: rgba(46,204,113,0.3); color: #a8e6cf; }
+  .key-item .ans.f { background: rgba(243,156,18,0.3); color: #ffd89b; }
+
+  /* Confetti */
+  #confetti {
+    position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #6fa98a;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 520px) {
+    .choices { grid-template-columns: 1fr; }
+    .face { padding: 22px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="leaves" id="leaves"></div>
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="badge">🌿 ECO DETECTIVE • GRADE 9</div>
+    <h1>READING INVESTIGATION</h1>
+    <p class="subtitle">Find the evidence. Think carefully. Choose wisely!</p>
+  </header>
+
+  <div class="topbar">
+    <div class="progress-wrap">
+      <div style="display:flex; align-items:center;">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+    <div class="progress-text" id="progressText">1 / 6</div>
+    <button class="icon-btn" id="soundBtn" title="Toggle sound">🔊 Sound ON</button>
+    <button class="icon-btn" id="teacherBtn" title="Teacher mode">🗝 Teacher</button>
+  </div>
+
+  <div class="card-scene" id="cardScene">
+    <div class="card" id="card">
+      <div class="face front" id="faceFront">
+        <div style="text-align:center;">
+          <span class="qnum" id="qNum">CASE 01</span>
+        </div>
+        <div style="text-align:center; font-size:44px; margin:8px 0 14px;" id="qIcon">🔍</div>
+        <p class="qtext" id="qText">Loading question...</p>
+
+        <div class="choices">
+          <button class="choice-btn true" data-value="TRUE">✓ TRUE</button>
+          <button class="choice-btn false" data-value="FALSE">✗ FALSE</button>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-check" id="checkBtn" disabled>🔎 CHECK ANSWER</button>
+          <button class="btn btn-evidence" id="evidenceBtn">💡 FIND EVIDENCE</button>
+          <button class="btn btn-next" id="nextBtn" style="display:none;">➡ NEXT QUESTION</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+        <div class="evidence" id="evidence"></div>
+      </div>
+      <div class="face back">
+        <div class="qicon">🌱</div>
+        <h2 style="background:linear-gradient(90deg,#2ecc71,#f1c40f);-webkit-background-clip:text;background-clip:text;color:transparent;">Analyzing evidence...</h2>
+        <p style="color:#b6f0d6;margin-top:10px;">Preparing next case file</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="final" id="finalScreen">
+    <h2>🏆 READING MISSION COMPLETED!</h2>
+    <p>You've completed the Sustainability Investigation</p>
+    <div class="score" id="finalScore">0 / 6</div>
+    <p id="finalMessage">Great work, Eco Detective!</p>
+    <button class="restart" id="restartBtn">🔄 INVESTIGATE AGAIN</button>
+  </div>
+
+  <div class="key-panel" id="keyPanel">
+    <h3>🗝 TEACHER ANSWER KEY</h3>
+    <div id="keyList"></div>
+  </div>
+
+  <footer>🌍 SUSTAINABILITY READING QUIZ • ECO DETECTIVE ACADEMY</footer>
+</div>
+
+<script>
+  // ===== Data =====
+  const questions = [
+    {
+      text: "It is impossible to find the right ecological balance.",
+      answer: "FALSE",
+      icon: "⚖️",
+      evidence: "Ecological balance IS possible through careful planning, renewable energy, and sustainable practices."
+    },
+    {
+      text: "Individuals can help create a more sustainable way of living.",
+      answer: "TRUE",
+      icon: "🙌",
+      evidence: "Small daily choices — recycling, saving energy, reducing waste — all contribute to sustainability."
+    },
+    {
+      text: "The Indian government plans to produce most of its energy from non-fossil fuels by 2030.",
+      answer: "TRUE",
+      icon: "🇮🇳",
+      evidence: "India has set ambitious renewable energy targets, aiming for a large share of non-fossil fuel energy by 2030."
+    },
+    {
+      text: "After 2040, people in the UK won't be able to buy new petrol cars.",
+      answer: "TRUE",
+      icon: "🚗",
+      evidence: "The UK has announced a ban on the sale of new petrol and diesel cars to reduce emissions."
+    },
+    {
+      text: "Petrol and diesel cars cause half the air pollution.",
+      answer: "FALSE",
+      icon: "💨",
+      evidence: "While vehicles are major polluters, they don't cause exactly half — industry, agriculture, and other sources also contribute significantly."
+    },
+    {
+      text: "It is possible for our children to have a quality life.",
+      answer: "TRUE",
+      icon: "🌟",
+      evidence: "With sustainable development and responsible choices, future generations can enjoy a high quality of life."
+    }
+  ];
+
+  // ===== State =====
+  let current = 0;
+  let score = 0;
+  let selected = null;
+  let answered = false;
+  let soundOn = true;
+  let audioCtx = null;
+
+  // ===== DOM =====
+  const qNum = document.getElementById('qNum');
+  const qText = document.getElementById('qText');
+  const qIcon = document.getElementById('qIcon');
+  const checkBtn = document.getElementById('checkBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const evidenceBtn = document.getElementById('evidenceBtn');
+  const feedback = document.getElementById('feedback');
+  const evidence = document.getElementById('evidence');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const finalScreen = document.getElementById('finalScreen');
+  const finalScore = document.getElementById('finalScore');
+  const finalMessage = document.getElementById('finalMessage');
+  const restartBtn = document.getElementById('restartBtn');
+  const card = document.getElementById('card');
+  const cardScene = document.getElementById('cardScene');
+  const soundBtn = document.getElementById('soundBtn');
+  const teacherBtn = document.getElementById('teacherBtn');
+  const keyPanel = document.getElementById('keyPanel');
+  const keyList = document.getElementById('keyList');
+  const choiceBtns = document.querySelectorAll('.choice-btn');
+
+  // ===== Audio (Web Audio API) =====
+  function initAudio() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+  }
+  function beep(freq, duration, type='sine', vol=0.15, delay=0) {
+    if (!soundOn || !audioCtx) return;
+    const t0 = audioCtx.currentTime + delay;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration);
+  }
+  function sfxClick() { beep(600, 0.08, 'square', 0.08); }
+  function sfxCorrect() {
+    beep(523, 0.15, 'sine', 0.18, 0);    // C5
+    beep(659, 0.15, 'sine', 0.18, 0.12); // E5
+    beep(784, 0.25, 'sine', 0.18, 0.24); // G5
+  }
+  function sfxIncorrect() {
+    beep(220, 0.25, 'sawtooth', 0.1, 0);
+    beep(180, 0.3, 'sawtooth', 0.1, 0.15);
+  }
+  function sfxVictory() {
+    const notes = [523, 659, 784, 1047, 784, 1047];
+    notes.forEach((n,i) => beep(n, 0.2, 'triangle', 0.18, i*0.15));
+  }
+
+  // ===== Floating leaves =====
+  function spawnLeaves() {
+    const container = document.getElementById('leaves');
+    const emojis = ['🍃','🌿','☘️','🌱','🍀'];
+    for (let i = 0; i < 18; i++) {
+      const l = document.createElement('div');
+      l.className = 'leaf';
+      l.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      l.style.left = Math.random()*100 + 'vw';
+      l.style.fontSize = (18 + Math.random()*22) + 'px';
+      l.style.animationDuration = (10 + Math.random()*14) + 's';
+      l.style.animationDelay = (-Math.random()*15) + 's';
+      l.style.opacity = 0.3 + Math.random()*0.4;
+      container.appendChild(l);
+    }
+  }
+  spawnLeaves();
+
+  // ===== Render =====
+  function renderQuestion() {
+    const q = questions[current];
+    qNum.textContent = `CASE 0${current+1}`;
+    qText.textContent = q.text;
+    qIcon.textContent = q.icon;
+    progressText.textContent = `${current+1} / ${questions.length}`;
+    progressBar.style.width = ((current)/questions.length*100) + '%';
+
+    selected = null;
+    answered = false;
+    choiceBtns.forEach(b => { b.classList.remove('selected'); b.disabled = false; });
+    checkBtn.disabled = true;
+    nextBtn.style.display = 'none';
+    feedback.className = 'feedback';
+    feedback.textContent = '';
+    evidence.classList.remove('show');
+    evidence.textContent = '';
+  }
+
+  // ===== Choice selection =====
+  choiceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      initAudio();
+      sfxClick();
+      selected = btn.dataset.value;
+      choiceBtns.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      checkBtn.disabled = false;
+    });
+  });
+
+  // ===== Check answer =====
+  checkBtn.addEventListener('click', () => {
+    if (!selected || answered) return;
+    initAudio();
+    sfxClick();
+    answered = true;
+    const q = questions[current];
+    const correct = selected === q.answer;
+    if (correct) {
+      score++;
+      feedback.textContent = '✅ CORRECT! Excellent detective work!';
+      feedback.className = 'feedback correct show';
+      sfxCorrect();
+    } else {
+      feedback.textContent = `🔸 Not quite. The correct answer is ${q.answer}.`;
+      feedback.className = 'feedback incorrect show';
+      sfxIncorrect();
+    }
+    choiceBtns.forEach(b => b.disabled = true);
+    checkBtn.style.display = 'none';
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = current === questions.length - 1 ? '🏁 SEE RESULTS' : '➡ NEXT QUESTION';
+  });
+
+  // ===== Evidence =====
+  evidenceBtn.addEventListener('click', () => {
+    initAudio();
+    sfxClick();
+    const q = questions[current];
+    evidence.textContent = '💡 ' + q.evidence;
+    evidence.classList.add('show');
+  });
+
+  // ===== Next =====
+  nextBtn.addEventListener('click', () => {
+    initAudio();
+    sfxClick();
+    // 3D flip animation
+    card.classList.add('flip');
+    setTimeout(() => {
+      current++;
+      if (current < questions.length) {
+        checkBtn.style.display = 'inline-block';
+        renderQuestion();
+      } else {
+        showFinal();
+      }
+      card.classList.remove('flip');
+    }, 700);
+  });
+
+  // ===== Final =====
+  function showFinal() {
+    cardScene.style.display = 'none';
+    finalScreen.classList.add('show');
+    finalScore.textContent = `${score} / ${questions.length}`;
+    progressBar.style.width = '100%';
+    progressText.textContent = `${questions.length} / ${questions.length}`;
+
+    let msg = '';
+    if (score === questions.length) msg = '🌟 PERFECT! You are a Master Eco Detective!';
+    else if (score >= 4) msg = '🌿 Outstanding work! You think like a true sustainability expert!';
+    else if (score >= 2) msg = '🌱 Good effort! Keep investigating to sharpen your skills.';
+    else msg = '🔍 Keep exploring! Every discovery makes you a better detective.';
+    finalMessage.textContent = msg;
+
+    initAudio();
+    sfxVictory();
+    launchConfetti();
+  }
+
+  // ===== Restart =====
+  restartBtn.addEventListener('click', () => {
+    initAudio();
+    sfxClick();
+    current = 0;
+    score = 0;
+    finalScreen.classList.remove('show');
+    cardScene.style.display = 'block';
+    checkBtn.style.display = 'inline-block';
+    renderQuestion();
+  });
+
+  // ===== Sound toggle =====
+  soundBtn.addEventListener('click', () => {
+    initAudio();
+    soundOn = !soundOn;
+    soundBtn.textContent = soundOn ? '🔊 Sound ON' : '🔇 Sound OFF';
+    soundBtn.classList.toggle('active', !soundOn);
+    if (soundOn) sfxClick();
+  });
+
+  // ===== Teacher mode =====
+  teacherBtn.addEventListener('click', () => {
+    initAudio();
+    sfxClick();
+    keyPanel.classList.toggle('show');
+    teacherBtn.classList.toggle('active', keyPanel.classList.contains('show'));
+  });
+  function buildKey() {
+    keyList.innerHTML = '';
+    questions.forEach((q, i) => {
+      const row = document.createElement('div');
+      row.className = 'key-item';
+      const isT = q.answer === 'TRUE';
+      row.innerHTML = `
+        <span><b>Q${i+1}.</b> ${q.text}</span>
+        <span class="ans ${isT?'t':'f'}">${q.answer}</span>
+      `;
+      keyList.appendChild(row);
+    });
+  }
+  buildKey();
+
+  // ===== Confetti =====
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let confettiPieces = [];
+  let confettiActive = false;
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function launchConfetti() {
+    confettiPieces = [];
+    const colors = ['#2ecc71','#1abc9c','#f1c40f','#f39c12','#e67e22','#a8e6cf'];
+    for (let i = 0; i < 150; i++) {
+      confettiPieces.push({
+        x: Math.random()*canvas.width,
+        y: -20 - Math.random()*canvas.height*0.5,
+        vx: (Math.random()-0.5)*4,
+        vy: 2 + Math.random()*4,
+        size: 4 + Math.random()*6,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rot: Math.random()*Math.PI*2,
+        vr: (Math.random()-0.5)*0.2,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle'
+      });
+    }
+    confettiActive = true;
+    animateConfetti();
+  }
+  function animateConfetti() {
+    if (!confettiActive) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = 0;
+    confettiPieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.rot += p.vr;
+      if (p.y < canvas.height + 30) alive++;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      else { ctx.beginPath(); ctx.arc(0,0,p.size/2,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    });
+    if (alive > 0) requestAnimationFrame(animateConfetti);
+    else { confettiActive = false; ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+
+  // ===== Init =====
+  renderQuestion();
+</script>
+</body>
+</html>
