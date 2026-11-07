@@ -357,19 +357,31 @@
     .btn:hover { transform: translateY(-2px); }
     .btn .num { flex-basis: 24px; width: 24px; height: 24px; margin-right: 8px; }
     .exhibit-panel {
-      top: 60px; right: 12px; left: 12px;
+      top: auto; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); left: 12px;
       width: auto;
-      max-height: calc(100dvh - 150px);
-      padding: 14px;
+      max-height: min(45dvh, 360px);
+      padding: 12px;
       transform: translateY(10px);
     }
     #exhibitPanel.visible { transform: none; }
     .info-card h3 { font-size: 18px; }
     .info-card p { font-size: 12px; }
     .info-card { padding-top: 14px; }
-    .exhibit-heading { margin-bottom: 9px; }
-    .exhibit-list { gap: 6px; }
-    .exhibit-button { min-height: 38px; padding: 6px 8px; }
+    .exhibit-heading { margin-bottom: 8px; }
+    .exhibit-list {
+      display: flex; gap: 7px;
+      overflow-x: auto; overflow-y: hidden;
+      padding: 1px 2px 6px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+    .exhibit-button {
+      flex: 0 0 min(68vw, 190px);
+      min-height: 46px;
+      padding: 8px;
+      scroll-snap-align: start;
+    }
     .floor-label {
       bottom: calc(72px + env(safe-area-inset-bottom));
       max-width: calc(100vw - 32px);
