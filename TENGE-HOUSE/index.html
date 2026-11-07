@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ТЕҢГЕ ҮЙІ — 3D Архитектуралық Жоба</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: #0a1530;
+    color: #fff;
+    user-select: none;
+  }
+  #canvas-container {
+    position: fixed; inset: 0;
+    background: linear-gradient(180deg, #1a2a55 0%, #0a1530 60%, #050a1a 100%);
+    transition: background 1.2s ease;
+    overflow: hidden;
+  }
+  #canvas-container.night {
+    background: linear-gradient(180deg, #050814 0%, #020408 60%, #000 100%);
+  }
+  canvas { display: block; }
+
+  .header {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 20px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none; z-index: 10;
+  }
+  .logo {
+    font-size: 18px; font-weight: 700; letter-spacing: 2.5px;
+    color: #f5d77e;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55), 0 0 20px rgba(245, 215, 126, 0.35);
+  }
+  .logo span {
+    color: rgba(255,255,255,0.72); font-weight: 400;
+    letter-spacing: 1.5px; font-size: 11px; margin-left: 10px;
+  }
+
+  .title-overlay {
+    position: fixed; top: 96px; right: 28px;
+    width: min(340px, calc(100vw - 360px));
+    text-align: right;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 1;
+    transition: opacity 0.65s ease, visibility 0.65s ease;
+  }
+  .title-overlay.hidden { opacity: 0; visibility: hidden; }
+  .title-overlay h1 {
+    font-size: clamp(36px, 4vw, 54px); font-weight: 300; letter-spacing: 8px;
+    color: #f5d77e;
+    text-shadow: 0 3px 24px rgba(0, 0, 0, 0.65), 0 0 32px rgba(245, 215, 126, 0.28);
+    margin-bottom: 8px;
+  }
+  .title-overlay p {
+    font-size: 14px; font-weight: 400; letter-spacing: 2px;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+  }
+  .title-overlay .sub {
+    margin-top: 12px; font-size: 10px; letter-spacing: 2px;
+    color: rgba(255,255,255,0.66);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  }
+
+  .controls {
+    position: fixed; left: 24px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 7px;
+    width: 246px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    z-index: 10;
+    scrollbar-width: none;
+  }
+  .controls::-webkit-scrollbar { display: none; }
+  .btn {
+    display: flex; align-items: center;
+    background: linear-gradient(110deg, rgba(7, 17, 39, 0.88), rgba(11, 25, 52, 0.78));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    color: #fff;
+    padding: 9px 13px;
+    min-height: 46px;
+    font-size: 11px; letter-spacing: 1.1px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    min-width: 0;
+    text-align: left;
+    font-family: inherit;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  .btn:hover {
+    background: linear-gradient(110deg, rgba(35, 44, 64, 0.94), rgba(36, 48, 69, 0.9));
+    border-color: rgba(245, 215, 126, 0.75);
+    transform: translateX(3px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  }
+  .btn.active {
+    background: linear-gradient(110deg, rgba(91, 71, 34, 0.88), rgba(51, 47, 42, 0.88));
+    border-color: rgba(245, 215, 126, 0.85);
+    color: #f5d77e;
+  }
+  .btn:focus-visible, .info-card .close:focus-visible {
+    outline: 2px solid #f5d77e;
+    outline-offset: 3px;
+  }
+  .btn .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    flex: 0 0 25px;
+    width: 25px; height: 25px;
+    text-align: center;
+    background: rgba(245, 215, 126, 0.12);
+    border: 1px solid rgba(245, 215, 126, 0.2);
+    border-radius: 8px;
+    margin-right: 10px;
+    font-size: 10px;
+    color: #f5d77e;
+  }
+
+  .info-card {
+    display: none;
+    position: relative;
+    width: 100%;
+    padding: 18px 4px 2px;
+    border-top: 1px solid rgba(245, 215, 126, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .info-card.visible {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .info-card .close {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50%; color: #f5d77e;
+    font-size: 20px; cursor: pointer; line-height: 1;
+  }
+  .info-card .tag {
+    font-size: 10px; letter-spacing: 2px;
+    color: #f5d77e; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .info-card h3 {
+    font-size: 21px; font-weight: 500; line-height: 1.3;
+    margin: 0 30px 12px 0;
+    color: #fff;
+  }
+  .info-card p {
+    font-size: 13px; line-height: 1.7;
+    color: rgba(255,255,255,0.76);
+    margin-bottom: 12px;
+  }
+  .info-card .meta {
+    display: flex; gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(245, 215, 126, 0.18);
+    margin-top: 12px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.7px;
+  }
+  .info-card .meta > div { flex: 1; line-height: 1.6; }
+  .info-card .meta span { color: #f5d77e; font-weight: 600; }
+
+  .exhibit-panel {
+    position: fixed;
+    top: 50%; right: 24px;
+    transform: translateY(-50%) translateX(16px);
+    width: 292px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    padding: 18px;
+    background: rgba(7, 17, 39, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(245, 215, 126, 0.32);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 20;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 215, 126, 0.35) transparent;
+  }
+  .exhibit-panel.visible {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .exhibit-heading {
+    margin: 0 0 12px;
+    color: #f5d77e;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+  }
+  .exhibit-list { display: grid; gap: 7px; }
+  .exhibit-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 10px;
+    color: rgba(255,255,255,0.82);
+    text-align: left;
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.35;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .exhibit-button:hover, .exhibit-button.active {
+    color: #f5d77e;
+    background: rgba(245,215,126,0.12);
+    border-color: rgba(245,215,126,0.48);
+  }
+  .exhibit-number {
+    display: inline-flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #f5d77e;
+    background: rgba(245,215,126,0.1);
+    border: 1px solid rgba(245,215,126,0.18);
+    border-radius: 7px;
+    font-size: 10px;
+  }
+  .exhibit-button:focus-visible {
+    outline: 2px solid #f5d77e;
+    outline-offset: 2px;
+  }
+
+  .floor-label {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 40px);
+    padding: 10px 18px;
+    background: rgba(7, 17, 39, 0.84);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(245, 215, 126, 0.3);
+    border-radius: 30px;
+    font-size: 11px; letter-spacing: 1.5px;
+    color: #f5d77e;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 10;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .floor-label.visible { opacity: 1; }
+
+  .loader {
+    position: fixed; inset: 0;
+    background: #0a1530;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    transition: opacity 0.8s ease;
+  }
+  .loader.hidden { opacity: 0; pointer-events: none; }
+  .loader-ring {
+    width: 60px; height: 60px;
+    border: 2px solid rgba(245, 215, 126, 0.2);
+    border-top-color: #f5d77e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .loader p {
+    margin-top: 20px;
+    font-size: 12px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.6);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hint {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 9px 13px;
+    background: rgba(7, 17, 39, 0.58);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    font-size: 10px; letter-spacing: 0.7px;
+    color: rgba(255,255,255,0.68);
+    z-index: 10;
+  }
+
+  @media (max-width: 1000px) and (min-width: 701px) {
+    .title-overlay { top: 94px; right: 16px; width: 250px; }
+    .title-overlay h1 { font-size: 40px; letter-spacing: 6px; }
+    .title-overlay p { font-size: 12px; letter-spacing: 1.5px; }
+    .title-overlay .sub { font-size: 9px; }
+    .controls { left: 16px; width: 220px; }
+    .btn { padding: 8px 10px; font-size: 10px; letter-spacing: 0.7px; }
+    .exhibit-panel { right: 16px; width: min(292px, calc(100vw - 252px)); padding: 16px; }
+    .hint { right: 16px; bottom: 16px; }
+  }
+
+  @media (max-width: 700px) {
+    .header { padding: 15px 16px; }
+    .logo { font-size: 15px; letter-spacing: 1.8px; }
+    .logo span { font-size: 9px; margin-left: 6px; letter-spacing: 0.7px; }
+    .title-overlay {
+      top: 76px; left: 50%; width: calc(100vw - 32px);
+      text-align: center;
+      padding: 12px 10px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(7,17,39,0.58), rgba(7,17,39,0.08));
+      transform: translateX(-50%);
+    }
+    .title-overlay h1 { font-size: clamp(30px, 8vw, 38px); letter-spacing: 4px; margin-bottom: 5px; }
+    .title-overlay p { font-size: 10px; letter-spacing: 1px; }
+    .title-overlay .sub { display: none; }
+    .controls {
+      left: 0; right: 0; top: auto; bottom: 0;
+      width: 100%; max-height: none;
+      transform: none;
+      flex-direction: row; flex-wrap: nowrap; gap: 8px;
+      overflow-x: auto; overflow-y: hidden;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(0deg, rgba(4, 10, 25, 0.94), rgba(4, 10, 25, 0.78) 75%, transparent);
+      -webkit-overflow-scrolling: touch;
+    }
+    .btn {
+      flex: 0 0 auto;
+      min-width: 148px; min-height: 46px;
+      padding: 8px 10px;
+      font-size: 9px; letter-spacing: 0.5px;
+      border-radius: 9px;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn .num { flex-basis: 24px; width: 24px; height: 24px; margin-right: 8px; }
+    .exhibit-panel {
+      top: 60px; right: 12px; left: 12px;
+      width: auto;
+      max-height: calc(100dvh - 150px);
+      padding: 14px;
+      transform: translateY(10px);
+    }
+    #exhibitPanel.visible { transform: none; }
+    .info-card h3 { font-size: 18px; }
+    .info-card p { font-size: 12px; }
+    .info-card { padding-top: 14px; }
+    .exhibit-heading { margin-bottom: 9px; }
+    .exhibit-list { gap: 6px; }
+    .exhibit-button { min-height: 38px; padding: 6px 8px; }
+    .floor-label {
+      bottom: calc(72px + env(safe-area-inset-bottom));
+      max-width: calc(100vw - 32px);
+      padding: 8px 13px;
+      font-size: 9px; letter-spacing: 0.8px;
+    }
+    .hint { display: none; }
+  }
+  @media (max-width: 430px) {
+    .logo span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div class="loader" id="loader">
+  <div class="loader-ring"></div>
+  <p>ЖҮКТЕЛУДЕ...</p>
+</div>
+
+<div class="header">
+  <div class="logo">ТЕҢГЕ ҮЙІ <span>· АСТАНА · 2026</span></div>
+</div>
+
+<div class="title-overlay" id="titleOverlay">
+  <h1>ТЕҢГЕ ҮЙІ</h1>
+  <p>Ұлттық валютаның тарихына саяхат</p>
+  <div class="sub">· ИНТЕРАКТИВТІ 3D АРХИТЕКТУРАЛЫҚ ЖОБА ·</div>
+</div>
+
+<div class="controls" id="controls">
+  <button class="btn" data-action="view3d"><span class="num">◆</span>3D МАКЕТТІ КӨРУ</button>
+  <button class="btn" data-action="floor1"><span class="num">1</span>1-ҚАБАТ · САУДА</button>
+  <button class="btn" data-action="floor2"><span class="num">2</span>2-ҚАБАТ · МУЗЕЙ</button>
+  <button class="btn" data-action="floor3"><span class="num">3</span>3-ҚАБАТ · АУКЦИОН</button>
+  <button class="btn" data-action="explode"><span class="num">◈</span>ҚАБАТТАРДЫ АШУ</button>
+  <button class="btn" data-action="daynight"><span class="num">☀</span>КҮН / ТҮН</button>
+  <button class="btn" data-action="reset"><span class="num">⟲</span>БАСТЫ КӨРІНІС</button>
+</div>
+
+<div class="floor-label" id="floorLabel"></div>
+
+<div class="exhibit-panel" id="exhibitPanel" aria-hidden="true">
+  <h2 class="exhibit-heading">МУЗЕЙ ЭКСПОНАТТАРЫ</h2>
+  <div class="exhibit-list" id="exhibitList"></div>
+  <div class="info-card" id="infoCard" aria-live="polite">
+    <button class="close" id="closeCard" aria-label="Ақпаратты жабу">×</button>
+    <div class="tag" id="cardTag">ЭКСПОНАТ</div>
+    <h3 id="cardTitle">—</h3>
+    <p id="cardText">—</p>
+    <div class="meta" id="cardMeta"></div>
+  </div>
+</div>
+
+<div class="hint">Тышқанмен айналдырыңыз · Экспонаттарды басыңыз</div>
+
+<!-- Three.js r137 — стабильная версия с examples/js/ -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+(function() {
+'use strict';
+
+// ====== СЦЕНА ======
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x0a1530, 80, 250);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const defaultCameraPosition = new THREE.Vector3();
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.outputEncoding = THREE.sRGBEncoding;
+container.appendChild(renderer.domElement);
+
+// ====== CONTROLS ======
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.rotateSpeed = 0.6;
+controls.zoomSpeed = 0.9;
+controls.minDistance = 25;
+controls.maxDistance = 150;
+controls.maxPolarAngle = Math.PI / 2.05;
+function updateDefaultCameraPosition() {
+  const compact = window.innerWidth <= 700;
+const shallow = window.innerHeight <= 560;
+if (compact) defaultCameraPosition.set(72, 45, 90);
+else if (shallow) defaultCameraPosition.set(78, 55, 93);
+else defaultCameraPosition.set(62, 43, 74);
+}
+updateDefaultCameraPosition();
+camera.position.copy(defaultCameraPosition);
+controls.target.set(0, 15, 0);
+controls.update();
+
+// ====== ЦВЕТА ======
+const COL = {
+  gold: 0xf5d77e,
+  goldDark: 0xc9a24a,
+  turquoise: 0x3fb8b0,
+  turquoiseBright: 0x5fd8d0,
+  darkBlue: 0x0a1530,
+  marble: 0xe8e2d0,
+  darkWall: 0x1a1a2e,
+  warmLight: 0xffd89b,
+  nightSky: 0x020408
+};
+
+// ====== ОСВЕЩЕНИЕ ======
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xfff4d6, 1.1);
+sunLight.position.set(40, 60, 30);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048, 2048);
+sunLight.shadow.camera.left = -60;
+sunLight.shadow.camera.right = 60;
+sunLight.shadow.camera.top = 60;
+sunLight.shadow.camera.bottom = -60;
+sunLight.shadow.camera.near = 0.5;
+sunLight.shadow.camera.far = 200;
+sunLight.shadow.bias = -0.0005;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x6b9fd8, 0.35);
+fillLight.position.set(-30, 20, -20);
+scene.add(fillLight);
+
+const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x2a2a4a, 0.35);
+scene.add(hemiLight);
+
+// ====== МАТЕРИАЛЫ ======
+const goldMat = new THREE.MeshStandardMaterial({
+  color: COL.gold, metalness: 0.9, roughness: 0.25,
+  emissive: COL.goldDark, emissiveIntensity: 0.05
+});
+const goldFrameMat = new THREE.MeshStandardMaterial({
+  color: COL.gold, metalness: 0.85, roughness: 0.3,
+  emissive: COL.goldDark, emissiveIntensity: 0.06
+});
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0x9bd9dc, metalness: 0.02, roughness: 0.16,
+  transmission: 0.45, transparent: true, opacity: 0.2,
+  reflectivity: 0.65, clearcoat: 0.8, clearcoatRoughness: 0.12,
+  ior: 1.45, thickness: 0.25
+});
+const marbleMat = new THREE.MeshStandardMaterial({
+  color: COL.marble, metalness: 0.1, roughness: 0.35
+});
+const darkWallMat = new THREE.MeshStandardMaterial({
+  color: COL.darkWall, metalness: 0.2, roughness: 0.7
+});
+const floorStoneMat = new THREE.MeshStandardMaterial({
+  color: 0xd8cfa8, metalness: 0.15, roughness: 0.25
+});
+
+// ====== ЗЕМЛЯ ======
+const groundGeo = new THREE.CircleGeometry(140, 64);
+const groundMat = new THREE.MeshStandardMaterial({
+  color: 0x2a3a5a, metalness: 0.1, roughness: 0.8
+});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Газон вокруг здания
+const lawnGeo = new THREE.RingGeometry(28, 55, 64);
+const lawnMat = new THREE.MeshStandardMaterial({ color: 0x3a5a3a, roughness: 0.9 });
+const lawn = new THREE.Mesh(lawnGeo, lawnMat);
+lawn.rotation.x = -Math.PI / 2;
+lawn.position.y = 0.02;
+lawn.receiveShadow = true;
+scene.add(lawn);
+
+// Дорожки
+function createPath(x1, z1, x2, z2, width) {
+  const dx = x2 - x1, dz = z2 - z1;
+  const len = Math.sqrt(dx*dx + dz*dz);
+  const angle = Math.atan2(dx, dz);
+  const geo = new THREE.PlaneGeometry(width, len);
+  const mat = new THREE.MeshStandardMaterial({ color: 0x8a8270, roughness: 0.7 });
+  const path = new THREE.Mesh(geo, mat);
+  path.rotation.x = -Math.PI / 2;
+  path.rotation.z = -angle;
+  path.position.set((x1+x2)/2, 0.03, (z1+z2)/2);
+  path.receiveShadow = true;
+  scene.add(path);
+}
+createPath(0, 28, 0, 70, 6);
+createPath(-25, 0, 25, 0, 3);
+
+// ====== ПИРАМИДА ======
+const pyramidGroup = new THREE.Group();
+scene.add(pyramidGroup);
+
+// Пирамида: 4 наклонных грани, усечённая кверху
+// Основание 40x40, высота 45, верхушка 8x8
+const BASE = 40;
+const TOP = 8;
+const HEIGHT = 45;
+const FLOOR_HEIGHT = 15;
+const widthAtHeight = (height, inset) => BASE - (BASE - TOP) * height / HEIGHT - inset;
+
+// Функция создания наклонной стеклянной панели (трапеция)
+function createTrapezoidPanel(bottomWidth, topWidth, height, depth) {
+  const shape = new THREE.Shape();
+  shape.moveTo(-bottomWidth/2, 0);
+  shape.lineTo(bottomWidth/2, 0);
+  shape.lineTo(topWidth/2, height);
+  shape.lineTo(-topWidth/2, height);
+  shape.lineTo(-bottomWidth/2, 0);
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: false });
+  geo.translate(0, 0, -depth/2);
+  return geo;
+}
+
+// 4 наклонные стеклянные стены пирамиды
+const pyramidWalls = new THREE.Group();
+pyramidGroup.add(pyramidWalls);
+
+function createPyramidFace(rotation) {
+  const angle = Math.atan2((BASE - TOP) / 2, HEIGHT);
+  const wallHeight = Math.hypot(HEIGHT, (BASE - TOP) / 2);
+  const geo = createTrapezoidPanel(BASE, TOP, wallHeight, 0.18);
+  const mesh = new THREE.Mesh(geo, glassMat.clone());
+  mesh.position.z = BASE / 2;
+  mesh.rotation.x = -angle;
+
+  const wrapper = new THREE.Group();
+  wrapper.add(mesh);
+  wrapper.rotation.y = rotation;
+  return wrapper;
+}
+
+for (let i = 0; i < 4; i++) {
+  pyramidWalls.add(createPyramidFace(i * Math.PI / 2));
+}
+
+// Золотой каркас - рёбра пирамиды
+const frameGroup = new THREE.Group();
+pyramidGroup.add(frameGroup);
+
+// 4 угловых ребра
+const corners = [
+  [-BASE/2, 0, -BASE/2], [BASE/2, 0, -BASE/2],
+  [BASE/2, 0, BASE/2], [-BASE/2, 0, BASE/2]
+];
+const topCorners = [
+  [-TOP/2, HEIGHT, -TOP/2], [TOP/2, HEIGHT, -TOP/2],
+  [TOP/2, HEIGHT, TOP/2], [-TOP/2, HEIGHT, TOP/2]
+];
+
+for (let i = 0; i < 4; i++) {
+  const start = new THREE.Vector3(...corners[i]);
+  const end = new THREE.Vector3(...topCorners[i]);
+  const dir = end.clone().sub(start);
+  const len = dir.length();
+  const mid = start.clone().add(end).multiplyScalar(0.5);
+
+  const beamGeo = new THREE.BoxGeometry(0.45, len, 0.45);
+  const beam = new THREE.Mesh(beamGeo, goldFrameMat);
+  beam.position.copy(mid);
+  beam.lookAt(end);
+  beam.rotateX(Math.PI / 2);
+  beam.castShadow = true;
+  frameGroup.add(beam);
+}
+
+// Горизонтальные золотые кольца на каждом уровне этажа
+for (let f = 1; f <= 3; f++) {
+  const y = f * FLOOR_HEIGHT;
+  const t = y / HEIGHT;
+  const size = BASE - (BASE - TOP) * t;
+  const ringGeo = new THREE.BoxGeometry(size + 0.4, 0.5, 0.5);
+  const ringGeo2 = new THREE.BoxGeometry(0.5, 0.5, size + 0.4);
+
+  for (let side = 0; side < 4; side++) {
+    const r1 = new THREE.Mesh(ringGeo, goldFrameMat);
+    const r2 = new THREE.Mesh(ringGeo2, goldFrameMat);
+    const offset = size / 2;
+    if (side === 0) { r1.position.set(0, y, offset); r2.position.set(offset, y, 0); }
+    else if (side === 1) { r1.position.set(0, y, -offset); r2.position.set(offset, y, 0); }
+    else if (side === 2) { r1.position.set(offset, y, 0); r2.position.set(0, y, offset); }
+    else { r1.position.set(-offset, y, 0); r2.position.set(0, y, offset); }
+    frameGroup.add(r1); frameGroup.add(r2);
+  }
+}
+
+// Верхушка пирамиды - золотой шпиль
+const spireGeo = new THREE.ConeGeometry(1.5, 6, 8);
+const spire = new THREE.Mesh(spireGeo, goldFrameMat);
+spire.position.y = HEIGHT + 3;
+spire.castShadow = true;
+pyramidGroup.add(spire);
+
+// Основание пирамиды - платформа
+const basePlatGeo = new THREE.BoxGeometry(BASE + 4, 1, BASE + 4);
+const basePlat = new THREE.Mesh(basePlatGeo, marbleMat);
+basePlat.position.y = 0.5;
+basePlat.receiveShadow = true;
+basePlat.castShadow = true;
+pyramidGroup.add(basePlat);
+
+// Ступени перед входом
+const stairsGroup = new THREE.Group();
+for (let i = 0; i < 5; i++) {
+  const stepGeo = new THREE.BoxGeometry(14 - i * 0.5, 0.6, 2);
+  const step = new THREE.Mesh(stepGeo, marbleMat);
+  step.position.set(0, 0.3 + i * 0.6, BASE/2 + 2 + i * 2);
+  step.receiveShadow = true;
+  step.castShadow = true;
+  stairsGroup.add(step);
+}
+pyramidGroup.add(stairsGroup);
+
+// Главный вход - стеклянные двери
+const doorFrameGeo = new THREE.BoxGeometry(8, 10, 0.4);
+const doorFrame = new THREE.Mesh(doorFrameGeo, goldFrameMat);
+doorFrame.position.set(0, 5, BASE/2 - 0.2);
+pyramidGroup.add(doorFrame);
+
+const doorGlassGeo = new THREE.BoxGeometry(7, 9, 0.1);
+const doorGlassMat = new THREE.MeshPhysicalMaterial({
+  color: COL.turquoiseBright, transmission: 0.9, transparent: true,
+  opacity: 0.4, roughness: 0.05, metalness: 0
+});
+const doorGlass = new THREE.Mesh(doorGlassGeo, doorGlassMat);
+doorGlass.position.set(0, 5, BASE/2);
+pyramidGroup.add(doorGlass);
+
+// Надпись "ТЕҢГЕ ҮЙІ" над входом (золотая табличка)
+const signCanvas = document.createElement('canvas');
+signCanvas.width = 512; signCanvas.height = 128;
+const signCtx = signCanvas.getContext('2d');
+signCtx.fillStyle = '#1a1a2e';
+signCtx.fillRect(0, 0, 512, 128);
+signCtx.fillStyle = '#f5d77e';
+signCtx.font = 'bold 64px serif';
+signCtx.textAlign = 'center';
+signCtx.textBaseline = 'middle';
+signCtx.fillText('ТЕҢГЕ ҮЙІ', 256, 64);
+const signTex = new THREE.CanvasTexture(signCanvas);
+const signGeo = new THREE.PlaneGeometry(10, 2.5);
+const signMat = new THREE.MeshBasicMaterial({ map: signTex, transparent: true });
+const sign = new THREE.Mesh(signGeo, signMat);
+sign.position.set(0, 12, BASE/2 + 0.3);
+pyramidGroup.add(sign);
+
+// ====== ВНУТРЕННИЕ ЭТАЖИ ======
+const floors = [];
+const floorGroups = [];
+const floorOriginalY = [];
+
+function createFloorSlab(y, size) {
+  const geo = new THREE.BoxGeometry(size, 0.4, size);
+  const slab = new THREE.Mesh(geo, floorStoneMat);
+  slab.position.y = y;
+  slab.receiveShadow = true;
+  slab.castShadow = true;
+  return slab;
+}
+
+// ----- ЭТАЖ 1: САУДА ОРТАЛЫҒЫ -----
+const floor1 = new THREE.Group();
+floor1.position.y = 0;
+pyramidGroup.add(floor1);
+floorGroups.push(floor1);
+floorOriginalY.push(0);
+
+// Пол
+const f1Floor = createFloorSlab(1.2, BASE - 4);
+floor1.add(f1Floor);
+
+// Потолок
+const f1Ceiling = createFloorSlab(FLOOR_HEIGHT - 0.2, widthAtHeight(FLOOR_HEIGHT - 0.2, 2));
+f1Ceiling.material = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.6 });
+floor1.add(f1Ceiling);
+
+// Центральная золотая монета - главный элемент
+const coinGeo = new THREE.CylinderGeometry(3, 3, 0.4, 64);
+const coinMat = new THREE.MeshStandardMaterial({
+  color: COL.gold, metalness: 1.0, roughness: 0.15,
+  emissive: COL.goldDark, emissiveIntensity: 0.3
+});
+const centralCoin = new THREE.Mesh(coinGeo, coinMat);
+centralCoin.position.y = 6;
+centralCoin.rotation.x = Math.PI / 2;
+centralCoin.castShadow = true;
+floor1.add(centralCoin);
+
+// Пьедестал для монеты
+const pedestalGeo = new THREE.CylinderGeometry(2, 2.5, 4, 16);
+const pedestal = new THREE.Mesh(pedestalGeo, marbleMat);
+pedestal.position.y = 3;
+pedestal.castShadow = true;
+floor1.add(pedestal);
+
+// Подсветка монеты
+const coinLight = new THREE.PointLight(COL.warmLight, 1.5, 20);
+coinLight.position.set(0, 8, 0);
+floor1.add(coinLight);
+
+// Магазины по углам
+function createShop(x, z, name, color, rotation) {
+  const shop = new THREE.Group();
+  // Стены
+  const wallGeo = new THREE.BoxGeometry(8, 6, 0.2);
+  const wallMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5 });
+  const backWall = new THREE.Mesh(wallGeo, wallMat);
+  backWall.position.set(0, 3, -3);
+  shop.add(backWall);
+  const sideWall1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 6, 6), wallMat);
+  sideWall1.position.set(-4, 3, 0);
+  shop.add(sideWall1);
+  const sideWall2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 6, 6), wallMat);
+  sideWall2.position.set(4, 3, 0);
+  shop.add(sideWall2);
+
+  // Вывеска
+  const signC = document.createElement('canvas');
+  signC.width = 256; signC.height = 64;
+  const sctx = signC.getContext('2d');
+  sctx.fillStyle = '#1a1a2e';
+  sctx.fillRect(0, 0, 256, 64);
+  sctx.fillStyle = '#f5d77e';
+  sctx.font = 'bold 28px sans-serif';
+  sctx.textAlign = 'center';
+  sctx.textBaseline = 'middle';
+  sctx.fillText(name, 128, 32);
+  const tex = new THREE.CanvasTexture(signC);
+  const signM = new THREE.Mesh(
+    new THREE.PlaneGeometry(6, 1.5),
+    new THREE.MeshBasicMaterial({ map: tex })
+  );
+  signM.position.set(0, 5.5, -2.8);
+  shop.add(signM);
+
+  // Прилавок
+  const counterGeo = new THREE.BoxGeometry(5, 1, 1);
+  const counter = new THREE.Mesh(counterGeo, new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.4 }));
+  counter.position.set(0, 0.5, 0);
+  counter.castShadow = true;
+  shop.add(counter);
+
+  // Полки с товарами
+  for (let i = 0; i < 3; i++) {
+    const shelfGeo = new THREE.BoxGeometry(4, 0.1, 0.5);
+    const shelf = new THREE.Mesh(shelfGeo, new THREE.MeshStandardMaterial({ color: 0x5a4a3a }));
+    shelf.position.set(0, 2 + i * 1.2, -2.5);
+    shop.add(shelf);
+    // Товары
+    for (let j = 0; j < 4; j++) {
+      const itemGeo = new THREE.BoxGeometry(0.4, 0.6, 0.4);
+      const itemMat = new THREE.MeshStandardMaterial({
+        color: [0xc9a24a, 0x3fb8b0, 0xe8e2d0, 0x9c6f4a][(i + j) % 4]
+      });
+      const item = new THREE.Mesh(itemGeo, itemMat);
+      item.position.set(-1.5 + j * 1, 2.4 + i * 1.2, -2.5);
+      shop.add(item);
+    }
+  }
+
+  shop.position.set(x, 1.2, z);
+  shop.rotation.y = rotation;
+  return shop;
+}
+
+floor1.add(createShop(-13, -13, 'TENGE SHOP', 0x3a2a4a, Math.PI / 4));
+floor1.add(createShop(13, -13, 'МОНЕТАЛАР', 0x2a3a4a, -Math.PI / 4));
+floor1.add(createShop(-13, 13, 'КАФЕ', 0x4a3a2a, Math.PI * 3 / 4));
+
+// Информационная стойка
+const infoDeskGeo = new THREE.CylinderGeometry(1.5, 1.5, 1, 16, 1, true);
+const infoDesk = new THREE.Mesh(infoDeskGeo, new THREE.MeshStandardMaterial({ color: COL.gold, metalness: 0.7, roughness: 0.3, side: THREE.DoubleSide }));
+infoDesk.position.set(13, 1.7, 13);
+floor1.add(infoDesk);
+
+// Места для отдыха - скамейки
+for (let i = 0; i < 4; i++) {
+  const benchGeo = new THREE.BoxGeometry(3, 0.5, 1);
+  const bench = new THREE.Mesh(benchGeo, new THREE.MeshStandardMaterial({ color: 0x4a3a2a }));
+  const angle = i * Math.PI / 2;
+  bench.position.set(Math.cos(angle) * 8, 1.45, Math.sin(angle) * 8);
+  bench.rotation.y = angle;
+  bench.castShadow = true;
+  floor1.add(bench);
+}
+
+// Лестница
+const stairGroup = new THREE.Group();
+for (let i = 0; i < 10; i++) {
+  const stepGeo = new THREE.BoxGeometry(2, 0.3, 1);
+  const step = new THREE.Mesh(stepGeo, marbleMat);
+  step.position.set(15, 1.5 + i * 1.4, -15 + i * 0.5);
+  step.castShadow = true;
+  stairGroup.add(step);
+}
+floor1.add(stairGroup);
+
+// Лифт
+const elevatorGeo = new THREE.BoxGeometry(2.5, 12, 2.5);
+const elevatorMat = new THREE.MeshPhysicalMaterial({
+  color: 0xaaaaaa, metalness: 0.9, roughness: 0.2,
+  transmission: 0.3, transparent: true, opacity: 0.6
+});
+const elevator = new THREE.Mesh(elevatorGeo, elevatorMat);
+elevator.position.set(-15, 7, -15);
+floor1.add(elevator);
+
+floors.push({ group: floor1, name: '1-ҚАБАТ · САУДА ОРТАЛЫҒЫ' });
+
+// ----- ЭТАЖ 2: МУЗЕЙ -----
+const floor2 = new THREE.Group();
+floor2.position.y = FLOOR_HEIGHT;
+pyramidGroup.add(floor2);
+floorGroups.push(floor2);
+floorOriginalY.push(FLOOR_HEIGHT);
+
+// Пол - тёмный мрамор
+const f2Floor = createFloorSlab(1.2, widthAtHeight(FLOOR_HEIGHT + 1.2, 2));
+f2Floor.material = new THREE.MeshStandardMaterial({ color: 0x1a1a22, metalness: 0.3, roughness: 0.3 });
+floor2.add(f2Floor);
+
+// Потолок
+const f2Ceiling = createFloorSlab(FLOOR_HEIGHT - 0.2, widthAtHeight(FLOOR_HEIGHT * 2 - 0.2, 2));
+f2Ceiling.material = new THREE.MeshStandardMaterial({ color: 0x0a0a12, roughness: 0.8 });
+floor2.add(f2Ceiling);
+
+// Золотые декоративные полосы на стенах (внутри)
+for (let i = 0; i < 8; i++) {
+  const angle = i * Math.PI / 4;
+  const r = 16;
+  const stripGeo = new THREE.BoxGeometry(0.2, 10, 0.2);
+  const strip = new THREE.Mesh(stripGeo, goldFrameMat);
+  strip.position.set(Math.cos(angle) * r, 6, Math.sin(angle) * r);
+  floor2.add(strip);
+}
+
+// Витрины с монетами - 5 зон
+const museumZones = [
+  { name: 'Ежелгі монеталар', angle: 0, desc: 'Түргеш қағанаты (VII-VIII ғ.), Орталық Азияның ежелгі мемлекеттерінің монеталары.', color: 0xc9a24a },
+  { name: '1993 жылғы алғашқы теңге', angle: Math.PI * 2 / 5, desc: 'Тәуелсіз Қазақстанның алғашқы банкноттары. Тарихи тұлғалардың бейнелері.', color: 0x5fd8d0 },
+  { name: 'Теңгенің пайда болу тарихы', angle: Math.PI * 4 / 5, desc: '1993 жылғы 15 қараша — ұлттық валютаның енгізілген күні. 12 қарашадағы Жарлық.', color: 0xf5d77e },
+  { name: '1993–2026', angle: Math.PI * 6 / 5, desc: 'Банкноттардың ұрпақтары. Қазіргі "Сақ стилі" сериясы.', color: 0xe8a838 },
+  { name: 'Сирек монеталар', angle: Math.PI * 8 / 5, desc: 'Қазақстанның сирек кездесетін коллекциялық монеталары, аз тираждар.', color: 0xb87333 }
+];
+
+const exhibitMeshes = [];
+
+museumZones.forEach((zone, idx) => {
+  const zoneGroup = new THREE.Group();
+  const r = 13;
+  const x = Math.cos(zone.angle) * r;
+  const z = Math.sin(zone.angle) * r;
+
+  // Стеклянная витрина
+  const caseGeo = new THREE.BoxGeometry(3, 3, 3);
+  const caseMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, transmission: 0.9, transparent: true,
+    opacity: 0.25, roughness: 0.05, metalness: 0,
+    clearcoat: 1
+  });
+  const vitrine = new THREE.Mesh(caseGeo, caseMat);
+  vitrine.position.y = 2.5;
+  zoneGroup.add(vitrine);
+
+  // Основание витрины
+  const baseGeo = new THREE.BoxGeometry(3.2, 0.5, 3.2);
+  const base = new THREE.Mesh(baseGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.5, roughness: 0.3 }));
+  base.position.y = 1;
+  base.castShadow = true;
+  zoneGroup.add(base);
+
+  // Золотая рамка
+  const frameGeo = new THREE.EdgesGeometry(caseGeo);
+  const frame = new THREE.LineSegments(frameGeo, new THREE.LineBasicMaterial({ color: COL.gold }));
+  frame.position.y = 2.5;
+  zoneGroup.add(frame);
+
+  // Монета внутри витрины
+  const coinGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.1, 48);
+  const coinMat = new THREE.MeshStandardMaterial({
+    color: zone.color, metalness: 0.95, roughness: 0.15,
+    emissive: zone.color, emissiveIntensity: 0.2
+  });
+  const coin = new THREE.Mesh(coinGeo, coinMat);
+  coin.position.y = 2.5;
+  coin.rotation.x = Math.PI / 2;
+  coin.castShadow = true;
+  coin.userData = {
+    type: 'exhibit',
+    zone: zone.name,
+    desc: zone.desc,
+    index: idx
+  };
+  zoneGroup.add(coin);
+  exhibitMeshes.push(coin);
+
+  // Подсветка витрины
+  const spotLight = new THREE.PointLight(zone.color, 0.8, 8);
+  spotLight.position.set(0, 4.5, 0);
+  zoneGroup.add(spotLight);
+
+  // Табличка с названием
+  const labelCanvas = document.createElement('canvas');
+  labelCanvas.width = 256; labelCanvas.height = 64;
+  const lctx = labelCanvas.getContext('2d');
+  lctx.fillStyle = 'rgba(10, 10, 20, 0.9)';
+  lctx.fillRect(0, 0, 256, 64);
+  lctx.fillStyle = '#f5d77e';
+  lctx.font = 'bold 18px sans-serif';
+  lctx.textAlign = 'center';
+  lctx.textBaseline = 'middle';
+  // Перенос текста если длинный
+  const words = zone.name.split(' ');
+  if (words.length > 2) {
+    lctx.fillText(words.slice(0, 2).join(' '), 128, 22);
+    lctx.fillText(words.slice(2).join(' '), 128, 44);
+  } else {
+    lctx.fillText(zone.name, 128, 32);
+  }
+  const labelTex = new THREE.CanvasTexture(labelCanvas);
+  const labelMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(3, 0.75),
+    new THREE.MeshBasicMaterial({ map: labelTex, transparent: true })
+  );
+  labelMesh.position.set(0, 0.5, 1.7);
+  zoneGroup.add(labelMesh);
+
+  zoneGroup.position.set(x, 0, z);
+  zoneGroup.lookAt(0, 0, 0);
+  zoneGroup.rotateY(Math.PI);
+  floor2.add(zoneGroup);
+});
+
+// Центральный элемент музея - большая монета-символ
+const bigCoinGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.3, 64);
+const bigCoin = new THREE.Mesh(bigCoinGeo, new THREE.MeshStandardMaterial({
+  color: COL.gold, metalness: 1, roughness: 0.1,
+  emissive: COL.goldDark, emissiveIntensity: 0.4
+}));
+bigCoin.position.y = 5;
+bigCoin.rotation.x = Math.PI / 2;
+floor2.add(bigCoin);
+
+// Колонна для большой монеты
+const colGeo = new THREE.CylinderGeometry(0.8, 1.2, 4, 16);
+const col = new THREE.Mesh(colGeo, marbleMat);
+col.position.y = 3;
+col.castShadow = true;
+floor2.add(col);
+
+floors.push({ group: floor2, name: '2-ҚАБАТ · ТЕҢГЕ ТАРИХЫ МУЗЕЙІ' });
+
+// ----- ЭТАЖ 3: АУКЦИОН -----
+const floor3 = new THREE.Group();
+floor3.position.y = FLOOR_HEIGHT * 2;
+pyramidGroup.add(floor3);
+floorGroups.push(floor3);
+floorOriginalY.push(FLOOR_HEIGHT * 2);
+
+// Пол - паркет
+const f3Floor = createFloorSlab(1.2, widthAtHeight(FLOOR_HEIGHT * 2 + 1.2, 2));
+f3Floor.material = new THREE.MeshStandardMaterial({ color: 0x4a2a1a, metalness: 0.2, roughness: 0.5 });
+floor3.add(f3Floor);
+
+// Потолок
+const f3Ceiling = createFloorSlab(FLOOR_HEIGHT - 0.2, widthAtHeight(HEIGHT - 0.2, 1));
+f3Ceiling.material = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.6 });
+floor3.add(f3Ceiling);
+
+// Центральная сцена
+const stageGeo = new THREE.CylinderGeometry(5, 5.5, 0.8, 32);
+const stage = new THREE.Mesh(stageGeo, new THREE.MeshStandardMaterial({
+  color: 0x2a1a3a, metalness: 0.3, roughness: 0.4
+}));
+stage.position.y = 1.6;
+stage.receiveShadow = true;
+stage.castShadow = true;
+floor3.add(stage);
+
+// Большой экран на сцене
+const screenGeo = new THREE.BoxGeometry(6, 3.5, 0.2);
+const screenCanvas = document.createElement('canvas');
+screenCanvas.width = 512; screenCanvas.height = 256;
+const screenCtx = screenCanvas.getContext('2d');
+// Градиент
+const grd = screenCtx.createLinearGradient(0, 0, 512, 256);
+grd.addColorStop(0, '#0a1530');
+grd.addColorStop(1, '#1a2a55');
+screenCtx.fillStyle = grd;
+screenCtx.fillRect(0, 0, 512, 256);
+// Монета на экране
+screenCtx.beginPath();
+screenCtx.arc(256, 128, 70, 0, Math.PI * 2);
+screenCtx.fillStyle = '#f5d77e';
+screenCtx.fill();
+screenCtx.strokeStyle = '#c9a24a';
+screenCtx.lineWidth = 4;
+screenCtx.stroke();
+screenCtx.fillStyle = '#1a1a2e';
+screenCtx.font = 'bold 40px serif';
+screenCtx.textAlign = 'center';
+screenCtx.textBaseline = 'middle';
+screenCtx.fillText('₸', 256, 128);
+// Текст
+screenCtx.fillStyle = '#f5d77e';
+screenCtx.font = 'bold 28px sans-serif';
+screenCtx.fillText('TENGE AUCTION', 256, 230);
+const screenTex = new THREE.CanvasTexture(screenCanvas);
+const screenMat = new THREE.MeshBasicMaterial({ map: screenTex });
+const screen = new THREE.Mesh(screenGeo, screenMat);
+screen.position.set(0, 4, -3);
+floor3.add(screen);
+
+// Рамка экрана
+const screenFrameGeo = new THREE.BoxGeometry(6.4, 3.9, 0.1);
+const screenFrame = new THREE.Mesh(screenFrameGeo, goldFrameMat);
+screenFrame.position.set(0, 4, -3.15);
+floor3.add(screenFrame);
+
+// Стол ведущего
+const hostTableGeo = new THREE.BoxGeometry(3, 1, 1.5);
+const hostTable = new THREE.Mesh(hostTableGeo, new THREE.MeshStandardMaterial({ color: 0x3a2a1a, metalness: 0.3, roughness: 0.4 }));
+hostTable.position.set(0, 2.5, 0);
+hostTable.castShadow = true;
+floor3.add(hostTable);
+
+// Молоток аукциониста
+const hammerHandle = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.08, 0.08, 1, 8),
+  new THREE.MeshStandardMaterial({ color: 0x3a2a1a })
+);
+hammerHandle.position.set(0.8, 3.2, 0);
+hammerHandle.rotation.z = Math.PI / 4;
+floor3.add(hammerHandle);
+const hammerHead = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.2, 0.2, 0.5, 8),
+  new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.8 })
+);
+hammerHead.position.set(1.15, 3.55, 0);
+hammerHead.rotation.z = Math.PI / 4;
+floor3.add(hammerHead);
+
+// Ряды кресел
+for (let row = 0; row < 3; row++) {
+  for (let seat = -3; seat <= 3; seat++) {
+    if (Math.abs(seat) < 1 && row === 0) continue;
+    const chair = new THREE.Group();
+    // Сиденье
+    const seatGeo = new THREE.BoxGeometry(0.8, 0.1, 0.8);
+    const seatMesh = new THREE.Mesh(seatGeo, new THREE.MeshStandardMaterial({ color: 0x8a1a1a, roughness: 0.6 }));
+    seatMesh.position.y = 0.5;
+    chair.add(seatMesh);
+    // Спинка
+    const backGeo = new THREE.BoxGeometry(0.8, 0.8, 0.1);
+    const backMesh = new THREE.Mesh(backGeo, new THREE.MeshStandardMaterial({ color: 0x8a1a1a, roughness: 0.6 }));
+    backMesh.position.set(0, 0.9, -0.35);
+    chair.add(backMesh);
+    // Ножки
+    const legGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6);
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.8 });
+    for (let lx = -1; lx <= 1; lx += 2) {
+      for (let lz = -1; lz <= 1; lz += 2) {
+        const leg = new THREE.Mesh(legGeo, legMat);
+        leg.position.set(lx * 0.3, 0.25, lz * 0.3);
+        chair.add(leg);
+      }
+    }
+    chair.position.set(seat * 1.5, 1.2, 3 + row * 2);
+    chair.castShadow = true;
+    floor3.add(chair);
+  }
+}
+
+// Золотые декоративные панели
+for (let i = 0; i < 4; i++) {
+  const angle = i * Math.PI / 2 + Math.PI / 4;
+  const panelGeo = new THREE.BoxGeometry(0.2, 8, 4);
+  const panel = new THREE.Mesh(panelGeo, goldFrameMat);
+  panel.position.set(Math.cos(angle) * 12, 5, Math.sin(angle) * 12);
+  panel.rotation.y = -angle;
+  floor3.add(panel);
+}
+
+// Потолочные светильники
+for (let i = 0; i < 6; i++) {
+  const angle = i * Math.PI / 3;
+  const light = new THREE.PointLight(COL.warmLight, 0.6, 15);
+  light.position.set(Math.cos(angle) * 6, 12, Math.sin(angle) * 6);
+  floor3.add(light);
+  const bulb = new THREE.Mesh(
+    new THREE.SphereGeometry(0.3, 16, 16),
+    new THREE.MeshBasicMaterial({ color: COL.warmLight })
+  );
+  bulb.position.copy(light.position);
+  floor3.add(bulb);
+}
+
+// Демонстрационные лоты
+const lots = [
+  { name: 'Алтын теңге', year: '2026', mintage: '500', x: -8, z: -8 },
+  { name: 'Сақ стилі', year: '2024', mintage: '1000', x: 8, z: -8 },
+  { name: 'Байтерек', year: '2023', mintage: '2000', x: -8, z: 8 }
+];
+lots.forEach(lot => {
+  const lotGroup = new THREE.Group();
+  const standGeo = new THREE.CylinderGeometry(1, 1.2, 1.5, 16);
+  const stand = new THREE.Mesh(standGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.5, roughness: 0.3 }));
+  stand.position.y = 0.75;
+  stand.castShadow = true;
+  lotGroup.add(stand);
+
+  const lotCoinGeo = new THREE.CylinderGeometry(0.7, 0.7, 0.1, 32);
+  const lotCoin = new THREE.Mesh(lotCoinGeo, new THREE.MeshStandardMaterial({
+    color: COL.gold, metalness: 1, roughness: 0.1,
+    emissive: COL.goldDark, emissiveIntensity: 0.3
+  }));
+  lotCoin.position.y = 1.7;
+  lotCoin.rotation.x = Math.PI / 2;
+  lotGroup.add(lotCoin);
+
+  // Табличка
+  const lotCanvas = document.createElement('canvas');
+  lotCanvas.width = 256; lotCanvas.height = 128;
+  const lctx = lotCanvas.getContext('2d');
+  lctx.fillStyle = 'rgba(10, 10, 20, 0.9)';
+  lctx.fillRect(0, 0, 256, 128);
+  lctx.fillStyle = '#f5d77e';
+  lctx.font = 'bold 20px sans-serif';
+  lctx.textAlign = 'center';
+  lctx.fillText(lot.name, 128, 30);
+  lctx.font = '14px sans-serif';
+  lctx.fillStyle = '#fff';
+  lctx.fillText('Жыл: ' + lot.year, 128, 60);
+  lctx.fillText('Тираж: ' + lot.mintage, 128, 85);
+  const lotTex = new THREE.CanvasTexture(lotCanvas);
+  const lotLabel = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 1),
+    new THREE.MeshBasicMaterial({ map: lotTex, transparent: true })
+  );
+  lotLabel.position.set(0, 0.5, 1.3);
+  lotGroup.add(lotLabel);
+
+  lotGroup.position.set(lot.x, 1.2, lot.z);
+  floor3.add(lotGroup);
+});
+
+floors.push({ group: floor3, name: '3-ҚАБАТ · АУКЦИОН ЗАЛДАРЫ' });
+
+// ====== ОКРУЖЕНИЕ: ДЕРЕВЬЯ, ФОНАРИ, СКАМЕЙКИ, ФИГУРЫ ======
+function createTree(x, z) {
+  const tree = new THREE.Group();
+  const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 2, 8);
+  const trunk = new THREE.Mesh(trunkGeo, new THREE.MeshStandardMaterial({ color: 0x4a2a1a }));
+  trunk.position.y = 1;
+  trunk.castShadow = true;
+  tree.add(trunk);
+  const leavesGeo = new THREE.SphereGeometry(1.5, 12, 12);
+  const leaves = new THREE.Mesh(leavesGeo, new THREE.MeshStandardMaterial({ color: 0x2a5a2a, roughness: 0.9 }));
+  leaves.position.y = 3;
+  leaves.castShadow = true;
+  tree.add(leaves);
+  tree.position.set(x, 0, z);
+  return tree;
+}
+
+// Деревья по кругу
+for (let i = 0; i < 16; i++) {
+  const angle = i * Math.PI / 8;
+  const r = 40 + (i % 4) * 1.8;
+  scene.add(createTree(Math.cos(angle) * r, Math.sin(angle) * r));
+}
+
+// Фонари
+function createLamp(x, z) {
+  const lamp = new THREE.Group();
+  const poleGeo = new THREE.CylinderGeometry(0.1, 0.15, 5, 8);
+  const pole = new THREE.Mesh(poleGeo, new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.7 }));
+  pole.position.y = 2.5;
+  pole.castShadow = true;
+  lamp.add(pole);
+  const bulbGeo = new THREE.SphereGeometry(0.4, 12, 12);
+  const bulb = new THREE.Mesh(bulbGeo, new THREE.MeshBasicMaterial({ color: COL.warmLight }));
+  bulb.position.y = 5;
+  lamp.add(bulb);
+  const light = new THREE.PointLight(COL.warmLight, 0.4, 15);
+  light.position.y = 5;
+  lamp.add(light);
+  lamp.position.set(x, 0, z);
+  lamp.userData.light = light;
+  lamp.userData.bulb = bulb;
+  return lamp;
+}
+
+const lamps = [];
+for (let i = 0; i < 8; i++) {
+  const angle = i * Math.PI / 4;
+  const r = 32;
+  const lamp = createLamp(Math.cos(angle) * r, Math.sin(angle) * r);
+  scene.add(lamp);
+  lamps.push(lamp);
+}
+
+// Скамейки
+function createBench(x, z, rot) {
+  const bench = new THREE.Group();
+  const seatGeo = new THREE.BoxGeometry(2, 0.15, 0.6);
+  const seat = new THREE.Mesh(seatGeo, new THREE.MeshStandardMaterial({ color: 0x4a2a1a }));
+  seat.position.y = 0.6;
+  seat.castShadow = true;
+  bench.add(seat);
+  const backGeo = new THREE.BoxGeometry(2, 0.6, 0.1);
+  const back = new THREE.Mesh(backGeo, new THREE.MeshStandardMaterial({ color: 0x4a2a1a }));
+  back.position.set(0, 0.95, -0.25);
+  bench.add(back);
+  for (let i = -1; i <= 1; i += 2) {
+    const leg = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, 0.6, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.7 })
+    );
+    leg.position.set(i * 0.8, 0.3, 0);
+    bench.add(leg);
+  }
+  bench.position.set(x, 0, z);
+  bench.rotation.y = rot;
+  return bench;
+}
+
+scene.add(createBench(28, 15, Math.PI / 4));
+scene.add(createBench(-28, 15, -Math.PI / 4));
+scene.add(createBench(28, -15, Math.PI * 3 / 4));
+scene.add(createBench(-28, -15, -Math.PI * 3 / 4));
+
+// Фигуры посетителей (простые)
+function createVisitor(x, z, color) {
+  const visitor = new THREE.Group();
+  const bodyGeo = new THREE.CylinderGeometry(0.3, 0.4, 1.2, 8);
+  const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: color }));
+  body.position.y = 0.9;
+  body.castShadow = true;
+  visitor.add(body);
+  const headGeo = new THREE.SphereGeometry(0.25, 12, 12);
+  const head = new THREE.Mesh(headGeo, new THREE.MeshStandardMaterial({ color: 0xe8c8a0 }));
+  head.position.y = 1.7;
+  head.castShadow = true;
+  visitor.add(head);
+  visitor.position.set(x, 0, z);
+  return visitor;
+}
+
+const visitors = [];
+const visitorColors = [0x3a5a8a, 0x8a3a5a, 0x5a8a3a, 0x8a5a3a, 0x5a3a8a];
+for (let i = 0; i < 8; i++) {
+  const angle = i * Math.PI * 2 / 8 + Math.PI / 8;
+  const r = 25 + (i % 3) * 2.5;
+  const v = createVisitor(Math.cos(angle) * r, Math.sin(angle) * r, visitorColors[i % visitorColors.length]);
+  scene.add(v);
+  visitors.push(v);
+}
+
+// ====== НАЦИОНАЛЬНЫЙ ОРНАМЕНТ (на углах основания) ======
+function createOrnament(x, z, rot) {
+  const orn = new THREE.Group();
+  // Золотой ромб с узором
+  const baseGeo = new THREE.BoxGeometry(2, 2, 0.1);
+  const base = new THREE.Mesh(baseGeo, goldFrameMat);
+  orn.add(base);
+  // Внутренний ромб
+  const innerGeo = new THREE.BoxGeometry(1.2, 1.2, 0.12);
+  const inner = new THREE.Mesh(innerGeo, new THREE.MeshStandardMaterial({ color: COL.turquoise, metalness: 0.3 }));
+  orn.add(inner);
+  // Маленький ромб
+  const smallGeo = new THREE.BoxGeometry(0.5, 0.5, 0.14);
+  const small = new THREE.Mesh(smallGeo, goldFrameMat);
+  orn.add(small);
+  orn.position.set(x, 2, z);
+  orn.rotation.y = rot;
+  return orn;
+}
+
+for (let i = 0; i < 4; i++) {
+  const angle = i * Math.PI / 2 + Math.PI / 4;
+  const r = BASE / 2 + 0.5;
+  scene.add(createOrnament(Math.cos(angle) * r, Math.sin(angle) * r, -angle));
+}
+
+// ====== СОСТОЯНИЕ ======
+let isNight = false;
+let isExploded = false;
+let currentFloor = -1;
+let selectedExhibit = null;
+let cameraTarget = { pos: camera.position.clone(), look: controls.target.clone() };
+let cameraAnimating = false;
+
+// ====== UI ======
+const infoCard = document.getElementById('infoCard');
+const exhibitPanel = document.getElementById('exhibitPanel');
+const exhibitList = document.getElementById('exhibitList');
+const cardTitle = document.getElementById('cardTitle');
+const cardText = document.getElementById('cardText');
+const cardTag = document.getElementById('cardTag');
+const cardMeta = document.getElementById('cardMeta');
+const floorLabel = document.getElementById('floorLabel');
+const titleOverlay = document.getElementById('titleOverlay');
+
+exhibitMeshes.forEach(mesh => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'exhibit-button';
+  button.dataset.exhibitIndex = mesh.userData.index;
+  button.setAttribute('aria-pressed', 'false');
+
+  const number = document.createElement('span');
+  number.className = 'exhibit-number';
+  number.textContent = String(mesh.userData.index + 1).padStart(2, '0');
+  button.appendChild(number);
+  button.appendChild(document.createTextNode(mesh.userData.zone));
+  button.addEventListener('click', () => showExhibitInfo(mesh));
+  exhibitList.appendChild(button);
+});
+
+function clearSelectedExhibit() {
+  if (selectedExhibit) {
+    selectedExhibit.material.emissiveIntensity = 0.2;
+    selectedExhibit = null;
+  }
+  exhibitList.querySelectorAll('.exhibit-button').forEach(button => {
+    button.classList.remove('active');
+    button.setAttribute('aria-pressed', 'false');
+  });
+}
+
+document.getElementById('closeCard').addEventListener('click', () => {
+  infoCard.classList.remove('visible');
+  clearSelectedExhibit();
+});
+
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const action = btn.dataset.action;
+    handleAction(action);
+  });
+});
+
+function handleAction(action) {
+  switch(action) {
+    case 'view3d':
+      resetView();
+      break;
+    case 'floor1':
+      focusFloor(0);
+      break;
+    case 'floor2':
+      focusFloor(1);
+      break;
+    case 'floor3':
+      focusFloor(2);
+      break;
+    case 'explode':
+      toggleExplode();
+      break;
+    case 'daynight':
+      toggleDayNight();
+      break;
+    case 'reset':
+      resetView();
+      break;
+  }
+}
+
+function focusFloor(index) {
+  currentFloor = index;
+  const isMuseum = index === 1;
+  exhibitPanel.classList.toggle('visible', isMuseum);
+  exhibitPanel.setAttribute('aria-hidden', String(!isMuseum));
+  if (!isMuseum) {
+    infoCard.classList.remove('visible');
+    clearSelectedExhibit();
+  }
+  const floor = floors[index];
+  const baseY = floorOriginalY[index] + (isExploded ? index * 10 : 0);
+
+  // Позиция камеры сбоку и чуть выше
+  const targetY = baseY + FLOOR_HEIGHT / 2 + 1.2;
+  cameraTarget.pos.set(35, targetY + 5, 35);
+  cameraTarget.look.set(0, targetY, 0);
+  cameraAnimating = true;
+
+  // Показать название этажа
+  floorLabel.textContent = floor.name;
+  floorLabel.classList.toggle('visible', !isMuseum);
+  titleOverlay.classList.add('hidden');
+
+  // Подсветить активную кнопку
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-action="floor${index+1}"]`).classList.add('active');
+
+  // Если не раскрыто - раскрыть
+  if (!isExploded) {
+    toggleExplode();
+  }
+}
+
+function resetView() {
+  currentFloor = -1;
+  exhibitPanel.classList.remove('visible');
+  exhibitPanel.setAttribute('aria-hidden', 'true');
+  infoCard.classList.remove('visible');
+  clearSelectedExhibit();
+  cameraTarget.pos.copy(defaultCameraPosition);
+  cameraTarget.look.set(0, 15, 0);
+  cameraAnimating = true;
+  floorLabel.classList.remove('visible');
+  titleOverlay.classList.remove('hidden');
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+
+  if (isExploded) {
+    toggleExplode();
+  }
+}
+
+function toggleExplode() {
+  isExploded = !isExploded;
+  const btn = document.querySelector('[data-action="explode"]');
+  btn.classList.toggle('active', isExploded);
+
+  floorGroups.forEach((group, i) => {
+    const targetY = isExploded ? floorOriginalY[i] + i * 10 : floorOriginalY[i];
+    animateValue(group.position, 'y', targetY, 1200);
+  });
+}
+
+function animateValue(obj, prop, target, duration) {
+  const start = obj[prop];
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+    obj[prop] = start + (target - start) * ease;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function toggleDayNight() {
+  isNight = !isNight;
+  const btn = document.querySelector('[data-action="daynight"]');
+  btn.classList.toggle('active', isNight);
+  container.classList.toggle('night', isNight);
+
+  if (isNight) {
+    // Ночной режим
+    animateValue(ambientLight, 'intensity', 0.15, 1500);
+    animateValue(sunLight, 'intensity', 0.1, 1500);
+    animateValue(fillLight, 'intensity', 0.05, 1500);
+    animateValue(hemiLight, 'intensity', 0.1, 1500);
+    scene.fog.color.set(0x020408);
+    ground.material.color.set(0x0a1530);
+    lawn.material.color.set(0x1a2a1a);
+    // Усилить фонари
+    lamps.forEach(l => {
+      l.userData.light.intensity = 1.5;
+    });
+    // Золотые элементы светятся
+    goldFrameMat.emissiveIntensity = 0.4;
+    goldMat.emissiveIntensity = 0.3;
+  } else {
+    // Дневной режим
+    animateValue(ambientLight, 'intensity', 0.45, 1500);
+    animateValue(sunLight, 'intensity', 1.1, 1500);
+    animateValue(fillLight, 'intensity', 0.35, 1500);
+    animateValue(hemiLight, 'intensity', 0.35, 1500);
+    scene.fog.color.set(0x0a1530);
+    ground.material.color.set(0x2a3a5a);
+    lawn.material.color.set(0x3a5a3a);
+    lamps.forEach(l => {
+      l.userData.light.intensity = 0.4;
+    });
+    goldFrameMat.emissiveIntensity = 0.1;
+    goldMat.emissiveIntensity = 0.05;
+  }
+}
+
+// ====== RAYCASTER ======
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+renderer.domElement.addEventListener('click', (e) => {
+  if (currentFloor !== 1) return; // Только музей интерактивен
+
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(exhibitMeshes, false);
+
+  if (intersects.length > 0) {
+    const obj = intersects[0].object;
+    if (obj.userData.type === 'exhibit') {
+      showExhibitInfo(obj);
+    }
+  }
+});
+
+function showExhibitInfo(mesh) {
+  clearSelectedExhibit();
+  selectedExhibit = mesh;
+  mesh.material.emissiveIntensity = 0.8;
+  const selectedButton = exhibitList.querySelector(`[data-exhibit-index="${mesh.userData.index}"]`);
+  selectedButton.classList.add('active');
+  selectedButton.setAttribute('aria-pressed', 'true');
+
+  const data = mesh.userData;
+  cardTag.textContent = 'ЭКСПОНАТ';
+  cardTitle.textContent = data.zone;
+  cardText.textContent = data.desc;
+
+  const metaTexts = [
+    'ЗОНА · ' + (data.index + 1) + ' / 5',
+    'ҚАБАТ · 2',
+    'БӨЛІМ · МУЗЕЙ'
+  ];
+  cardMeta.innerHTML = metaTexts.map(t => {
+    const parts = t.split(' · ');
+    return `<div>${parts[0]}<br><span>${parts[1]}</span></div>`;
+  }).join('');
+
+  infoCard.classList.add('visible');
+
+  // Приблизить камеру к экспонату
+  const worldPos = new THREE.Vector3();
+  mesh.getWorldPosition(worldPos);
+  cameraTarget.look.copy(worldPos);
+  cameraTarget.pos.set(worldPos.x * 1.5 + 15, worldPos.y + 5, worldPos.z * 1.5 + 15);
+  cameraAnimating = true;
+}
+
+// ====== АНИМАЦИЯ ======
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const time = clock.getElapsedTime();
+
+  // Плавная анимация камеры
+  if (cameraAnimating) {
+    camera.position.lerp(cameraTarget.pos, 0.05);
+    controls.target.lerp(cameraTarget.look, 0.05);
+    if (camera.position.distanceTo(cameraTarget.pos) < 0.1) {
+      cameraAnimating = false;
+    }
+  }
+
+  controls.update();
+
+  // Вращение центральной монеты 1 этажа
+  centralCoin.rotation.z += dt * 0.3;
+
+  // Вращение большой монеты 2 этажа
+  bigCoin.rotation.z += dt * 0.2;
+
+  // Вращение монет в витринах
+  exhibitMeshes.forEach((m, i) => {
+    m.rotation.z += dt * 0.5;
+    m.position.y = 2.5 + Math.sin(time * 2 + i) * 0.1;
+  });
+
+  // Лёгкое движение посетителей
+  visitors.forEach((v, i) => {
+    v.position.x += Math.sin(time * 0.5 + i) * 0.005;
+    v.position.z += Math.cos(time * 0.5 + i) * 0.005;
+  });
+
+  renderer.render(scene, camera);
+}
+
+// ====== RESIZE ======
+window.addEventListener('resize', () => {
+  const wasDefaultView = currentFloor === -1 && !cameraAnimating &&
+    camera.position.distanceTo(defaultCameraPosition) < 0.1 &&
+    controls.target.distanceTo(new THREE.Vector3(0, 15, 0)) < 0.1;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  if (wasDefaultView) {
+    updateDefaultCameraPosition();
+    camera.position.copy(defaultCameraPosition);
+  }
+});
+
+// ====== ЗАПУСК ======
+setTimeout(() => {
+  document.getElementById('loader').classList.add('hidden');
+}, 800);
+
+animate();
+
+// Защита от зависания
+window.addEventListener('error', (e) => {
+  console.warn('Ошибка:', e.message);
+});
+
+})();
+</script>
+</body>
+</html>
