@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Smart English Book — Bright Cartoon Interactive Site</title>
+<style>
+:root{
+  --blue:#2d8cff; --sky:#58d8ff; --yellow:#ffd84e; --orange:#ff963e;
+  --green:#62d26f; --pink:#ff6cad; --violet:#8d6bff; --ink:#17334c;
+  --muted:#60768a; --card:#ffffff; --line:#d8e7f0; --shadow:0 20px 55px rgba(26,91,139,.18);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);
+  background:
+    radial-gradient(circle at 6% 8%,rgba(255,216,78,.55),transparent 16%),
+    radial-gradient(circle at 94% 10%,rgba(88,216,255,.55),transparent 18%),
+    radial-gradient(circle at 15% 70%,rgba(255,108,173,.22),transparent 18%),
+    radial-gradient(circle at 90% 80%,rgba(98,210,111,.25),transparent 18%),
+    linear-gradient(180deg,#fff9db 0%,#e9f9ff 35%,#fff2f8 68%,#effff1 100%);
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+button,input{font:inherit}
+.container{width:min(1180px,92%);margin:auto}
+.topbar{height:10px;background:linear-gradient(90deg,var(--pink),var(--orange),var(--yellow),var(--green),var(--sky),var(--violet))}
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(15px);border-bottom:1px solid rgba(34,104,150,.12)}
+.navin{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
+.logo{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--sky));color:#fff;font-size:24px;box-shadow:0 8px 20px rgba(45,140,255,.25)}
+.links{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}.links a{padding:8px 10px;border-radius:10px}.links a:hover{background:#eef8ff}
+.btn{border:0;border-radius:15px;padding:12px 17px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:linear-gradient(135deg,var(--blue),var(--sky));color:#fff;box-shadow:0 10px 28px rgba(45,140,255,.25)}
+.btn.pink{background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff}
+.btn.green{background:linear-gradient(135deg,var(--green),#9fe86e);color:#17451c}
+.btn.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
+
+.hero{position:relative;min-height:700px;padding:70px 0 54px;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:
+  linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,.18)),
+  radial-gradient(circle at 50% 120%,rgba(255,216,78,.55),transparent 42%);
+  pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.03fr .97fr;gap:44px;align-items:center;position:relative;z-index:2}
+.kicker{display:inline-flex;padding:8px 12px;border-radius:999px;background:#eaf7ff;color:#1f6fbd;font-size:13px;font-weight:900;border:1px solid #ccecff}
+h1{font-size:clamp(42px,5.5vw,74px);line-height:1.01;letter-spacing:-1.8px;margin:18px 0}
+.hero p{font-size:19px;line-height:1.7;color:var(--muted);max-width:780px}
+.meta{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}.meta span{padding:9px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);box-shadow:0 7px 18px rgba(35,95,135,.07)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Cartoon background animals */
+.cloud{position:absolute;background:#fff;border-radius:999px;opacity:.88;filter:drop-shadow(0 8px 12px rgba(90,145,180,.12))}
+.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border-radius:50%}
+.cloud.c1{width:160px;height:50px;left:5%;top:110px}.cloud.c1:before{width:64px;height:64px;left:25px;top:-28px}.cloud.c1:after{width:76px;height:76px;right:22px;top:-36px}
+.cloud.c2{width:190px;height:56px;right:6%;top:145px}.cloud.c2:before{width:70px;height:70px;left:30px;top:-30px}.cloud.c2:after{width:90px;height:90px;right:30px;top:-42px}
+.bg-animal{position:absolute;opacity:.88;filter:drop-shadow(0 16px 24px rgba(50,70,80,.18));z-index:1}
+.bg-cat{left:-30px;bottom:40px;width:220px}
+.bg-dog{right:-30px;bottom:55px;width:230px}
+.bg-bird{right:12%;top:45px;width:120px}
+.bg-fish{left:20%;top:55px;width:130px}
+.bg-rabbit{left:7%;top:250px;width:125px;opacity:.72}
+
+/* 3D smart book */
+.book-stage{min-height:500px;display:grid;place-items:center;perspective:1300px}
+.book3d{width:390px;height:300px;position:relative;transform-style:preserve-3d;transform:rotateX(10deg) rotateY(-12deg);animation:float 5.5s ease-in-out infinite}
+@keyframes float{50%{transform:rotateX(5deg) rotateY(3deg) translateY(-9px)}}
+.bookcover{position:absolute;left:0;top:0;width:330px;height:260px;border-radius:24px;background:linear-gradient(145deg,#2d8cff,#6ddfff);box-shadow:0 32px 70px rgba(37,111,165,.28);transform:translateZ(30px);padding:26px;color:white;overflow:hidden}
+.bookcover:after{content:"";position:absolute;right:-70px;bottom:-70px;width:190px;height:190px;border-radius:50%;background:rgba(255,216,78,.35)}
+.bookcover h2{font-size:34px;line-height:1.05;margin:0 0 10px}.bookcover p{margin:0;color:#eefbff;font-weight:700}
+.bookpage{position:absolute;left:42px;top:18px;width:320px;height:250px;border-radius:22px;background:#fff;box-shadow:0 25px 50px rgba(0,0,0,.15);transform:translateZ(0) rotateY(12deg);padding:24px}
+.bookpage .animalrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wordpill{padding:12px;border-radius:15px;background:#f4fbff;border:2px solid #cfeaf9;font-weight:900;display:flex;align-items:center;gap:8px}
+.wordpill span{font-size:28px}
+
+.section{padding:72px 0;position:relative}.alt{background:linear-gradient(180deg,rgba(255,255,255,.56),rgba(236,249,255,.72))}
+.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:28px}.section-head h2{font-size:clamp(30px,4vw,46px);margin:0}.section-head p{max-width:720px;color:var(--muted);line-height:1.6;margin:0}
+.grid{display:grid;gap:18px}.cards4{grid-template-columns:repeat(4,1fr)}.cards3{grid-template-columns:repeat(3,1fr)}
+.card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 10px}.card p{margin:0;color:var(--muted);line-height:1.6}
+.icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:25px;background:linear-gradient(135deg,#fff4c8,#e7f8ff);margin-bottom:14px}
+.fact{font-size:32px;font-weight:900;color:var(--blue)}
+
+/* Cartoon word cards */
+.word-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.word-card{background:#fff;border-radius:24px;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden;transition:.25s;position:relative}
+.word-card:hover{transform:translateY(-6px) rotate(-1deg)}
+.pic{height:190px;display:grid;place-items:center;position:relative}
+.pic.cat{background:linear-gradient(135deg,#fff1c6,#ffd86d)}
+.pic.dog{background:linear-gradient(135deg,#dbf5ff,#74d9ff)}
+.pic.bird{background:linear-gradient(135deg,#e8ddff,#aa8cff)}
+.pic.fish{background:linear-gradient(135deg,#dfffe8,#79e0a0)}
+.pic svg{width:135px;height:135px;filter:drop-shadow(0 13px 12px rgba(0,0,0,.15))}
+.word-body{padding:18px}.word{font-size:28px;font-weight:900;margin-bottom:9px}.word-actions{display:flex;gap:8px;flex-wrap:wrap}.tiny{border:0;border-radius:12px;padding:9px 12px;font-weight:900;cursor:pointer}.listen{background:#e9f6ff;color:#186bb4}.quizb{background:#ecffe7;color:#2b7b38}
+
+/* learning cycle */
+.cycle{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.cstep{background:white;border:1px solid var(--line);border-radius:20px;padding:18px;text-align:center;box-shadow:var(--shadow);position:relative}
+.cstep:not(:last-child):after{content:"→";position:absolute;right:-19px;top:48%;font-size:27px;font-weight:900;color:var(--blue)}
+.cicon{font-size:44px}.cstep b{display:block;margin-top:8px}.cstep small{color:var(--muted)}
+
+/* games */
+.scorebar{display:flex;justify-content:space-between;padding:13px 16px;border-radius:15px;background:linear-gradient(135deg,var(--blue),var(--violet));color:white;margin-bottom:18px}
+.games{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.game{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)}
+.option{width:100%;text-align:left;border:1px solid var(--line);background:#fbfdff;border-radius:12px;padding:11px 12px;margin:6px 0;cursor:pointer}.option.correct{background:#e8f7e9;border-color:#8ac98f}.option.wrong{background:#fff0ef;border-color:#e5a09b}
+.match{display:flex;gap:9px;flex-wrap:wrap}.chip{padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:#f5f9fc;cursor:pointer}.chip.sel{outline:3px solid var(--sky)}
+.qrmini{display:grid;grid-template-columns:125px 1fr;gap:14px;align-items:center;margin-top:14px;padding:12px;border:1px dashed #a9cfe2;border-radius:16px;background:#f7fcff}.qrmini img{width:118px;height:118px;background:#fff;border-radius:10px}.qrmini small{color:var(--muted);line-height:1.45}
+
+/* Interactive book */
+.booklab{display:grid;grid-template-columns:.95fr 1.05fr;gap:22px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.screen{min-height:360px;border-radius:22px;background:linear-gradient(145deg,#fffdf0,#eefaff);border:1px solid var(--line);display:grid;place-items:center;padding:22px}
+.big-animal{font-size:120px;filter:drop-shadow(0 16px 16px rgba(0,0,0,.12))}
+.bigword{font-size:46px;font-weight:900;margin:8px 0}
+.feedback{min-height:44px;padding:10px 14px;border-radius:13px;background:#f4f9fc;margin-top:12px;font-weight:900}
+.menurow{display:flex;gap:9px;flex-wrap:wrap}
+.menurow button{border:0;border-radius:12px;padding:10px 13px;font-weight:900;cursor:pointer;background:#eef7ff;color:#176bb4}
+.menurow button.active{background:linear-gradient(135deg,var(--blue),var(--sky));color:#fff}
+
+/* results */
+.checks{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.check{padding:18px;border-radius:20px;background:white;border:1px solid var(--line);box-shadow:var(--shadow)}.check b{display:block;color:var(--green);font-size:25px;margin-bottom:5px}
+.footer{padding:40px 0;background:#173a56;color:#e5f5ff}
+.presentation{position:fixed;inset:0;background:linear-gradient(135deg,#225a91,#5b50b4);z-index:1000;color:#fff;display:none}.presentation.show{display:grid;grid-template-rows:auto 1fr auto}.pres-top,.pres-bottom{padding:18px 26px;display:flex;justify-content:space-between;align-items:center}.pres-slide{display:grid;place-items:center;text-align:center;padding:5vw}.pres-slide h2{font-size:clamp(40px,7vw,78px);margin:0 0 20px}.pres-slide p{font-size:clamp(18px,2vw,28px);line-height:1.6;color:#e4f3ff}
+@media(max-width:950px){.hero-grid,.booklab{grid-template-columns:1fr}.cards4{grid-template-columns:repeat(2,1fr)}.word-grid{grid-template-columns:repeat(2,1fr)}.cycle{grid-template-columns:repeat(2,1fr)}.cstep:after{display:none}.games{grid-template-columns:1fr}.links{display:none}.checks{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cards4,.word-grid,.cycle,.checks{grid-template-columns:1fr}h1{font-size:42px}.book3d{transform:scale(.82) rotateX(10deg) rotateY(-12deg)}.book-stage{min-height:390px}.bg-animal{opacity:.35}.qrmini{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+
+<!-- Cartoon SVG decorations -->
+<svg class="bg-animal bg-cat" viewBox="0 0 200 200" aria-hidden="true">
+  <ellipse cx="100" cy="118" rx="66" ry="55" fill="#ffcf5a"/>
+  <polygon points="55,72 72,30 92,72" fill="#ffcf5a"/><polygon points="108,72 130,30 148,76" fill="#ffcf5a"/>
+  <circle cx="82" cy="108" r="8" fill="#25364a"/><circle cx="120" cy="108" r="8" fill="#25364a"/>
+  <polygon points="100,118 92,126 108,126" fill="#ef7b70"/><path d="M92 132 Q100 142 108 132" fill="none" stroke="#25364a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M48 120 L18 112 M48 132 L12 134 M150 120 L182 112 M150 132 L188 136" stroke="#6d5b3d" stroke-width="4" stroke-linecap="round"/>
+</svg>
+<svg class="bg-animal bg-dog" viewBox="0 0 200 200" aria-hidden="true">
+  <ellipse cx="102" cy="118" rx="65" ry="54" fill="#c88a54"/>
+  <ellipse cx="58" cy="83" rx="22" ry="42" fill="#8e5c38" transform="rotate(25 58 83)"/>
+  <ellipse cx="146" cy="83" rx="22" ry="42" fill="#8e5c38" transform="rotate(-25 146 83)"/>
+  <circle cx="82" cy="110" r="8" fill="#24364a"/><circle cx="121" cy="110" r="8" fill="#24364a"/>
+  <ellipse cx="101" cy="128" rx="13" ry="10" fill="#26323d"/><path d="M91 141 Q101 153 112 141" fill="none" stroke="#26323d" stroke-width="4" stroke-linecap="round"/>
+</svg>
+<svg class="bg-animal bg-bird" viewBox="0 0 160 120" aria-hidden="true">
+  <ellipse cx="75" cy="66" rx="43" ry="32" fill="#8d6bff"/><circle cx="105" cy="48" r="22" fill="#9f84ff"/>
+  <circle cx="113" cy="44" r="5" fill="#1e2d42"/><polygon points="126,50 150,58 127,65" fill="#ffd24f"/>
+  <path d="M55 70 Q30 38 10 54 Q34 76 58 80" fill="#6f54d8"/>
+  <path d="M60 93 L48 112 M84 95 L92 114" stroke="#7c5f35" stroke-width="4"/>
+</svg>
+<svg class="bg-animal bg-fish" viewBox="0 0 170 110" aria-hidden="true">
+  <ellipse cx="80" cy="58" rx="48" ry="31" fill="#55d3a1"/><polygon points="32,58 5,30 5,86" fill="#36b889"/>
+  <circle cx="105" cy="51" r="5" fill="#20354a"/><path d="M65 45 Q85 25 102 42" fill="none" stroke="#2ca97e" stroke-width="5"/>
+  <circle cx="120" cy="30" r="7" fill="#bcefff"/><circle cx="138" cy="18" r="5" fill="#bcefff"/>
+</svg>
+<svg class="bg-animal bg-rabbit" viewBox="0 0 160 180" aria-hidden="true">
+  <ellipse cx="80" cy="112" rx="50" ry="45" fill="#f2f2f2"/><ellipse cx="58" cy="42" rx="14" ry="45" fill="#efefef"/><ellipse cx="100" cy="42" rx="14" ry="45" fill="#efefef"/>
+  <ellipse cx="58" cy="42" rx="6" ry="30" fill="#ffc1d8"/><ellipse cx="100" cy="42" rx="6" ry="30" fill="#ffc1d8"/>
+  <circle cx="64" cy="105" r="6" fill="#26364a"/><circle cx="96" cy="105" r="6" fill="#26364a"/><ellipse cx="80" cy="120" rx="8" ry="6" fill="#ff9fbd"/>
+</svg>
+
+<div class="cloud c1"></div><div class="cloud c2"></div>
+
+<nav class="nav"><div class="container navin">
+  <div class="brand"><span class="logo">📘</span> My Smart English Book</div>
+  <div class="links"><a href="#about">Project</a><a href="#words">Animals</a><a href="#book">Interactive Book</a><a href="#games">QR Games</a><a href="#results">Results</a></div>
+  <button class="btn primary" onclick="openPresentation()">▶ Presentation</button>
+</div></nav>
+
+<header class="hero"><div class="container hero-grid">
+  <div>
+    <span class="kicker">GRADE 3 • ENGLISH • INTERACTIVE E-BOOK</span>
+    <h1>My Smart English Book</h1>
+    <p>A bright cartoon learning world where a child can see a word, listen to it, repeat it and check the answer. The first interactive topic is <b>Animals</b>.</p>
+    <div class="meta">
+      <span>👦 Amir Bisemaliev</span><span>🏫 M.Lomonosov school</span><span>📚 Grade 3 “B”</span><span>👩‍🏫 Aiza Askhadova Makhambetovna</span><span>📍 Atyrau, 2026</span>
+    </div>
+    <div class="actions"><a class="btn primary" href="#words">🐾 Learn Animals</a><a class="btn pink" href="#games">🎮 QR Games</a></div>
+  </div>
+  <div class="book-stage">
+    <div class="book3d">
+      <div class="bookcover"><h2>MY SMART<br>ENGLISH BOOK</h2><p>Interactive • Listen • Play • Learn</p></div>
+      <div class="bookpage">
+        <div style="font-weight:900;font-size:22px;margin-bottom:12px">Topic: Animals</div>
+        <div class="animalrow">
+          <div class="wordpill"><span>🐱</span> cat</div><div class="wordpill"><span>🐶</span> dog</div>
+          <div class="wordpill"><span>🐦</span> bird</div><div class="wordpill"><span>🐟</span> fish</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></header>
+
+<section id="about" class="section alt"><div class="container">
+  <div class="section-head"><div><span class="kicker">ABOUT THE PROJECT</span><h2>Simple, safe and useful for Grade 3</h2></div><p>The project combines visual support, clear audio, repetition and short self-check tasks in one predictable learning sequence.</p></div>
+  <div class="grid cards4">
+    <div class="card"><div class="icon">🎯</div><h3>Aim</h3><p>Design a simple interactive electronic English book for a Grade 3 learner and functionally test one prototype page.</p></div>
+    <div class="card"><div class="icon">👀</div><h3>Visual support</h3><p>Each word is shown with one clear cartoon picture so the meaning is easy to recognize.</p></div>
+    <div class="card"><div class="icon">🔊</div><h3>Listen & repeat</h3><p>The learner hears one word at a time, repeats it aloud, then continues to the short task.</p></div>
+    <div class="card"><div class="icon">🛡️</div><h3>Safety</h3><p>No registration, no advertising, no personal-data form, and no compulsory microphone access.</p></div>
+  </div>
+</div></section>
+
+<section id="words" class="section"><div class="container">
+  <div class="section-head"><div><span class="kicker">CARTOON ANIMALS</span><h2>Tap, listen, repeat and learn</h2></div><p>The first four word cards follow the project prototype: cat, dog, bird and fish.</p></div>
+  <div class="word-grid">
+    <div class="word-card">
+      <div class="pic cat">
+        <svg viewBox="0 0 150 150"><circle cx="75" cy="80" r="47" fill="#ffcf5a"/><polygon points="38,52 53,18 68,54" fill="#ffcf5a"/><polygon points="82,54 100,18 112,55" fill="#ffcf5a"/><circle cx="60" cy="77" r="6" fill="#27374a"/><circle cx="91" cy="77" r="6" fill="#27374a"/><polygon points="75,88 68,94 82,94" fill="#ef7b70"/><path d="M66 103 Q75 112 84 103" fill="none" stroke="#27374a" stroke-width="4"/></svg>
+      </div>
+      <div class="word-body"><div class="word">cat</div><div class="word-actions"><button class="tiny listen" onclick="speakWord('cat')">🔊 Listen</button><button class="tiny quizb" onclick="quickCheck('cat')">✅ Quiz</button></div></div>
+    </div>
+    <div class="word-card">
+      <div class="pic dog">
+        <svg viewBox="0 0 150 150"><circle cx="75" cy="82" r="46" fill="#c98a54"/><ellipse cx="37" cy="60" rx="16" ry="32" fill="#8e5c38" transform="rotate(25 37 60)"/><ellipse cx="113" cy="60" rx="16" ry="32" fill="#8e5c38" transform="rotate(-25 113 60)"/><circle cx="60" cy="78" r="6" fill="#27374a"/><circle cx="91" cy="78" r="6" fill="#27374a"/><ellipse cx="75" cy="94" rx="10" ry="8" fill="#27374a"/><path d="M65 105 Q75 116 86 105" fill="none" stroke="#27374a" stroke-width="4"/></svg>
+      </div>
+      <div class="word-body"><div class="word">dog</div><div class="word-actions"><button class="tiny listen" onclick="speakWord('dog')">🔊 Listen</button><button class="tiny quizb" onclick="quickCheck('dog')">✅ Quiz</button></div></div>
+    </div>
+    <div class="word-card">
+      <div class="pic bird">
+        <svg viewBox="0 0 150 150"><ellipse cx="70" cy="85" rx="40" ry="33" fill="#8d6bff"/><circle cx="101" cy="65" r="22" fill="#9f84ff"/><circle cx="108" cy="61" r="5" fill="#1e2d42"/><polygon points="120,67 143,75 121,82" fill="#ffd24f"/><path d="M48 88 Q24 56 8 69 Q28 93 52 99" fill="#6f54d8"/></svg>
+      </div>
+      <div class="word-body"><div class="word">bird</div><div class="word-actions"><button class="tiny listen" onclick="speakWord('bird')">🔊 Listen</button><button class="tiny quizb" onclick="quickCheck('bird')">✅ Quiz</button></div></div>
+    </div>
+    <div class="word-card">
+      <div class="pic fish">
+        <svg viewBox="0 0 150 150"><ellipse cx="76" cy="82" rx="43" ry="30" fill="#55d3a1"/><polygon points="36,82 8,52 8,112" fill="#36b889"/><circle cx="103" cy="75" r="5" fill="#20354a"/><circle cx="120" cy="48" r="7" fill="#aeefff"/><circle cx="135" cy="35" r="5" fill="#aeefff"/></svg>
+      </div>
+      <div class="word-body"><div class="word">fish</div><div class="word-actions"><button class="tiny listen" onclick="speakWord('fish')">🔊 Listen</button><button class="tiny quizb" onclick="quickCheck('fish')">✅ Quiz</button></div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="section alt"><div class="container">
+  <div class="section-head"><div><span class="kicker">LEARNING CYCLE</span><h2>One clear action at a time</h2></div></div>
+  <div class="cycle">
+    <div class="cstep"><div class="cicon">👀</div><b>See</b><small>Look at the picture</small></div>
+    <div class="cstep"><div class="cicon">🔊</div><b>Listen</b><small>Hear the word</small></div>
+    <div class="cstep"><div class="cicon">🗣️</div><b>Repeat</b><small>Say it aloud</small></div>
+    <div class="cstep"><div class="cicon">🎯</div><b>Choose</b><small>Answer one short task</small></div>
+    <div class="cstep"><div class="cicon">⭐</div><b>Feedback</b><small>Great! / Try again</small></div>
+  </div>
+</div></section>
+
+<section id="book" class="section"><div class="container">
+  <div class="section-head"><div><span class="kicker">INTERACTIVE BOOK</span><h2>Try the electronic page</h2></div><p>Choose a word, listen to it, repeat it and test yourself.</p></div>
+  <div class="booklab">
+    <div class="panel">
+      <div class="menurow">
+        <button class="active" onclick="chooseWord('cat',this)">🐱 Cat</button>
+        <button onclick="chooseWord('dog',this)">🐶 Dog</button>
+        <button onclick="chooseWord('bird',this)">🐦 Bird</button>
+        <button onclick="chooseWord('fish',this)">🐟 Fish</button>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Step 1 — Listen</h3><button class="btn primary" onclick="speakCurrent()">🔊 Listen</button>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>Step 2 — Repeat</h3><p>Say the English word aloud after listening.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>Step 3 — Quiz</h3><button class="btn green" onclick="askQuiz()">🎯 Choose the correct animal</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div style="text-align:center">
+          <div class="big-animal" id="bigAnimal">🐱</div>
+          <div class="bigword" id="bigWord">cat</div>
+          <div>Listen and repeat</div>
+          <div class="feedback" id="feedback">Ready!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="games" class="section alt"><div class="container">
+  <div class="section-head"><div><span class="kicker">QR GAMES</span><h2>Scan and open each mini-game</h2></div><p>When the site is published, each QR will open the selected game directly on a phone.</p></div>
+  <div class="scorebar"><span>Total score</span><strong><span id="score">0</span> / 12</strong></div>
+  <div class="games">
+    <div class="game" id="game1">
+      <h3>1. Choose the cat</h3>
+      <button class="option" onclick="answerAnimal('cat',this)">🐱 Cat</button>
+      <button class="option" onclick="answerAnimal('dog',this)">🐶 Dog</button>
+      <button class="option" onclick="answerAnimal('bird',this)">🐦 Bird</button>
+      <div class="qrmini"><img id="qr1" alt="QR game 1"><small><b>QR 1.</b> Opens “Choose the cat”.</small></div>
+    </div>
+    <div class="game" id="game2">
+      <h3>2. Listen and choose</h3><p>Press Listen, then choose the word you hear.</p>
+      <button class="btn primary" onclick="speakWord('bird')">🔊 Listen</button>
+      <button class="option" onclick="answerListen('dog',this)">dog</button>
+      <button class="option" onclick="answerListen('bird',this)">bird</button>
+      <button class="option" onclick="answerListen('fish',this)">fish</button>
+      <div class="qrmini"><img id="qr2" alt="QR game 2"><small><b>QR 2.</b> Opens the listening game.</small></div>
+    </div>
+    <div class="game" id="game3">
+      <h3>3. Match word + animal</h3>
+      <div class="match" id="matchLeft"></div><div class="match" id="matchRight" style="margin-top:10px"></div>
+      <div id="matchMsg" style="margin-top:10px;color:var(--muted)"></div>
+      <div class="qrmini"><img id="qr3" alt="QR game 3"><small><b>QR 3.</b> Opens the matching game.</small></div>
+    </div>
+    <div class="game" id="game4">
+      <h3>4. Put the learning steps in order</h3>
+      <div id="orderPool" class="match"></div><div id="orderAns" class="match" style="min-height:50px;margin-top:10px;padding:10px;border:1px dashed #a8c9d9;border-radius:12px"></div>
+      <button class="btn primary" style="margin-top:12px" onclick="checkOrder()">Check</button><button class="btn secondary" style="margin-top:12px" onclick="resetOrder()">Reset</button>
+      <div class="qrmini"><img id="qr4" alt="QR game 4"><small><b>QR 4.</b> Opens the sequence game.</small></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="results" class="section"><div class="container">
+  <div class="section-head"><div><span class="kicker">PROJECT RESULTS</span><h2>What was functionally tested</h2></div><p>The project does not invent survey percentages. It evaluates the prototype through functional criteria.</p></div>
+  <div class="checks">
+    <div class="check"><b>✓ Opens</b><span>Page/file opens correctly</span></div>
+    <div class="check"><b>✓ Visible</b><span>Topic and words are readable</span></div>
+    <div class="check"><b>✓ Listen</b><span>One audio action matches one word</span></div>
+    <div class="check"><b>✓ Quiz</b><span>Correct and incorrect answers are distinguished</span></div>
+    <div class="check"><b>✓ Retry</b><span>Another attempt is available</span></div>
+    <div class="check"><b>✓ Home</b><span>Navigation returns to the start</span></div>
+    <div class="check"><b>✓ Privacy</b><span>No personal data is requested</span></div>
+    <div class="check"><b>✓ No ads</b><span>No unnecessary advertising or external links</span></div>
+  </div>
+</div></section>
+
+<section class="section alt"><div class="container">
+  <div class="section-head"><div><span class="kicker">CONCLUSION</span><h2>Bright, but still easy to learn from</h2></div></div>
+  <div class="grid cards3">
+    <div class="card"><h3>Simple navigation</h3><p>Large buttons, short instructions and the same action order help a Grade 3 learner understand the page independently.</p></div>
+    <div class="card"><h3>Cartoon visuals</h3><p>Bright animal illustrations make the page friendly without hiding the English word or the learning task.</p></div>
+    <div class="card"><h3>Next step</h3><p>The same template can be expanded to School things, Food and My family with 6–8 words per topic.</p></div>
+  </div>
+</div></section>
+
+<footer class="footer"><div class="container"><strong>My Smart English Book • Atyrau, 2026</strong><p>Amir Bisemaliev • Grade 3 “B” • M.Lomonosov school</p></div></footer>
+
+<div id="presentation" class="presentation">
+  <div class="pres-top"><strong>My Smart English Book</strong><button class="btn secondary" onclick="closePresentation()">✕ Close</button></div>
+  <div class="pres-slide"><div id="presContent" style="max-width:1000px"></div></div>
+  <div class="pres-bottom"><button class="btn secondary" onclick="presPrev()">← Back</button><span id="presCount"></span><button class="btn primary" onclick="presNext()">Next →</button></div>
+</div>
+
+<script>
+const animalEmoji={cat:'🐱',dog:'🐶',bird:'🐦',fish:'🐟'};
+let current='cat';
+function speakWord(word){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(word);
+  u.lang='en-US';u.rate=.82;u.pitch=1.05;
+  speechSynthesis.speak(u);
+}
+function chooseWord(word,b){
+ current=word;bigWord.textContent=word;bigAnimal.textContent=animalEmoji[word];feedback.textContent='Ready!';
+ document.querySelectorAll('.menurow button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+}
+function speakCurrent(){speakWord(current);feedback.textContent='Listen and repeat: '+current}
+function askQuiz(){
+ const choices=['cat','dog','bird','fish'].sort(()=>Math.random()-.5);
+ feedback.innerHTML='Choose <b>'+current+'</b>:<br>'+choices.map(x=>`<button class="tiny quizb" onclick="bookAnswer('${x}')">${animalEmoji[x]} ${x}</button>`).join(' ');
+}
+function bookAnswer(x){feedback.textContent=x===current?'Great! '+current+'.':'Try again';}
+function quickCheck(word){current=word;document.getElementById('book').scrollIntoView({behavior:'smooth'});setTimeout(askQuiz,450)}
+
+let score=0;const earned=new Set();
+function addPoint(k){if(!earned.has(k)){earned.add(k);score++;document.getElementById('score').textContent=score;document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.05)'},{filter:'brightness(1)'}],{duration:350})}}
+function answerAnimal(v,b){const ok=v==='cat';b.classList.add(ok?'correct':'wrong');if(ok)addPoint('animal')}
+function answerListen(v,b){const ok=v==='bird';b.classList.add(ok?'correct':'wrong');if(ok)addPoint('listen')}
+
+const pairs=[['cat','🐱'],['dog','🐶'],['bird','🐦'],['fish','🐟']];let sl=null,sr=null;
+function initMatch(){
+ matchLeft.innerHTML='';matchRight.innerHTML='';
+ pairs.forEach(([a,b],i)=>{let x=document.createElement('span');x.className='chip';x.textContent=a;x.onclick=()=>{sl={i,x};document.querySelectorAll('#matchLeft .chip').forEach(z=>z.classList.remove('sel'));x.classList.add('sel');tryM()};matchLeft.appendChild(x)});
+ [...pairs].sort(()=>Math.random()-.5).forEach(([a,b])=>{let x=document.createElement('span');x.className='chip';x.textContent=b;x.onclick=()=>{sr={b,x};document.querySelectorAll('#matchRight .chip').forEach(z=>z.classList.remove('sel'));x.classList.add('sel');tryM()};matchRight.appendChild(x)})
+}
+function tryM(){if(sl&&sr){if(pairs[sl.i][1]===sr.b){sl.x.style.opacity=.35;sr.x.style.opacity=.35;sl.x.onclick=null;sr.x.onclick=null;addPoint('m'+sl.i);matchMsg.textContent='Great!'}else matchMsg.textContent='Try again';sl=sr=null}}initMatch();
+
+const order=['See','Listen','Repeat','Choose','Feedback'];let chosen=[];
+function resetOrder(){chosen=[];orderPool.innerHTML='';orderAns.innerHTML='';[...order].sort(()=>Math.random()-.5).forEach(t=>{let x=document.createElement('span');x.className='chip';x.textContent=t;x.onclick=()=>{chosen.push(t);x.remove();let y=document.createElement('span');y.className='chip';y.textContent=t;orderAns.appendChild(y)};orderPool.appendChild(x)})}
+function checkOrder(){if(chosen.join('|')===order.join('|')){addPoint('order');alert('Great! Correct order.')}else alert('Try again.')}resetOrder();
+
+function qrTarget(anchor){
+ const base=location.protocol.startsWith('http')?location.href.split('#')[0]:'https://example.com/my-smart-english-book';
+ return base+'#'+anchor;
+}
+[['qr1','game1'],['qr2','game2'],['qr3','game3'],['qr4','game4']].forEach(([id,a])=>{
+ document.getElementById(id).src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(qrTarget(a));
+});
+
+const pres=[
+ ['Problem','A learner may remember the spelling of a word but still confuse its pronunciation.'],
+ ['Aim','Create a simple interactive English e-book for Grade 3 with visual support, audio and short self-check tasks.'],
+ ['Learning cycle','See → Listen → Repeat → Choose → Feedback. One clear action at a time.'],
+ ['Practical product','The first prototype topic is Animals: cat, dog, bird and fish.'],
+ ['Functional testing','The project checks opening, readability, audio logic, quiz feedback, retry, navigation and privacy.'],
+ ['Conclusion','For Grade 3, clear navigation, short text, useful audio and immediate feedback are more important than excessive effects.']
+];let pi=0;
+function openPresentation(){presentation.classList.add('show');pi=0;renderPres();if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{})}
+function closePresentation(){presentation.classList.remove('show');if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}
+function renderPres(){presContent.innerHTML='<span class="kicker" style="background:#1b5c91;color:#fff">RESEARCH PROJECT</span><h2>'+pres[pi][0]+'</h2><p>'+pres[pi][1]+'</p>';presCount.textContent=(pi+1)+' / '+pres.length}
+function presNext(){pi=Math.min(pres.length-1,pi+1);renderPres()}function presPrev(){pi=Math.max(0,pi-1);renderPres()}
+document.addEventListener('keydown',e=>{if(!presentation.classList.contains('show'))return;if(e.key==='ArrowRight')presNext();if(e.key==='ArrowLeft')presPrev();if(e.key==='Escape')closePresentation()});
+</script>
+</body>
+</html>
